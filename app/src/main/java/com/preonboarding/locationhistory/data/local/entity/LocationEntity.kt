@@ -8,5 +8,6 @@ import androidx.room.PrimaryKey
 data class LocationEntity(
     @PrimaryKey(autoGenerate = true) var id: Int = 0,
     @ColumnInfo(name = "latitude") val latitude: Float,
-    @ColumnInfo(name = "longitude") val longitude: Float
+    @ColumnInfo(name = "longitude") val longitude: Float,
+    @ColumnInfo(name = "date") val date: Long
 )
