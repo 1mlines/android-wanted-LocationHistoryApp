@@ -1,11 +1,6 @@
 package com.preonboarding.locationhistory
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
+import com.preonboarding.locationhistory.base.BaseActivity
+import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-    }
-}
+class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main)
