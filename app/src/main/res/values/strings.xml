@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">android-wanted-LocationHistoryApp</string>
+    <string name="item_history_num">순번</string>
+    <string name="item_history_latitude">위도</string>
+    <string name="item_history_longitude">경도</string>
+    <string name="item_history_date">날짜</string>
+    <string name="dialog_history_title">히스토리</string>
+    <string name="dialog_history_date">날짜</string>
+    <string name="dialog_history_datepicker">2022.02.22</string>
+    <string name="dialog_history_btn_cancel">취소</string>
+    <string name="dialog_history_btn_confirm">확인</string>
+
 </resources>
