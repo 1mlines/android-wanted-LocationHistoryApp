@@ -1,10 +1,12 @@
-package com.preonboarding.locationhistory.di
+package com.preonboarding.locationhistory.data.di
 
 import androidx.room.withTransaction
 import com.preonboarding.locationhistory.data.local.database.LocationDatabase
 import com.preonboarding.locationhistory.data.local.entity.LocationEntity
+import javax.inject.Inject
 
-class LocalDataSource(private val locationDatabase: LocationDatabase) {
+class LocalDataSource @Inject constructor(
+    private val locationDatabase: LocationDatabase){
     private val locationDao = locationDatabase.locationDao()
 
     suspend fun getLocations(date: Long): List<LocationEntity> {
