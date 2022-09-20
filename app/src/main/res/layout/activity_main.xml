@@ -11,4 +11,43 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <Button
+        android:id="@+id/main_address_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primary"
+        android:text="@string/main_address_text"
+        android:layout_marginStart="@dimen/layout_margin_default"
+        android:layout_marginBottom="@dimen/layout_margin_default"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/main_history_btn"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <Button
+        android:id="@+id/main_history_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primary"
+        android:text="@string/main_history_text"
+        android:layout_marginHorizontal="@dimen/layout_margin_default"
+        android:layout_marginBottom="@dimen/layout_margin_default"
+        app:layout_constraintStart_toEndOf="@id/main_address_btn"
+        app:layout_constraintEnd_toStartOf="@id/main_setting_btn"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <Button
+        android:id="@+id/main_setting_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/primary"
+        android:text="@string/main_setting_text"
+        android:layout_marginEnd="@dimen/layout_margin_default"
+        android:layout_marginBottom="@dimen/layout_margin_default"
+        app:layout_constraintStart_toEndOf="@id/main_history_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

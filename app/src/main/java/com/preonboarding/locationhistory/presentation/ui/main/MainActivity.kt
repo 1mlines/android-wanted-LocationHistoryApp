@@ -1,9 +1,7 @@
 package com.preonboarding.locationhistory.presentation.ui.main
 
 import android.os.Bundle
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.MapPOIItem
@@ -48,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 //        }
 //    }
 
-    private fun createMarker(locationName: String, latitude: Double, longitude: Double) {
+    private fun addMarker(locationName: String, latitude: Double, longitude: Double) {
         val marker = MapPOIItem()
 
         marker.apply {
