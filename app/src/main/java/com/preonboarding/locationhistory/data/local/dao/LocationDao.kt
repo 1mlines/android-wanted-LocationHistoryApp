@@ -11,6 +11,6 @@ interface LocationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLocation(location: LocationEntity)
 
-    @Query("SELECT * FROM locations WHERE locations.date = :date")
+    @Query("SELECT * FROM locations WHERE date = :date")
     suspend fun getLocations(date: Long): List<LocationEntity>
 }
