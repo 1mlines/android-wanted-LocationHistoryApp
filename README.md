@@ -4,8 +4,8 @@
 
 ### Branch Naming
 
-- {behavior}/ticket-{number}-{something}
-- e.g. : feature/ticket-007-data-module
+- `{behavior}/ticket-{number}-{something}`
+- e.g. : `feature/ticket-007-data-module`
 
 ### Commit
 
