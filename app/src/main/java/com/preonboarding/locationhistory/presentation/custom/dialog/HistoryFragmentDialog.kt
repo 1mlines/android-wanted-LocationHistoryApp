@@ -9,13 +9,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
-import com.preonboarding.locationhistory.R
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.preonboarding.locationhistory.databinding.FragmentHistoryDialogBinding
+import com.preonboarding.locationhistory.presentation.ui.main.MainActivity
+import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
 class HistoryFragmentDialog : DialogFragment() {
     private lateinit var binding: FragmentHistoryDialogBinding
+    private val mainViewModel: MainViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +51,17 @@ class HistoryFragmentDialog : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        bindingViewModel()
         initListener()
+    }
+
+    private fun bindingViewModel() {
+        lifecycleScope.launchWhenStarted {
+            mainViewModel.currentDate.collect {
+                Timber.tag(TAG).e("오늘 날짜 : $it")
+                binding.dialogDateTv.text = it
+            }
+        }
     }
 
     private fun initTable() {
@@ -69,9 +84,7 @@ class HistoryFragmentDialog : DialogFragment() {
     }
 
     private fun createDatePickerDialog() {
-        // TODO : current date 정보 필요
-        val currentDate = "2022.09.21"
-        val datePattern = "yyyy.MM.dd"
+        val currentDate = mainViewModel.currentDate.value
 
         val calendar = Calendar.getInstance().apply {
             val dateInfo = currentDate.split(".")
@@ -85,19 +98,13 @@ class HistoryFragmentDialog : DialogFragment() {
             { _, year, month, dayOfMonth ->
 
                 // TODO : current date 정보 갱신
-                calendar.set(Calendar.YEAR, year)
-                calendar.set(Calendar.MONTH, month)
-                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-
-                binding.dialogDateTv.text =
-                    SimpleDateFormat(datePattern, Locale.getDefault()).format(calendar.time)
+                mainViewModel.updateCurrentDate(year, month, dayOfMonth)
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH) - 1,
             calendar.get(Calendar.DAY_OF_MONTH),
         )
         datePickerDialog.show()
-
     }
 
     companion object {

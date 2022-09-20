@@ -1,26 +1,42 @@
 package com.preonboarding.locationhistory.presentation.ui.main
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.custom.dialog.HistoryFragmentDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
     private lateinit var mapView: MapView
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        mainViewModel.initCurrentDate()
 
+        bindingViewModel()
         initMapView()
         initListener()
         setContentView(binding.root)
+    }
+
+    private fun bindingViewModel() {
+        lifecycleScope.launchWhenCreated {
+            mainViewModel.currentDate.collect {
+                Timber.tag(HistoryFragmentDialog.TAG).e("오늘 날짜 : $it")
+            }
+        }
     }
 
     private fun initMapView() {
@@ -68,4 +84,7 @@ class MainActivity : AppCompatActivity() {
         mapView.addPOIItem(marker)
     }
 
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 }
