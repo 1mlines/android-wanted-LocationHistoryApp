@@ -1,10 +1,13 @@
 package com.preonboarding.locationhistory.presentation.custom.dialog
 
 import android.app.DatePickerDialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.fragment.app.DialogFragment
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.FragmentHistoryDialogBinding
@@ -13,6 +16,22 @@ import java.util.*
 
 class HistoryFragmentDialog : DialogFragment() {
     private lateinit var binding: FragmentHistoryDialogBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        isCancelable = false // 밖에 눌러도 dismiss 되지 않음
+    }
+
+
+    // TODO : dialog 크기 논의
+    override fun onResume() {
+        super.onResume()
+
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
+        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,8 +46,11 @@ class HistoryFragmentDialog : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // TODO : table 띄우기
         initListener()
+    }
+
+    private fun initTable() {
+        // TODO : table 띄우기
     }
 
     private fun initListener() {
@@ -41,7 +63,7 @@ class HistoryFragmentDialog : DialogFragment() {
         }
 
         binding.dialogOkBtn.setOnClickListener {
-            // TODO : 선택 된 날짜의 history 만 맵에 띄우도록 갱신
+            // TODO : 선택 된 날짜로 갱신
             dismiss()
         }
     }
@@ -52,9 +74,10 @@ class HistoryFragmentDialog : DialogFragment() {
         val datePattern = "yyyy.MM.dd"
 
         val calendar = Calendar.getInstance().apply {
-            set(Calendar.YEAR, currentDate.split("-")[0].toInt())
-            set(Calendar.MONTH, currentDate.split("-")[1].toInt())
-            set(Calendar.DAY_OF_MONTH, currentDate.split("-")[2].toInt())
+            val dateInfo = currentDate.split(".")
+            set(Calendar.YEAR, dateInfo[0].toInt())
+            set(Calendar.MONTH, dateInfo[1].toInt())
+            set(Calendar.DAY_OF_MONTH, dateInfo[2].toInt())
         }
 
         val datePickerDialog = DatePickerDialog(
