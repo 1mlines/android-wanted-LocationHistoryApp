@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
@@ -11,12 +12,21 @@ import net.daum.mf.map.api.MapView
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding : ActivityMainBinding
+    private lateinit var mapView: MapView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
 
-        val mapViewContainer = findViewById<ViewGroup>(R.id.mapview_kakaomap)
-        val mapView = MapView(this)
+        initMapView()
+
+        setContentView(binding.root)
+    }
+
+    private fun initMapView() {
+        val mapViewContainer = binding.mapviewKakaomap
+        mapView = MapView(this)
         mapViewContainer.addView(mapView)
     }
 
@@ -38,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 //        }
 //    }
 
-    private fun createMarker(locationName: String, latitude: Double, longitude: Double): MapPOIItem {
+    private fun createMarker(locationName: String, latitude: Double, longitude: Double) {
         val marker = MapPOIItem()
 
         marker.apply {
@@ -47,10 +57,8 @@ class MainActivity : AppCompatActivity() {
             markerType = MapPOIItem.MarkerType.BluePin  // 기본 블루 마커
             selectedMarkerType = MapPOIItem.MarkerType.RedPin // 마커 클릭 시 기본 레드 핀
         }
-        /*
-        마커 띄우기
+
         mapView.addPOIItem(marker)
-        */
-        return marker
     }
+
 }
