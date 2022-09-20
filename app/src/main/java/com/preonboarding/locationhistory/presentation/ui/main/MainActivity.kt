@@ -3,6 +3,7 @@ package com.preonboarding.locationhistory.presentation.ui.main
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
+import com.preonboarding.locationhistory.presentation.custom.dialog.HistoryFragmentDialog
 import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
@@ -18,7 +19,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         initMapView()
-
+        initListener()
         setContentView(binding.root)
     }
 
@@ -26,6 +27,14 @@ class MainActivity : AppCompatActivity() {
         val mapViewContainer = binding.mapviewKakaomap
         mapView = MapView(this)
         mapViewContainer.addView(mapView)
+    }
+
+    private fun initListener() {
+        binding.mainHistoryBtn.setOnClickListener {
+            HistoryFragmentDialog().show(
+                supportFragmentManager, "HistoryFragmentDialog"
+            )
+        }
     }
 
     // key hash값 얻기
