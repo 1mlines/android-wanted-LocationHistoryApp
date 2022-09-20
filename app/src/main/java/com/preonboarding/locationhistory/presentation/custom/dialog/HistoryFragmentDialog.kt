@@ -12,10 +12,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.preonboarding.locationhistory.databinding.FragmentHistoryDialogBinding
-import com.preonboarding.locationhistory.presentation.ui.main.MainActivity
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
 import timber.log.Timber
-import java.text.SimpleDateFormat
 import java.util.*
 
 class HistoryFragmentDialog : DialogFragment() {
@@ -58,7 +56,6 @@ class HistoryFragmentDialog : DialogFragment() {
     private fun bindingViewModel() {
         lifecycleScope.launchWhenStarted {
             mainViewModel.currentDate.collect {
-                Timber.tag(TAG).e("오늘 날짜 : $it")
                 binding.dialogDateTv.text = it
             }
         }
@@ -78,7 +75,6 @@ class HistoryFragmentDialog : DialogFragment() {
         }
 
         binding.dialogOkBtn.setOnClickListener {
-            // TODO : 선택 된 날짜로 갱신
             dismiss()
         }
     }
@@ -96,8 +92,6 @@ class HistoryFragmentDialog : DialogFragment() {
         val datePickerDialog = DatePickerDialog(
             this.requireContext(),
             { _, year, month, dayOfMonth ->
-
-                // TODO : current date 정보 갱신
                 mainViewModel.updateCurrentDate(year, month, dayOfMonth)
             },
             calendar.get(Calendar.YEAR),

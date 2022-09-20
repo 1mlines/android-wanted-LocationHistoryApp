@@ -25,8 +25,6 @@ class MainViewModel : ViewModel() {
         val datePattern = "yyyy.MM.dd"
         _currentDate.value =
             SimpleDateFormat(datePattern, Locale.getDefault()).format(Date(System.currentTimeMillis()))
-
-        Timber.tag(TAG).e("오늘 날짜 : ${_currentDate.value}")
     }
 
     fun updateCurrentDate(year: Int, month: Int, dayOfMonth: Int) {
