@@ -9,4 +9,6 @@ ext {
     lifecycleVersion = '2.5.1'
     roomVersion = '2.4.3'
     workManagerVersion = '2.7.1'
+    naverMapVersion = '3.16.0'
+    timberVersion = '4.7.1'
 }

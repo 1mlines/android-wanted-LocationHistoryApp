@@ -64,4 +64,10 @@ dependencies {
 
     // WorkManager
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
+
+    // Naver Map SDK
+    implementation "com.naver.maps:map-sdk:$naverMapVersion"
+
+    // Timber
+    implementation "com.jakewharton.timber:timber:$timberVersion"
 }
