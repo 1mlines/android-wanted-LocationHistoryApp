@@ -1,6 +1,13 @@
 # 원티드 프리온보딩 안드로이드 5팀
 
-## Commit Convention
+## Convention
+
+### Branch Naming
+
+- {behavior}/ticket-{number}-{something}
+- e.g. : feature/ticket-007-data-module
+
+### Commit
 
 - `feat : {something}` : 새로운 기능을 추가했을 때
 - `fix : {something}` : 기능 중 버그를 수정했을 때
