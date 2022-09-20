@@ -9,7 +9,7 @@ import com.preonboarding.locationhistory.data.local.entity.LocationEntity
 @Dao
 interface LocationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(location: LocationEntity)
+    suspend fun insertLocation(location: LocationEntity)
 
     @Query("SELECT * FROM locations WHERE locations.date = :date")
     suspend fun getLocations(date: Long): List<LocationEntity>
