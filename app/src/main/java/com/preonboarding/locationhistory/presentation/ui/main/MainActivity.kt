@@ -1,19 +1,11 @@
 package com.preonboarding.locationhistory.presentation.ui.main
 
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Base64
-import android.util.Log
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.preonboarding.locationhistory.R
 import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.MapView
-import timber.log.Timber
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
-import java.security.Signature
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
