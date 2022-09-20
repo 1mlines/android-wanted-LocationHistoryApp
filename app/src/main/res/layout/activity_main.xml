@@ -11,5 +11,9 @@
         android:layout_height="match_parent"
         tools:context=".view.MainActivity">
 
+        <net.daum.mf.map.api.MapView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
