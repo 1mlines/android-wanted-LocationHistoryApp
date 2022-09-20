@@ -5,10 +5,10 @@ import androidx.room.PrimaryKey
 import java.util.*
 
 @Entity
-data class LocationItem(
-    var num:Int,
+data class History(
     @PrimaryKey
-    val datetime:Date,
-    val altitude:Double,
-    val latitude:Double
+    var num: Int,
+    val dateTime: Date,
+    val latitude: Double,
+    val longitude: Double
 )

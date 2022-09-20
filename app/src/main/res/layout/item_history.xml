@@ -4,35 +4,42 @@
     android:layout_width="match_parent"
     android:layout_height="30dp"
     android:orientation="horizontal"
-    android:weightSum="8"
-    >
+    android:weightSum="8">
+
     <TextView
-        android:background="@drawable/dialog_layer"
+        android:id="@+id/ItemNumTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
+        android:background="@drawable/bg_dialog_border_1"
         android:gravity="center"
+        android:text="@string/item_history_num" />
+
+    <TextView
+        android:id="@+id/ItemLatitudeTextView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:text="@string/item_history_num"/>
-    <TextView
-        android:background="@drawable/dialog_layer"
         android:layout_weight="2"
+        android:background="@drawable/bg_dialog_border_1"
         android:gravity="center"
+        android:text="@string/item_history_latitude" />
+
+    <TextView
+        android:id="@+id/ItemLongitudeTextView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:text="@string/item_history_latitude"/>
-    <TextView
-        android:background="@drawable/dialog_layer"
         android:layout_weight="2"
+        android:background="@drawable/bg_dialog_border_1"
         android:gravity="center"
+        android:text="@string/item_history_longitude" />
+
+    <TextView
+        android:id="@+id/ItemDateTextView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:text="@string/item_history_longitude"/>
-    <TextView
-        android:background="@drawable/dialog_layer"
         android:layout_weight="3"
+        android:background="@drawable/bg_dialog_border_1"
         android:gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
         android:text="@string/dialog_history_date" />
 
 
