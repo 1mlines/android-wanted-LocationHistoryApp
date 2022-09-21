@@ -1,38 +1,25 @@
 package com.preonboarding.locationhistory.presentation.custom.dialog
 
 import android.app.DatePickerDialog
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.preonboarding.locationhistory.databinding.FragmentHistoryDialogBinding
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
 import java.util.*
 
-class HistoryFragmentDialog : DialogFragment() {
+
+class HistoryFragmentDialog : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentHistoryDialogBinding
     private val mainViewModel: MainViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        isCancelable = false // 밖에 눌러도 dismiss 되지 않음
-    }
-
-
-    // TODO : dialog 크기 논의
-    override fun onResume() {
-        super.onResume()
-
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.WHITE))
-        dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        setStyle(STYLE_NORMAL, com.preonboarding.locationhistory.R.style.BottomSheetDialog);
     }
 
     override fun onCreateView(

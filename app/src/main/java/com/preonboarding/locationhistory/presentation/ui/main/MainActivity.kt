@@ -3,7 +3,10 @@ package com.preonboarding.locationhistory.presentation.ui.main
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.custom.dialog.HistoryFragmentDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,17 +19,31 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
     private lateinit var mapView: MapView
+
+    private lateinit var bottomSheet: ConstraintLayout
+    private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
+
     private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         mainViewModel.initCurrentDate()
 
         bindingViewModel()
         initMapView()
+        initBottomSheet()
         initListener()
-        setContentView(binding.root)
+
+    }
+
+    private fun initBottomSheet() {
+        bottomSheet = findViewById(R.id.bottom_sheet_layout)
+
+        sheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        sheetBehavior.isGestureInsetBottomIgnored = true
     }
 
     private fun bindingViewModel() {
@@ -45,9 +62,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun initListener() {
         binding.mainHistoryBtn.setOnClickListener {
-            HistoryFragmentDialog().show(
-                supportFragmentManager, "HistoryFragmentDialog"
-            )
+             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+//            HistoryFragmentDialog().show(
+//                supportFragmentManager, "HistoryFragmentDialog"
+//            )
         }
     }
 
