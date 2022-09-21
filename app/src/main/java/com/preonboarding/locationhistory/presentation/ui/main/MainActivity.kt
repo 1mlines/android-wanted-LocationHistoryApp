@@ -137,7 +137,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
     }
 
-    fun showSettingDialog() {
+    private fun showSettingDialog() {
         SettingDialog().show(supportFragmentManager, "SettingDialog")
     }
 
