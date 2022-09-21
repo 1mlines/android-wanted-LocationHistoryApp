@@ -1,4 +1,4 @@
-package com.preonboarding.locationhistory.presentation.ui
+package com.preonboarding.locationhistory.presentation.base
 
 import android.os.Bundle
 import androidx.annotation.LayoutRes
