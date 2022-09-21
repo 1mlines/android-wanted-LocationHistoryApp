@@ -1,74 +1,80 @@
 package com.preonboarding.locationhistory.data.source.local.alarm
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.BroadcastReceiver
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
-import androidx.core.app.NotificationCompat
-import androidx.core.content.getSystemService
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.data.repository.TimerRepository
 import com.preonboarding.locationhistory.data.source.local.worker.LocationWorker
+import com.preonboarding.locationhistory.di.HiltBroadCastReceiver
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.*
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * @Created by 김현국 2022/09/21
  */
-class AlarmReceiver : BroadcastReceiver() {
+@AndroidEntryPoint
+class AlarmReceiver : HiltBroadCastReceiver() {
 
+    @Inject lateinit var timerRepository: TimerRepository
     companion object {
         const val TAG = "AlarmReceiver"
-        const val id = "PRIMARY-NOTIFICATION-CHANNEL"
     }
 
-    lateinit var notificationManager: NotificationManager
     override fun onReceive(context: Context?, intent: Intent?) {
-        Timber.tag(TAG).d("알람")
+        super.onReceive(context, intent)
 
-        notificationManager = context?.getSystemService(
-            Context.NOTIFICATION_SERVICE
-        ) as NotificationManager
-        createNotificationChannel()
         if (context != null) {
-            createNotification(context)
+            when (intent?.action) {
+                context.getString(R.string.setting_intent) -> {
+                    WorkManager.getInstance(context).enqueue(
+                        OneTimeWorkRequestBuilder<LocationWorker>().build()
+                    )
+                }
+                context.getString(R.string.setting_boot_intent) -> {
+                    createAlarm(context)
+                }
+            }
         }
-
-        WorkManager.getInstance(context).enqueue(
-            OneTimeWorkRequestBuilder<LocationWorker>().build()
-        )
     }
 
-    private fun createNotification(context: Context) {
-        val builder =
-            NotificationCompat.Builder(context, id)
-                .setSmallIcon(R.drawable.ic_launcher_background)
-                .setContentTitle("Alert")
-                .setContentText("This is repeating alarm")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
+    private fun createAlarm(context: Context) {
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        val intent = Intent(context, AlarmReceiver::class.java)
+        intent.action = context.getString(R.string.setting_intent)
+        var existPendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        alarmManager?.cancel(existPendingIntent)
 
-        notificationManager.notify(0, builder.build())
-    }
-
-    fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannel(
-                id,
-                "Stand up notification",
-                NotificationManager.IMPORTANCE_HIGH
+        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE
             )
-            notificationChannel.enableLights(true)
-            notificationChannel.lightColor = Color.RED
-            notificationChannel.enableVibration(true)
-            notificationChannel.description = "AlarmManager Tests"
-            notificationManager.createNotificationChannel(
-                notificationChannel
+        } else {
+            PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT
             )
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            timerRepository.getDuration().collect { time ->
+                alarmManager?.setRepeating(
+                    AlarmManager.RTC,
+                    System.currentTimeMillis(),
+                    time * 1000 * 60,
+                    pendingIntent
+                )
+            }
         }
     }
 }
