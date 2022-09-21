@@ -1,7 +1,9 @@
 package com.preonboarding.locationhistory.di
 
 import com.preonboarding.locationhistory.data.repository.LocationRepository
+import com.preonboarding.locationhistory.data.repository.TimerRepository
 import com.preonboarding.locationhistory.data.source.local.datasource.LocationDataSource
+import com.preonboarding.locationhistory.data.source.local.datasource.TimerDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,5 +22,11 @@ class RepositoryModule {
     @Provides
     fun provideLocationRepository(locationDataSource: LocationDataSource): LocationRepository {
         return LocationRepository(locationDataSource = locationDataSource)
+    }
+
+    @Singleton
+    @Provides
+    fun provideTimerRepository(timerDataSource: TimerDataSource): TimerRepository {
+        return TimerRepository(timerDataSource = timerDataSource)
     }
 }
