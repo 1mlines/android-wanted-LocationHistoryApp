@@ -166,9 +166,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED
         ) {
             startLocationUpdates()
-        } else {
-            rejectPermissionCase()
+            return
         }
+        rejectPermissionCase()
+
         map.uiSettings.isMyLocationButtonEnabled = true
     }
 
@@ -186,11 +187,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     REQUIRED_PERMISSIONS
                 )
             }.show()
-        } else {
-            permissionLocationLauncher.launch(
-                REQUIRED_PERMISSIONS
-            )
+            return
         }
+        permissionLocationLauncher.launch(
+            REQUIRED_PERMISSIONS
+        )
     }
 
     private fun startLocationUpdates() {
