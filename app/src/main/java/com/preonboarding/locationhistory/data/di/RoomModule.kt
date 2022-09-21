@@ -2,7 +2,7 @@ package com.preonboarding.locationhistory.data.di
 
 import android.content.Context
 import androidx.room.Room
-import com.preonboarding.locationhistory.data.local.database.LocationDatabase
+import com.preonboarding.locationhistory.data.db.database.LocationDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
