@@ -28,6 +28,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        clickBtnAddress()
+
+        // 커스텀 말풍선 등록
+        binding.mapView.setCalloutBalloonAdapter(CustomBalloonAdapter(layoutInflater))
+    }
+
+    private fun clickBtnAddress() {
         binding.btnAddress.setOnClickListener {
             if (checkLocationService()) {
                 permissionCheck()
@@ -102,8 +109,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     // 위치추적 시작
     private fun startTracking1() {
         binding.mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
-
-
     }
 
     @SuppressLint("MissingPermission")
