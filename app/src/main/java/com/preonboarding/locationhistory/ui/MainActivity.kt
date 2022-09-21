@@ -4,16 +4,19 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -27,14 +30,19 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
+import java.io.IOException
+import java.util.*
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMainBinding
     private lateinit var map: GoogleMap
     private var currentMarker: Marker? = null
+    private lateinit var mCurrentLocation: Location
+    private lateinit var currentPosition: LatLng
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
+    private lateinit var location: Location
     private val permissionLocationLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         }
@@ -43,10 +51,80 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         }
 
+    // 위치 정보 변경 이벤트
+    private var changeLocationCallback: LocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            super.onLocationResult(locationResult)
+            val locationList: List<Location> = locationResult.locations
+            if (locationList.isNotEmpty()) {
+                location = locationList[locationList.size - 1]
+                currentPosition = LatLng(location.latitude, location.longitude)
+                val markerTitle = getCurrentAddress(currentPosition)
+                val markerSnippet = ("위도: ${location.latitude} 경도: ${location.longitude}")
+
+
+                //현재 위치에 마커 생성하고 이동
+                setCurrentLocation(location, markerTitle, markerSnippet)
+                mCurrentLocation = location
+            }
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initBinding()
         setUpMapView()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (checkPermission()) {
+            mFusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                changeLocationCallback,
+                null
+            )
+            if (::map.isInitialized) map.isMyLocationEnabled = true
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mFusedLocationClient.removeLocationUpdates(changeLocationCallback)
+    }
+
+    private fun getCurrentAddress(latlng: LatLng): String {
+        val geocoder = Geocoder(this, Locale.getDefault())
+        var addresses: List<Address> = emptyList()
+        runCatching {
+            addresses = geocoder.getFromLocation(latlng.latitude, latlng.longitude, 1)
+        }.getOrElse {
+            when (it) {
+                is IOException -> Toast.makeText(
+                    this,
+                    getString(R.string.main_not_allowed_location_service),
+                    Toast.LENGTH_SHORT
+                ).show()
+                is IllegalArgumentException -> Toast.makeText(
+                    this,
+                    getString(R.string.main_error_gps),
+                    Toast.LENGTH_SHORT
+                )
+                    .show()
+            }
+        }
+        if (addresses.isEmpty()) {
+            Toast.makeText(
+                this,
+                getString(R.string.main_unknown_address),
+                Toast.LENGTH_LONG
+            )
+                .show()
+            return getString(R.string.main_unknown_address)
+        }
+        val address = addresses.first()
+        return address.getAddressLine(0).toString()
 
     }
 
@@ -56,6 +134,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         return (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
     }
+
     private fun setUpMapView() {
         locationRequest = LocationRequest.create().apply {
             interval = UPDATE_INTERVAL_MS
@@ -86,6 +165,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
             hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED
         ) {
+            startLocationUpdates()
         } else {
             rejectPermissionCase()
         }
@@ -111,6 +191,87 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 REQUIRED_PERMISSIONS
             )
         }
+    }
+
+    private fun startLocationUpdates() {
+        if (!checkLocationServicesStatus()) {
+            showDialogForLocationServiceSetting()
+            return
+        }
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        mFusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            changeLocationCallback,
+            Looper.myLooper()
+        )
+        if (checkPermission()) map.isMyLocationEnabled = true
+    }
+
+    private fun checkPermission(): Boolean {
+        val hasFineLocationPermission = ContextCompat.checkSelfPermission(
+            this,
+            ACCESS_FINE_LOCATION
+        )
+        val hasCoarseLocationPermission = ContextCompat.checkSelfPermission(
+            this,
+            ACCESS_COARSE_LOCATION
+        )
+        if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
+            hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED
+        ) {
+            return true
+        }
+        return false
+    }
+
+    private fun showDialogForLocationServiceSetting() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(getString(R.string.main_dialog_gps_permission_title))
+        builder.setMessage(
+            getString(R.string.main_dialog_gps_permission_content)
+        )
+        builder.setCancelable(true)
+        builder.setPositiveButton(getString(R.string.main_dialog_gps_permission_positive)) { _, _ ->
+            val callGPSSettingIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            permissionGPSLauncher.launch(callGPSSettingIntent)
+        }
+        builder.setNegativeButton(
+            getString(R.string.main_dialog_gps_permission_negative)
+        ) { dialog, _ ->
+            Toast.makeText(
+                this,
+                getString(R.string.main_toast_warning_user_gps_message),
+                Toast.LENGTH_SHORT
+            ).show()
+            dialog.cancel()
+        }
+        builder.create().show()
+    }
+
+    private fun setCurrentLocation(
+        location: Location,
+        markerTitle: String,
+        markerSnippet: String
+    ) {
+        currentMarker?.remove()
+        val currentLatLng = LatLng(location.latitude, location.longitude)
+        val markerOptions = MarkerOptions()
+        markerOptions.position(currentLatLng)
+        markerOptions.title(markerTitle)
+        markerOptions.snippet(markerSnippet)
+        markerOptions.draggable(true)
+        currentMarker = map.addMarker(markerOptions)
+        val cameraUpdate = CameraUpdateFactory.newLatLng(currentLatLng)
+        map.moveCamera(cameraUpdate)
     }
 
     private fun setDefaultLocation() {

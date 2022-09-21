@@ -14,4 +14,7 @@
     <string name="main_dialog_gps_permission_negative">취소</string>
     <string name="main_toast_warning_user_gps_message">현재 위치를 가져올수 없습니다</string>
     <string name="main_confirm">확인</string>
+    <string name="main_not_allowed_location_service">서비스 사용 불가</string>
+    <string name="main_error_gps">GPS 에러</string>
+    <string name="main_unknown_address">알수 없는 주소</string>
 </resources>
