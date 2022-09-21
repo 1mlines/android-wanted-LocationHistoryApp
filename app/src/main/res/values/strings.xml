@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">android-wanted-LocationHistoryApp</string>
+    <string name="history">히스토리</string>
 </resources>
