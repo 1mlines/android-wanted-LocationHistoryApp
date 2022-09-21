@@ -20,7 +20,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
-import com.preonboarding.locationhistory.presentation.custom.dialog.HistoryFragmentDialog
+import com.preonboarding.locationhistory.presentation.custom.dialog.bottom.HistoryBottomSheetFragment
 import com.preonboarding.locationhistory.presentation.custom.dialog.TimerFragmentDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -33,30 +33,38 @@ import timber.log.Timber
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapView: MapView
+
     private val mainViewModel: MainViewModel by viewModels()
-    private val ACCESS_FINE_LOCATION = 1000     // Request Code
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         mainViewModel.initCurrentDate()
+        mainViewModel.getHistoryWithDate()
+
+        bindingViewModel()
+        initMapView()
+        initListener()
 
         if (checkLocationService()) {
             permissionCheck()
         } else {
             Toast.makeText(this, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
         }
-
-        bindingViewModel()
-        initMapView()
-        initListener()
-        setContentView(binding.root)
     }
 
     private fun bindingViewModel() {
         lifecycleScope.launchWhenCreated {
             mainViewModel.currentDate.collect {
-                Timber.tag(HistoryFragmentDialog.TAG).e("오늘 날짜 : $it")
+                Timber.tag(TAG).e("오늘 날짜 : $it")
+            }
+        }
+
+        lifecycleScope.launchWhenCreated {
+            mainViewModel.currentHistory.collect {
+                Timber.tag(TAG).e("히스토리 : $it")
             }
         }
         lifecycleScope.launch {
@@ -78,11 +86,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun initListener() {
         binding.mainHistoryBtn.setOnClickListener {
-            HistoryFragmentDialog().show(
-                supportFragmentManager,
-                "HistoryFragmentDialog"
+            HistoryBottomSheetFragment().show(
+                supportFragmentManager, "HistoryBottomSheetFragment"
             )
         }
+
         binding.mainSettingBtn.setOnClickListener {
             TimerFragmentDialog().show(
                 supportFragmentManager,
@@ -90,24 +98,6 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
-
-    // key hash값 얻기
-//    private fun getAppKeyHash() {
-//        try {
-//            val info =
-//                packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-//            for (signature in info.signatures) {
-//                var md: MessageDigest
-//                md = MessageDigest.getInstance("SHA")
-//                md.update(signature.toByteArray())
-//                val something = String(Base64.encode(md.digest(), 0))
-//                Log.e("Hash key", something)
-//            }
-//        } catch (e: Exception) {
-//
-//            Log.e("name not found", e.toString())
-//        }
-//    }
 
     private fun permissionCheck() {
         val preference = getPreferences(MODE_PRIVATE)
@@ -218,5 +208,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
+        private const val ACCESS_FINE_LOCATION = 1000     // Request Code
     }
 }

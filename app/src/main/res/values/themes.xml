@@ -14,10 +14,13 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <!-- dialog style -->
-    <style name="dialog_fullscreen" parent="Theme.AppCompat.Dialog">
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowBackground">@android:color/white</item>
+    <!-- BottomSheetDialog  -->
+    <style name="BottomSheetDialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTitleStyle">@null</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 </resources>
