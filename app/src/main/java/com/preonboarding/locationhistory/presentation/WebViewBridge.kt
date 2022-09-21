@@ -5,7 +5,9 @@ import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.google.gson.Gson
+import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.domain.model.Location
 import com.preonboarding.locationhistory.util.JavaScripUrlUtil
 import timber.log.Timber
@@ -20,7 +22,6 @@ class WebViewBridge(
 
     @JavascriptInterface
     fun currentLocationCallback(location: String) {
-        Timber.e("들어오나")
         try {
             val data = gson.fromJson(location, Location::class.java)
 
@@ -52,7 +53,8 @@ class WebViewBridge(
 
     @JavascriptInterface
     fun error(message: String?) {
-        Toast.makeText(webView.context, "데이터를 불러오던 중 문제가 발생했습니다.", Toast.LENGTH_SHORT).show()
+        val msg = webView.context.getString(R.string.mapError)
+        Toast.makeText(webView.context, msg, Toast.LENGTH_SHORT).show()
         Timber.e(message)
     }
 }

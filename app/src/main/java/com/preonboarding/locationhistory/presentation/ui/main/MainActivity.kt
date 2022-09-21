@@ -128,7 +128,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         ) {
             checkPermission()
         } else {
-            Toast.makeText(this, "위치권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.locationError), Toast.LENGTH_SHORT).show()
         }
 
     }

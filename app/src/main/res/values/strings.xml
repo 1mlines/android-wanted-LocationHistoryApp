@@ -3,4 +3,6 @@
     <string name="history">히스토리</string>
     <string name="address">주소</string>
     <string name="setting">설정</string>
+    <string name="mapError">데이터를 불러오던 중 문제가 발생했습니다.</string>
+    <string name="locationError">위치권한을 설정해주세요.</string>
 </resources>
