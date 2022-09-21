@@ -10,12 +10,14 @@ import java.text.SimpleDateFormat
 @Entity
 data class History(
     @PrimaryKey
+    val time: String,
+
     val date: String,
     val latitude: Double,
     val longitude: Double,
 ) : Parcelable
 
-fun Long.toFormatTime(date: Long): String = SimpleDateFormat("yyyy.MM.dd HH:mm").format(date)
+fun Long.toFormatTime(date: Long): String = SimpleDateFormat("HH:mm").format(date)
 
 fun Long.toFormatDate(date: Long): String = SimpleDateFormat("yyyy.MM.dd").format(date)
 
