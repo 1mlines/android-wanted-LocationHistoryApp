@@ -50,7 +50,12 @@
 
         <receiver
             android:name=".data.source.local.alarm.AlarmReceiver"
-            android:enabled="true">
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="location.history.intent.action.put.alarm"/>
+            </intent-filter>
         </receiver>
 
         <provider
