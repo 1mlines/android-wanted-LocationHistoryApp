@@ -18,4 +18,8 @@ class LocalDataSource @Inject constructor(
             locationDao.insertLocation(location = locationEntity)
         }
     }
+
+    suspend fun getAllLocations(): List<LocationEntity> {
+        return locationDao.getAllLocations()
+    }
 }

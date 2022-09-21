@@ -13,4 +13,7 @@ interface LocationDao {
 
     @Query("SELECT * FROM locations WHERE date = :date")
     suspend fun getLocations(date: Long): List<LocationEntity>
+
+    @Query("SELECT * FROM locations ORDER BY id ASC")
+    suspend fun getAllLocations(): List<LocationEntity>
 }
