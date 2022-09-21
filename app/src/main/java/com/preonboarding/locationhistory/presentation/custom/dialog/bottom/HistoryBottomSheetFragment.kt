@@ -24,11 +24,21 @@ import java.util.*
 
 class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentHistoryBottomSheetBinding
+    private lateinit var historyListAdapter: HistoryBottomSheetAdapter
     private val mainViewModel: MainViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.BottomSheetDialog)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.setOnShowListener { dialogInterface ->
+            val bottomSheetDialog = dialogInterface as BottomSheetDialog
+            setupRatio(bottomSheetDialog)
+        }
+        return dialog
     }
 
     override fun onCreateView(
@@ -43,17 +53,14 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bindingViewModel()
+        initAdapter()
         initListener()
+        bindingViewModel()
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = super.onCreateDialog(savedInstanceState)
-        dialog.setOnShowListener { dialogInterface ->
-            val bottomSheetDialog = dialogInterface as BottomSheetDialog
-            setupRatio(bottomSheetDialog)
-        }
-        return dialog
+    private fun initAdapter() {
+        historyListAdapter = HistoryBottomSheetAdapter()
+        binding.historyBottomRv.adapter = historyListAdapter
     }
 
     private fun bindingViewModel() {
@@ -71,10 +78,12 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
                 }
             }
         }
-    }
 
-    private fun initAdapter() {
-        // TODO : table 띄우기
+        lifecycleScope.launchWhenStarted {
+            mainViewModel.currentHistory.collect {
+                historyListAdapter.submitList(it)
+            }
+        }
     }
 
     private fun initListener() {
@@ -83,17 +92,11 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         binding.historyBottomCancelBtn.setOnClickListener {
-            CoroutineScope(Dispatchers.Main).launch {
-                delay( DURATION )
-                dialog?.dismiss()
-            }
+            dialog?.dismiss()
         }
 
         binding.historyBottomOkBtn.setOnClickListener {
-            CoroutineScope(Dispatchers.Main).launch {
-                delay( DURATION )
-                dialog?.dismiss()
-            }
+            dialog?.dismiss()
         }
     }
 
@@ -144,6 +147,5 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
 
     companion object {
         private const val TAG = "HistoryFragmentDialog"
-        private const val DURATION = 700L
     }
 }

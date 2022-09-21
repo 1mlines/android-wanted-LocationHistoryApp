@@ -28,7 +28,10 @@ class HistoryBottomSheetAdapter : ListAdapter<Location, HistoryBottomSheetAdapte
         :RecyclerView.ViewHolder(binding.root) {
         fun bind(location: Location) {
             binding.apply {
-
+                itemHistoryNumberTv.text = "%d".format(adapterPosition + 1)
+                itemHistoryLatitudeTv.text = location.latitude.toString()
+                itemHistoryLongitudeTv.text = location.longitude.toString()
+                itemHistoryDateTv.text = location.date
             }
         }
     }

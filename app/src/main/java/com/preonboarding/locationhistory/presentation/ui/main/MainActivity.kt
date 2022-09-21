@@ -20,10 +20,6 @@ import androidx.lifecycle.lifecycleScope
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.custom.dialog.bottom.HistoryBottomSheetFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
@@ -35,14 +31,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mapView: MapView
 
     private val mainViewModel: MainViewModel by viewModels()
-    private val ACCESS_FINE_LOCATION = 1000     // Request Code
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        mainViewModel.initCurrentDate()
 
         if (checkLocationService()) {
             permissionCheck()
@@ -50,16 +43,24 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
         }
 
+        mainViewModel.initCurrentDate()
+        mainViewModel.getHistoryWithDate()
+
         bindingViewModel()
         initMapView()
         initListener()
-
     }
 
     private fun bindingViewModel() {
         lifecycleScope.launchWhenCreated {
             mainViewModel.currentDate.collect {
                 Timber.tag(TAG).e("오늘 날짜 : $it")
+            }
+        }
+
+        lifecycleScope.launchWhenCreated {
+            mainViewModel.currentHistory.collect {
+                Timber.tag(TAG).e("히스토리 : $it")
             }
         }
     }
@@ -77,24 +78,6 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
-
-    // key hash값 얻기
-//    private fun getAppKeyHash() {
-//        try {
-//            val info =
-//                packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-//            for (signature in info.signatures) {
-//                var md: MessageDigest
-//                md = MessageDigest.getInstance("SHA")
-//                md.update(signature.toByteArray())
-//                val something = String(Base64.encode(md.digest(), 0))
-//                Log.e("Hash key", something)
-//            }
-//        } catch (e: Exception) {
-//
-//            Log.e("name not found", e.toString())
-//        }
-//    }
 
     private fun permissionCheck() {
         val preference = getPreferences(MODE_PRIVATE)
@@ -205,5 +188,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
+        private const val ACCESS_FINE_LOCATION = 1000     // Request Code
     }
 }
