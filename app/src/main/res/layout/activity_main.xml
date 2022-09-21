@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.MainActivity">
+        tools:context=".feature.presentation.MainActivity">
 
         <net.daum.mf.map.api.MapView
             android:id="@+id/map_view"

@@ -1,4 +1,4 @@
-package com.preonboarding.locationhistory.view
+package com.preonboarding.locationhistory.feature.history.presentation
 
 import android.app.DatePickerDialog
 import android.os.Bundle

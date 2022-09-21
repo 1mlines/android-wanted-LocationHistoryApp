@@ -1,4 +1,4 @@
-package com.preonboarding.locationhistory.viewmodel
+package com.preonboarding.locationhistory.feature.presentation
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.preonboarding.locationhistory.data.entity.History
-import com.preonboarding.locationhistory.domain.GetHistoryUseCase
-import com.preonboarding.locationhistory.domain.SaveHistoryUseCase
+import com.preonboarding.locationhistory.feature.history.domain.usecase.GetHistoryUseCase
+import com.preonboarding.locationhistory.feature.history.domain.usecase.SaveHistoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
