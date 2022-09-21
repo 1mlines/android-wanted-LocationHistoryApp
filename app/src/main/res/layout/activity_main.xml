@@ -54,6 +54,6 @@
             app:layout_constraintBottom_toBottomOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <include
-        layout="@layout/fragment_history_dialog" />
+<!--    <include-->
+<!--        layout="@layout/fragment_history_dialog" />-->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

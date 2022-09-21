@@ -20,8 +20,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
     private lateinit var mapView: MapView
 
-    private lateinit var bottomSheet: ConstraintLayout
-    private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
+//    private lateinit var bottomSheet: ConstraintLayout
+//    private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
 
     private val mainViewModel: MainViewModel by viewModels()
 
@@ -40,10 +40,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initBottomSheet() {
-        bottomSheet = findViewById(R.id.bottom_sheet_layout)
-
-        sheetBehavior = BottomSheetBehavior.from(bottomSheet)
-        sheetBehavior.isGestureInsetBottomIgnored = true
+//        bottomSheet = findViewById(R.id.bottom_sheet_layout)
+//
+//        sheetBehavior = BottomSheetBehavior.from(bottomSheet)
+//        sheetBehavior.isGestureInsetBottomIgnored = true
     }
 
     private fun bindingViewModel() {
@@ -62,10 +62,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun initListener() {
         binding.mainHistoryBtn.setOnClickListener {
-             sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-//            HistoryFragmentDialog().show(
-//                supportFragmentManager, "HistoryFragmentDialog"
-//            )
+             // sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            HistoryFragmentDialog().show(
+                supportFragmentManager, "HistoryFragmentDialog"
+            )
         }
     }
 
