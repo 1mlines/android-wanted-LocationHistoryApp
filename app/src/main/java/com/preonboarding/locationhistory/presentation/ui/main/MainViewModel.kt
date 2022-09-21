@@ -36,7 +36,7 @@ class MainViewModel @Inject constructor (
 
     // 오늘 날짜 받아오기
     fun initCurrentDate() {
-        val datePattern = "yyyy.MM.dd"
+        val datePattern = "yyyy-MM-dd"
         _currentDate.value =
             SimpleDateFormat(datePattern, Locale.getDefault()).format(Date(System.currentTimeMillis()))
     }
@@ -46,7 +46,7 @@ class MainViewModel @Inject constructor (
         calendar.set(Calendar.MONTH, month)
         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-        val datePattern = "yyyy.MM.dd"
+        val datePattern = "yyyy-MM-dd"
         _currentDate.value =
             SimpleDateFormat(datePattern, Locale.getDefault()).format(calendar.time)
 

@@ -69,7 +69,7 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
                 currentDate.collect {
                     binding.historyBottomDateTv.text = it
 
-                    val dateInfo = it.split(".")
+                    val dateInfo = it.split("-")
                     this.calendar.apply {
                         set(Calendar.YEAR, dateInfo[0].toInt())
                         set(Calendar.MONTH, dateInfo[1].toInt())

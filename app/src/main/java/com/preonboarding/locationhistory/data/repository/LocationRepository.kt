@@ -23,9 +23,9 @@ class LocationRepository @Inject constructor(
         }
     }
 
-    fun getLocationsWithDate(date: String): Flow<List<Location>> {
+    fun getLocationsWithDate(date: Date): Flow<List<Location>> {
         return flow {
-            val locations = locationDataSource.getLocationsWithDate(date = date)
+            val locations = locationDataSource.getLocationsWithDate(date = formatDateToString(date = date))
             if (locations.isNotEmpty()) {
                 emit(
                     locations.map { entity ->

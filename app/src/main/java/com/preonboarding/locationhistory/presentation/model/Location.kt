@@ -13,5 +13,5 @@ data class Location(
 
     val longitude: Float,
 
-    val date: String
+    val date: Date
 )
