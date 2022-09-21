@@ -16,10 +16,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.custom.dialog.bottom.HistoryBottomSheetFragment
+import com.preonboarding.locationhistory.presentation.custom.dialog.TimerFragmentDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
@@ -37,18 +41,18 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (checkLocationService()) {
-            permissionCheck()
-        } else {
-            Toast.makeText(this, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
-        }
-
         mainViewModel.initCurrentDate()
         mainViewModel.getHistoryWithDate()
 
         bindingViewModel()
         initMapView()
         initListener()
+
+        if (checkLocationService()) {
+            permissionCheck()
+        } else {
+            Toast.makeText(this, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun bindingViewModel() {
@@ -63,6 +67,15 @@ class MainActivity : AppCompatActivity() {
                 Timber.tag(TAG).e("히스토리 : $it")
             }
         }
+        lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+                mainViewModel.localMarker.collect { markList ->
+                    markList.forEach {
+                        addMarker("", latitude = it.latitude.toDouble(), longitude = it.longitude.toDouble())
+                    }
+                }
+            }
+        }
     }
 
     private fun initMapView() {
@@ -75,6 +88,13 @@ class MainActivity : AppCompatActivity() {
         binding.mainHistoryBtn.setOnClickListener {
             HistoryBottomSheetFragment().show(
                 supportFragmentManager, "HistoryBottomSheetFragment"
+            )
+        }
+
+        binding.mainSettingBtn.setOnClickListener {
+            TimerFragmentDialog().show(
+                supportFragmentManager,
+                "SettingFragmentDialog"
             )
         }
     }
@@ -179,7 +199,7 @@ class MainActivity : AppCompatActivity() {
         marker.apply {
             itemName = locationName // 장소 이름
             mapPoint = MapPoint.mapPointWithGeoCoord(latitude, longitude) // 좌표
-            markerType = MapPOIItem.MarkerType.BluePin  // 기본 블루 마커
+            markerType = MapPOIItem.MarkerType.BluePin // 기본 블루 마커
             selectedMarkerType = MapPOIItem.MarkerType.RedPin // 마커 클릭 시 기본 레드 핀
         }
 

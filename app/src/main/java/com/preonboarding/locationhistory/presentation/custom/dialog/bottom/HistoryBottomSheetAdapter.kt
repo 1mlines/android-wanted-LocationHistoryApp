@@ -31,7 +31,7 @@ class HistoryBottomSheetAdapter : ListAdapter<Location, HistoryBottomSheetAdapte
                 itemHistoryNumberTv.text = "%d".format(adapterPosition + 1)
                 itemHistoryLatitudeTv.text = location.latitude.toString()
                 itemHistoryLongitudeTv.text = location.longitude.toString()
-                itemHistoryDateTv.text = location.date
+                itemHistoryDateTv.text = location.date.toString()
             }
         }
     }

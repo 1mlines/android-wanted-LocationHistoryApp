@@ -13,7 +13,6 @@ import com.preonboarding.locationhistory.data.source.local.entity.LocationEntity
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -29,45 +28,32 @@ class LocationWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Timber.tag("Worker tag").d("fail")
-        } else {
-            val manager: LocationManager = appContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val currentLocation: Location? = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            val latitude = currentLocation?.latitude
-            val longitude = currentLocation?.longitude
+        return coroutineScope {
+            if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(appContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Result.failure()
+            } else {
+                val manager: LocationManager = appContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                val currentLocation: Location? = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER) ?: manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                val latitude = currentLocation?.latitude
+                val longitude = currentLocation?.longitude
 
-            val now = System.currentTimeMillis()
-            val date = Date(now)
-            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA)
-            val time = simpleDateFormat.format(date)
+                val now = System.currentTimeMillis()
+                val date = Date(now)
+                val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
+                val time = simpleDateFormat.format(date)
 
-//            val inputData = inputData.getLong("duration", 10000)
-
-            if (latitude != null && longitude != null) {
-                delayWithWork(
-                    LocationEntity(
+                if (latitude != null && longitude != null) {
+                    val entity = LocationEntity(
                         id = 0,
                         latitude = latitude.toFloat(),
                         longitude = longitude.toFloat(),
                         date = time
                     )
-                )
+
+                    locationRepository.saveLocation(location = entity)
+                }
+                Result.success()
             }
         }
-
-        return Result.success()
-    }
-
-    suspend fun delayWithWork(locationEntity: LocationEntity) {
-        coroutineScope {
-            locationRepository.saveLocation(location = locationEntity).collect {
-                Timber.tag("Worker save tag").d(it.toString())
-            }
-        }
-    }
-
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return super.getForegroundInfo()
     }
 }

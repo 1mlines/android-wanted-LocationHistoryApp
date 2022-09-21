@@ -7,6 +7,10 @@ import com.preonboarding.locationhistory.presentation.model.Location
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import com.preonboarding.locationhistory.data.model.asModel
+import com.preonboarding.locationhistory.data.repository.TimerRepository
+import com.preonboarding.locationhistory.presentation.uistates.DurationUiStates
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -14,9 +18,22 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor (
+class MainViewModel @Inject constructor(
+    private val timerRepository: TimerRepository,
     private val locationRepository: LocationRepository
-): ViewModel() {
+) : ViewModel() {
+
+    init {
+        getCurrentSettingTime()
+        getLocalMarker()
+    }
+
+    private val _currentSettingTime: MutableStateFlow<DurationUiStates> =
+        MutableStateFlow(DurationUiStates.Loading)
+    val currentSettingTime = _currentSettingTime.asStateFlow()
+
+    private val _localMarker: MutableStateFlow<List<Location>> = MutableStateFlow(emptyList())
+    val localMarker = _localMarker.asStateFlow()
 
     var calendar: Calendar = Calendar.getInstance().apply {
         set(Calendar.MONTH, this.get(Calendar.MONTH))
@@ -38,7 +55,10 @@ class MainViewModel @Inject constructor (
     fun initCurrentDate() {
         val datePattern = "yyyy-MM-dd"
         _currentDate.value =
-            SimpleDateFormat(datePattern, Locale.getDefault()).format(Date(System.currentTimeMillis()))
+            SimpleDateFormat(
+                datePattern,
+                Locale.getDefault()
+            ).format(Date(System.currentTimeMillis()))
     }
 
     fun updateCurrentDate(year: Int, month: Int, dayOfMonth: Int) {
@@ -68,6 +88,34 @@ class MainViewModel @Inject constructor (
                 .onFailure {
                     Timber.tag(TAG).e(it)
                 }
+        }
+    }
+
+    private fun getCurrentSettingTime() {
+        viewModelScope.launch {
+            timerRepository.getDuration().collect { duration ->
+                _currentSettingTime.value = DurationUiStates.Success(duration)
+            }
+        }
+    }
+
+    fun setCurrentSettingTime(duration: Long) {
+        viewModelScope.launch {
+            timerRepository.setDuration(duration = duration).collect {
+                _currentSettingTime.value = DurationUiStates.DurationSaveSuccess
+            }
+        }
+    }
+
+    private fun getLocalMarker() {
+        viewModelScope.launch {
+            locationRepository.getLocations().collect { locationList ->
+                if (locationList.isNotEmpty()) {
+                    _localMarker.value = locationList.map {
+                        it.asModel()
+                    }
+                }
+            }
         }
     }
 

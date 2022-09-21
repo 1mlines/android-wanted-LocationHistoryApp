@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.preonboarding.locationhistory.data.source.local.entity.LocationEntity
+import kotlinx.coroutines.flow.Flow
 
 /**
  * @Created by 김현국 2022/09/19
@@ -18,4 +19,7 @@ interface LocationDao {
 
     @Query("SELECT * FROM locations WHERE locations.date = :date")
     suspend fun getLocationsWithDate(date: String): List<LocationEntity>
+
+    @Query("SELECT * FROM locations")
+    fun getLocations(): Flow<List<LocationEntity>>
 }
