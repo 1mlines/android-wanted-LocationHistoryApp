@@ -19,7 +19,7 @@ class TimerRepository @Inject constructor(
             if (result != null) {
                 emit(result)
             } else {
-                emit(15)
+                emit(0)
             }
         }.flowOn(Dispatchers.IO)
     }
