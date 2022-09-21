@@ -16,11 +16,8 @@ import javax.inject.Inject
 class LocationRepository @Inject constructor(
     private val locationDataSource: LocationDataSource
 ) {
-    fun saveLocation(location: LocationEntity): Flow<Long> {
-        return flow {
-            val saveLocationIndex = locationDataSource.saveLocation(location)
-            emit(saveLocationIndex)
-        }
+    suspend fun saveLocation(location: LocationEntity): Long {
+        return locationDataSource.saveLocation(location)
     }
 
     fun getLocationsWithDate(date: Date): Flow<List<Location>> {
@@ -34,5 +31,9 @@ class LocationRepository @Inject constructor(
                 )
             }
         }
+    }
+
+    fun getLocations(): Flow<List<LocationEntity>> {
+        return locationDataSource.getLocations()
     }
 }
