@@ -17,7 +17,7 @@ data class History(
     val longitude: Double,
 ) : Parcelable
 
-fun Long.toFormatTime(date: Long): String = SimpleDateFormat("yyyy.MM.dd HH:mm").format(date)
+fun Long.toFormatTime(): String = SimpleDateFormat("yyyy.MM.dd HH:mm").format(this)
 
-fun Long.toFormatDate(date: Long): String = SimpleDateFormat("yyyy.MM.dd").format(date)
+fun Long.toFormatDate(): String = SimpleDateFormat("yyyy.MM.dd").format(this)
 
