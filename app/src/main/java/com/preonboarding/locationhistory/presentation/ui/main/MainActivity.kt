@@ -3,13 +3,14 @@ package com.preonboarding.locationhistory.presentation.ui.main
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
-import com.preonboarding.locationhistory.presentation.custom.dialog.HistoryFragmentDialog
+import com.preonboarding.locationhistory.presentation.custom.dialog.bottom.HistoryBottomSheetFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
@@ -17,11 +18,8 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding : ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
     private lateinit var mapView: MapView
-
-//    private lateinit var bottomSheet: ConstraintLayout
-//    private lateinit var sheetBehavior: BottomSheetBehavior<ConstraintLayout>
 
     private val mainViewModel: MainViewModel by viewModels()
 
@@ -34,22 +32,14 @@ class MainActivity : AppCompatActivity() {
 
         bindingViewModel()
         initMapView()
-        initBottomSheet()
         initListener()
 
-    }
-
-    private fun initBottomSheet() {
-//        bottomSheet = findViewById(R.id.bottom_sheet_layout)
-//
-//        sheetBehavior = BottomSheetBehavior.from(bottomSheet)
-//        sheetBehavior.isGestureInsetBottomIgnored = true
     }
 
     private fun bindingViewModel() {
         lifecycleScope.launchWhenCreated {
             mainViewModel.currentDate.collect {
-                Timber.tag(HistoryFragmentDialog.TAG).e("오늘 날짜 : $it")
+                Timber.tag(TAG).e("오늘 날짜 : $it")
             }
         }
     }
@@ -62,9 +52,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun initListener() {
         binding.mainHistoryBtn.setOnClickListener {
-             // sheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            HistoryFragmentDialog().show(
-                supportFragmentManager, "HistoryFragmentDialog"
+            HistoryBottomSheetFragment().show(
+                supportFragmentManager, "HistoryBottomSheetFragment"
             )
         }
     }

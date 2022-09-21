@@ -1,6 +1,5 @@
-package com.preonboarding.locationhistory.presentation.custom.dialog
+package com.preonboarding.locationhistory.presentation.custom.dialog.bottom
 
-import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Context
@@ -8,20 +7,19 @@ import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.*
-import android.widget.FrameLayout
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.preonboarding.locationhistory.R
-import com.preonboarding.locationhistory.databinding.FragmentHistoryDialogBinding
+import com.preonboarding.locationhistory.databinding.FragmentHistoryBottomSheetBinding
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
 import java.util.*
 
 
-class HistoryFragmentDialog() : BottomSheetDialogFragment() {
-    private lateinit var binding: FragmentHistoryDialogBinding
+class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
+    private lateinit var binding: FragmentHistoryBottomSheetBinding
     private val mainViewModel: MainViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +33,7 @@ class HistoryFragmentDialog() : BottomSheetDialogFragment() {
     ): View {
 
         // Inflate the layout for this fragment
-        binding = FragmentHistoryDialogBinding.inflate(inflater, container, false)
+        binding = FragmentHistoryBottomSheetBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -58,7 +56,7 @@ class HistoryFragmentDialog() : BottomSheetDialogFragment() {
         lifecycleScope.launchWhenStarted {
             with(mainViewModel) {
                 currentDate.collect {
-                    binding.dialogDateTv.text = it
+                    binding.historyBottomDateTv.text = it
 
                     val dateInfo = it.split(".")
                     this.calendar.apply {
@@ -71,20 +69,20 @@ class HistoryFragmentDialog() : BottomSheetDialogFragment() {
         }
     }
 
-    private fun initTable() {
+    private fun initAdapter() {
         // TODO : table 띄우기
     }
 
     private fun initListener() {
-        binding.dialogDateTv.setOnClickListener {
+        binding.historyBottomDateTv.setOnClickListener {
             createDatePickerDialog()
         }
 
-        binding.dialogCancelBtn.setOnClickListener {
+        binding.historyBottomCancelBtn.setOnClickListener {
             dismiss()
         }
 
-        binding.dialogOkBtn.setOnClickListener {
+        binding.historyBottomOkBtn.setOnClickListener {
             dismiss()
         }
     }
@@ -104,6 +102,7 @@ class HistoryFragmentDialog() : BottomSheetDialogFragment() {
         datePickerDialog.show()
     }
 
+    // Set Bottom Sheet Height
     private fun setupRatio(bottomSheetDialog: BottomSheetDialog) {
         val bottomSheet = bottomSheetDialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet) as View
         val behavior = BottomSheetBehavior.from(bottomSheet)
@@ -134,6 +133,7 @@ class HistoryFragmentDialog() : BottomSheetDialogFragment() {
     }
 
     companion object {
-        const val TAG = "HistoryFragmentDialog"
+        private const val TAG = "HistoryFragmentDialog"
+        private const val DURATION = 700L
     }
 }
