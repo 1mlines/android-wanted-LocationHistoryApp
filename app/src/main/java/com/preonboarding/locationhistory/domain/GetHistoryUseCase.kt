@@ -11,8 +11,6 @@ class GetHistoryUseCase @Inject constructor(
         val formatDate = date.toFormatDate()
         return runCatching {
             mapRepository.getHistoryFromDate(formatDate)
-        }.onFailure { e ->
-            throw e
         }.getOrNull()
     }
 }
