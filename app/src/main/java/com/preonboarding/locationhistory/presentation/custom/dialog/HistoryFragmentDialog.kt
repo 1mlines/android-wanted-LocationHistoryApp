@@ -13,7 +13,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.preonboarding.locationhistory.databinding.FragmentHistoryDialogBinding
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
-import timber.log.Timber
 import java.util.*
 
 class HistoryFragmentDialog : DialogFragment() {
@@ -55,8 +54,17 @@ class HistoryFragmentDialog : DialogFragment() {
 
     private fun bindingViewModel() {
         lifecycleScope.launchWhenStarted {
-            mainViewModel.currentDate.collect {
-                binding.dialogDateTv.text = it
+            with(mainViewModel) {
+                currentDate.collect {
+                    binding.dialogDateTv.text = it
+
+                    val dateInfo = it.split(".")
+                    this.calendar.apply {
+                        set(Calendar.YEAR, dateInfo[0].toInt())
+                        set(Calendar.MONTH, dateInfo[1].toInt())
+                        set(Calendar.DAY_OF_MONTH, dateInfo[2].toInt())
+                    }
+                }
             }
         }
     }
@@ -80,14 +88,7 @@ class HistoryFragmentDialog : DialogFragment() {
     }
 
     private fun createDatePickerDialog() {
-        val currentDate = mainViewModel.currentDate.value
-
-        val calendar = Calendar.getInstance().apply {
-            val dateInfo = currentDate.split(".")
-            set(Calendar.YEAR, dateInfo[0].toInt())
-            set(Calendar.MONTH, dateInfo[1].toInt())
-            set(Calendar.DAY_OF_MONTH, dateInfo[2].toInt())
-        }
+        val calendar = mainViewModel.calendar
 
         val datePickerDialog = DatePickerDialog(
             this.requireContext(),

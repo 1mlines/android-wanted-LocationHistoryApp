@@ -9,7 +9,7 @@ import java.util.*
 
 class MainViewModel : ViewModel() {
 
-    private var calendar: Calendar = Calendar.getInstance().apply {
+    var calendar: Calendar = Calendar.getInstance().apply {
         set(Calendar.MONTH, this.get(Calendar.MONTH))
         firstDayOfWeek = Calendar.MONDAY
         set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
