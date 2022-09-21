@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 val currentDate: String = System.currentTimeMillis().convertTimeStampToDate()
-val currentDateData: Long = convertDateToTimeStamp(currentDate)
+val currentTimeStamp: Long = convertDateToTimeStamp(currentDate)
 
 private val dateFormatter = SimpleDateFormat("yyyy.MM.dd", Locale.KOREA)
 private fun Long.convertTimeStampToDate(): String = dateFormatter.format(this)
