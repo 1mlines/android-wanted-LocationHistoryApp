@@ -3,6 +3,7 @@ package com.preonboarding.locationhistory.di
 import android.content.Context
 import androidx.room.Room
 import com.preonboarding.locationhistory.data.source.local.dao.LocationDao
+import com.preonboarding.locationhistory.data.source.local.dao.TimerDao
 import com.preonboarding.locationhistory.data.source.local.database.AppDatabase
 import com.preonboarding.locationhistory.data.source.local.database.AppDatabaseImpl
 import dagger.Module
@@ -33,4 +34,8 @@ class DatabaseModule {
     @Singleton
     @Provides
     fun provideLocationDao(appDatabase: AppDatabase): LocationDao = appDatabase.locationDao()
+
+    @Singleton
+    @Provides
+    fun provideTimerDao(appDatabase: AppDatabase): TimerDao = appDatabase.timerDao()
 }

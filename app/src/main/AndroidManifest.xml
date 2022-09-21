@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -47,6 +47,16 @@
             android:name="com.kakao.sdk.AppKey"
             android:value="2868a5de6b097a9a3cc4d7f0d4e0a7c0" />
 
+
+        <receiver
+            android:name=".data.source.local.alarm.AlarmReceiver"
+            android:enabled="true">
+        </receiver>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
     </application>
 
 </manifest>
