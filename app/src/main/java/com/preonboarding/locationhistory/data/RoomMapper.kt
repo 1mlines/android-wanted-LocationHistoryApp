@@ -1,7 +1,7 @@
 package com.preonboarding.locationhistory.data
 
 import com.preonboarding.locationhistory.data.local.entity.LocationEntity
-import com.preonboarding.locationhistory.data.model.Location
+import com.preonboarding.locationhistory.domain.model.Location
 
 fun Location.toEntity() = LocationEntity(
     id = 0,
