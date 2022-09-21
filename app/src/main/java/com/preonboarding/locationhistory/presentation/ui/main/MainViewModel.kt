@@ -1,13 +1,22 @@
 package com.preonboarding.locationhistory.presentation.ui.main
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.preonboarding.locationhistory.data.repository.LocationRepository
+import com.preonboarding.locationhistory.presentation.model.Location
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class MainViewModel : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor (
+    private val locationRepository: LocationRepository
+): ViewModel() {
 
     var calendar: Calendar = Calendar.getInstance().apply {
         set(Calendar.MONTH, this.get(Calendar.MONTH))
@@ -19,6 +28,11 @@ class MainViewModel : ViewModel() {
         MutableStateFlow("")
     val currentDate: StateFlow<String>
         get() = _currentDate
+
+    private val _currentHistory: MutableStateFlow<MutableList<Location>> =
+        MutableStateFlow(mutableListOf())
+    val currentHistory: StateFlow<MutableList<Location>>
+        get() = _currentHistory
 
     // 오늘 날짜 받아오기
     fun initCurrentDate() {
@@ -37,6 +51,24 @@ class MainViewModel : ViewModel() {
             SimpleDateFormat(datePattern, Locale.getDefault()).format(calendar.time)
 
         Timber.tag(TAG).e("선택한 날짜 : ${_currentDate.value}")
+    }
+
+    // history
+    fun getHistoryWithDate() {
+        viewModelScope.launch {
+            kotlin.runCatching {
+                locationRepository.getLocationsWithDate(date = _currentDate.value)
+                    .collect {
+                        _currentHistory.value = it.toMutableList()
+                    }
+            }
+                .onSuccess {
+                    Timber.tag(TAG).e("success get history")
+                }
+                .onFailure {
+                    Timber.tag(TAG).e(it)
+                }
+        }
     }
 
     companion object {
