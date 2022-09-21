@@ -15,6 +15,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.FragmentHistoryBottomSheetBinding
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 
 
@@ -79,11 +83,17 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         binding.historyBottomCancelBtn.setOnClickListener {
-            dismiss()
+            CoroutineScope(Dispatchers.Main).launch {
+                delay( DURATION )
+                dialog?.dismiss()
+            }
         }
 
         binding.historyBottomOkBtn.setOnClickListener {
-            dismiss()
+            CoroutineScope(Dispatchers.Main).launch {
+                delay( DURATION )
+                dialog?.dismiss()
+            }
         }
     }
 
