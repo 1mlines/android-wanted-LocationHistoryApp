@@ -40,6 +40,10 @@ android {
 
 dependencies {
 
+    // kakaomap library
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation files('libs/libDaumMapAndroid.jar')
+
     implementation(libs.bundles.androidx)
     implementation(libs.material)
 
