@@ -19,4 +19,9 @@ class LocationRepositoryImpl @Inject constructor(
     override suspend fun insertLocation(location: Location) {
         dataSource.insertLocation(location.toEntity())
     }
+
+    override suspend fun getAllLocations(): List<Location> {
+        return dataSource.getAllLocations()
+            .map { it.toModel() }
+    }
 }

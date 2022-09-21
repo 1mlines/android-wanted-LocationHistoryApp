@@ -1,13 +1,11 @@
+package com.preonboarding.locationhistory.presentation.ui.util
+
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 val dateFormatter = SimpleDateFormat("yyyy.MM.dd", Locale.KOREA)
-val dateTimeFormatter = SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA)
+val currentDate: String = System.currentTimeMillis().convertTimeStampToDate()
+val currentDateData: Long = convertDateToTimeStamp(currentDate)
 
-fun Long.convertTimeStampToDate(): String =
-    dateFormatter.format(this)
-
-fun Long.convertTimeStampToDateTime(): String =
-    dateTimeFormatter.format(this)
-
-fun getCurrentTime(): Long = System.currentTimeMillis()
+private fun Long.convertTimeStampToDate(): String = dateFormatter.format(this)
+private fun convertDateToTimeStamp(date: String): Long = dateFormatter.parse(date).time
