@@ -14,7 +14,7 @@ import java.lang.ref.WeakReference
 class WebViewBridge(
     private val gson: Gson,
     private val webView: WebView,
-    private val handler: WeakReference<Handler>,
+    private val handler: Handler,
     private val currentLocationBlock: (Location) -> Unit
 ) {
 
@@ -24,7 +24,7 @@ class WebViewBridge(
         try {
             val data = gson.fromJson(location, Location::class.java)
 
-            handler.get()?.post {
+            handler.post {
                 currentLocationBlock(data)
             }
         } catch (e: Exception) {
@@ -36,7 +36,7 @@ class WebViewBridge(
     fun getCurrentLocation() {
         val url = JavaScripUrlUtil.createMethodUrl("getCurrentLocation", null)
 
-        handler.get()?.post {
+        handler.post {
             webView.loadUrl(url)
         }
     }
@@ -45,7 +45,7 @@ class WebViewBridge(
     fun showHistories(locations: String) {
         val url = JavaScripUrlUtil.createMethodUrl("showHistories", locations)
 
-        handler.get()?.post {
+        handler.post {
             webView.loadUrl(url)
         }
     }

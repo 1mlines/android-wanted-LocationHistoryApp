@@ -22,7 +22,6 @@ import com.preonboarding.locationhistory.presentation.WebViewBridge
 import com.preonboarding.locationhistory.presentation.ui.BaseActivity
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,9 +35,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         WebViewBridge(
             gson = gson,
             webView = binding.webView,
-            handler = WeakReference(
-                Handler(Looper.getMainLooper())
-            ),
+            handler = Handler(Looper.getMainLooper()),
             currentLocationBlock = {
                 viewModel.addLocation(it)
             }
