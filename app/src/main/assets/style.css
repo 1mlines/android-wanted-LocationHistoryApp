@@ -1,0 +1,22 @@
+
+#map {
+    height:100vh;
+}
+
+html, body {
+    margin:0;
+    padding:0;
+}
+
+a[href^="http://maps.google.com/maps"],
+a[href^="https://maps.google.com/maps"] {
+    display:none !important
+}
+
+.gmnoprint a, .gmnoprint span, .gm-style-cc {
+    display:none;
+}
+
+.gmnoprint div {
+    background:none !important;
+}

@@ -1,4 +1,4 @@
-package com.preonboarding.locationhistory.data.local.entity
+package com.preonboarding.locationhistory.data.db.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
