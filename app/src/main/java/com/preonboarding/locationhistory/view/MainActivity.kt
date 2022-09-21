@@ -2,6 +2,7 @@ package com.preonboarding.locationhistory.view
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -52,14 +53,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // 권한 거절 (다시 한 번 물어봄)
                 val builder = AlertDialog.Builder(this)
-                builder.setMessage("현재 위치를 확인하시려면 위치 권한을 허용해주세요.")
-                builder.setPositiveButton("확인") { dialog, which ->
-                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION)
-                }
-                builder.setNegativeButton("취소") { dialog, which ->
+                builder.apply {
+                    setMessage("현재 위치를 확인하시려면 위치 권한을 허용해주세요.")
+                    setPositiveButton("확인") { dialog, which ->
+                        ActivityCompat.requestPermissions(Activity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION)
+                    }
+                    setNegativeButton("취소") { dialog, which ->
 
+                    }
+                    show()
                 }
-                builder.show()
+
             } else {
                 if (isFirstCheck) {
                     // 최초 권한 요청
@@ -69,14 +73,24 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     // 다시 묻지 않음 클릭 (앱 정보 화면으로 이동)
                     val builder = AlertDialog.Builder(this)
                     builder.setMessage("현재 위치를 확인하시려면 설정에서 위치 권한을 허용해주세요.")
-                    builder.setPositiveButton("설정으로 이동") { dialog, which ->
+                    builder.apply {
+                        setPositiveButton("설정으로 이동") { dialog, which ->
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+                            startActivity(intent)
+                        }
+                        setNegativeButton("취소") { dialog, which ->
+
+                        }
+                        show()
+                    }
+                    /*builder.setPositiveButton("설정으로 이동") { dialog, which ->
                         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
                         startActivity(intent)
                     }
                     builder.setNegativeButton("취소") { dialog, which ->
 
                     }
-                    builder.show()
+                    builder.show()*/
                 }
             }
         } else {
