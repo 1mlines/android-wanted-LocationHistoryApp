@@ -1,8 +1,8 @@
-package com.preonboarding.locationhistory.data.di
+package com.preonboarding.locationhistory.data.repository
 
 import androidx.room.withTransaction
-import com.preonboarding.locationhistory.data.local.database.LocationDatabase
-import com.preonboarding.locationhistory.data.local.entity.LocationEntity
+import com.preonboarding.locationhistory.data.db.database.LocationDatabase
+import com.preonboarding.locationhistory.data.db.entity.LocationEntity
 import javax.inject.Inject
 
 class LocalDataSource @Inject constructor(

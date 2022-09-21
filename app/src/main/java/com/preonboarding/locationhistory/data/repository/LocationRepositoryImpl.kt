@@ -2,7 +2,6 @@ package com.preonboarding.locationhistory.data.repository
 
 import com.preonboarding.locationhistory.data.toEntity
 import com.preonboarding.locationhistory.data.toModel
-import com.preonboarding.locationhistory.data.di.LocalDataSource
 import com.preonboarding.locationhistory.domain.model.Location
 import com.preonboarding.locationhistory.domain.repository.LocationRepository
 import javax.inject.Inject
