@@ -28,7 +28,7 @@ class MainViewModel @Inject constructor(
 
     fun showHistories(){
         viewModelScope.launch {
-            _locations.value = repository.getLocations(-1)
+            _locations.value = repository.getAllLocations()
         }
     }
 
