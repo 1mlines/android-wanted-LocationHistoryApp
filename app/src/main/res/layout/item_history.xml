@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/white">
+
+        <TextView
+            android:id="@+id/tv_item_latitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/latitude"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_item_longitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@string/longitude"
+            app:layout_constraintStart_toEndOf="@id/tv_item_latitude"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_item_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/date"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tv_item_longitude"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_latitude_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="@id/tv_item_latitude"
+            app:layout_constraintStart_toStartOf="@id/tv_item_latitude"
+            app:layout_constraintTop_toBottomOf="@id/tv_item_latitude"
+            tools:text="36.0" />
+
+        <TextView
+            android:id="@+id/tv_longitude_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="@id/tv_item_longitude"
+            app:layout_constraintStart_toStartOf="@id/tv_item_longitude"
+            app:layout_constraintTop_toBottomOf="@id/tv_item_longitude"
+            tools:text="127.1" />
+
+        <TextView
+            android:id="@+id/tv_date_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="@id/tv_item_date"
+            app:layout_constraintStart_toStartOf="@id/tv_item_date"
+            app:layout_constraintTop_toBottomOf="@id/tv_item_date"
+            tools:text="2022.09.07 12:11" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
