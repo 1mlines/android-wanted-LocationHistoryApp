@@ -23,7 +23,6 @@ import com.preonboarding.locationhistory.presentation.base.BaseActivity
 import com.preonboarding.locationhistory.presentation.ui.setting.SettingDialog
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,9 +36,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         WebViewBridge(
             gson = gson,
             webView = binding.webView,
-            handler = WeakReference(
-                Handler(Looper.getMainLooper())
-            ),
+            handler = Handler(Looper.getMainLooper()),
             currentLocationBlock = {
                 viewModel.addLocation(it)
             }
@@ -71,7 +68,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
     }
 
-    fun initWebView() {
+    private fun initWebView() {
         binding.webView.webChromeClient = object : WebChromeClient() {
             override fun onGeolocationPermissionsShowPrompt(
                 origin: String?,
@@ -136,7 +133,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         ) {
             checkPermission()
         } else {
-            Toast.makeText(this, "위치권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.locationError), Toast.LENGTH_SHORT).show()
         }
     }
 
