@@ -1,5 +1,4 @@
 let map,infoWindow ;
-
 const image =
          "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
 
@@ -19,18 +18,18 @@ function initMap() {
     //0으로 지정한 경우 기울기 0도로 지정
     map.setTilt(0);
 
-    getLocation()
+    initLocation()
 }
 
-function getLocation() {
+function initLocation() {
     if(navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition)
+        navigator.geolocation.getCurrentPosition(initMarker)
     }
 }
 
-function showPosition(position) {
-    var lat = position.coords.latitude;
-    var lng = position.coords.longitude;
+function initMarker(position) {
+    let lat = position.coords.latitude;
+    let lng = position.coords.longitude;
 
     //마커 설정
     marker = new google.maps.Marker({
@@ -38,47 +37,50 @@ function showPosition(position) {
       map: map,
     });
 
-    marker.addListener("click", (function(marker){
-        if (marker.getAnimation() !== null) {
-          marker.setAnimation(null);
-        } else {
-          marker.setAnimation(google.maps.Animation.BOUNCE);
-        }
-    }));
-
-//    lat += 2
-//    lng += 2
-//
-//    const marker1 = new google.maps.Marker({
-//      position: {lat,lng},
-//      map: map,
-//      icon: image
-//    });
-//
-//    marker1.addListener("click", toggleBounce)
+     marker.addListener('click', (function(marker) {
+           return function() {
+               if (marker.getAnimation() !== null) {
+                   marker.setAnimation(null);
+               } else {
+                   marker.setAnimation(google.maps.Animation.BOUNCE);
+               }
+           }
+     })(marker));
 
     map.setCenter(new google.maps.LatLng(lat, lng));
 }
 
-function toggleBounce() {
-    if (marker.getAnimation() !== null) {
-      marker.setAnimation(null);
-    } else {
-      marker.setAnimation(google.maps.Animation.BOUNCE);
+function getCurrentLocation() {
+    if(navigator.geolocation) {
+       navigator.geolocation.getCurrentPosition(callbackCurrentLocation)
     }
 }
 
-function getLocations(data){
+function callbackCurrentLocation(position){
+    let lat = position.coords.latitude;
+    let lng = position.coords.longitude;
+
+    let obj = new Object();
+    obj.id = -1;
+    obj.latitude = lat;
+    obj.longitude = lng;
+    obj.date = -1;
+
+    let json = JSON.stringify(obj)
+
+    Android.currentLocationCallback(json)
+}
+
+function showHistories(data){
     let jsonArray = JSON.parse(data)
 
-//    for(var i= 0 ; i< jsonArray.locations.length; i++) {
-//        let location = jsonArray.locations[i];
-//        let lat = location.lat
-//        let lng = location.lng
-//
-//        createMarker(lat,lng)
-//    }
+    for(var i= 0 ; i< jsonArray.length; i++) {
+        let location = jsonArray[i];
+        let lat = location.latitude +i
+        let lng = location.longitude +i
 
+        createMarker(lat,lng)
+    }
 }
 
 function createMarker(lat,lng){
@@ -87,6 +89,16 @@ function createMarker(lat,lng){
         map: map,
         icon: image
     });
+
+    marker.addListener('click', (function(marker) {
+        return function() {
+            if (marker.getAnimation() !== null) {
+                marker.setAnimation(null);
+            } else {
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+            }
+        }
+    })(marker));
 }
 
 window.initMap = initMap;

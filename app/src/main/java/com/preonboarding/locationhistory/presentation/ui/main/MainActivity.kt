@@ -6,12 +6,16 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.webkit.GeolocationPermissions
 import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.gson.Gson
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.WebViewBridge
@@ -19,12 +23,26 @@ import com.preonboarding.locationhistory.presentation.ui.BaseActivity
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
 import java.lang.ref.WeakReference
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val viewModel: MainViewModel by viewModels()
+
+    @Inject
+    lateinit var gson: Gson
+
     private val webViewBridge: WebViewBridge by lazy {
-        WebViewBridge(binding.webView, WeakReference(Handler(Looper.myLooper()!!)))
+        WebViewBridge(
+            gson = gson,
+            webView = binding.webView,
+            handler = WeakReference(
+                Handler(Looper.getMainLooper())
+            ),
+            currentLocationBlock = {
+                viewModel.addLocation(it)
+            }
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,10 +50,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.viewModel = viewModel
 
         checkPermission()
+
+        viewModel.locations.observe(this) {
+            if (it.isNotEmpty()) {
+                val locations = gson.toJson(it)
+                webViewBridge.showHistories(locations)
+            }
+        }
+
+        viewModel.currentLocationSignal.observe(this) { isCheck ->
+            if (isCheck) {
+                webViewBridge.getCurrentLocation()
+                viewModel.offLocationSignal()
+            }
+        }
     }
 
     fun initWebView() {
-        binding.webView.settings.javaScriptEnabled = true
         binding.webView.webChromeClient = object : WebChromeClient() {
             override fun onGeolocationPermissionsShowPrompt(
                 origin: String?,
@@ -45,6 +76,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 callback?.invoke(origin, true, false)
             }
         }
+        binding.webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                viewModel.showHistories()
+            }
+        }
+
+        binding.webView.settings.javaScriptEnabled = true
+        binding.webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         binding.webView.addJavascriptInterface(webViewBridge, "Android")
         binding.webView.loadUrl("file:///android_asset/map.html")
     }

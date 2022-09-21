@@ -38,7 +38,9 @@
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
-                android:text="@string/address" />
+                android:text="@string/address"
+                android:onClick="@{() -> viewModel.onLocationSignal()}"
+                />
 
             <Button
                 android:id="@+id/historyButton"
@@ -46,7 +48,8 @@
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
-                android:text="@string/history" />
+                android:text="@string/history"
+                />
 
             <Button
                 android:id="@+id/settingButton"
