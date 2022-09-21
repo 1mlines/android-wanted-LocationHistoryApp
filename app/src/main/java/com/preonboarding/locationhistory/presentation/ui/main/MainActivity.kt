@@ -19,7 +19,8 @@ import com.google.gson.Gson
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.WebViewBridge
-import com.preonboarding.locationhistory.presentation.ui.BaseActivity
+import com.preonboarding.locationhistory.presentation.base.BaseActivity
+import com.preonboarding.locationhistory.presentation.ui.setting.SettingDialog
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
 import java.lang.ref.WeakReference
@@ -63,6 +64,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 webViewBridge.getCurrentLocation()
                 viewModel.offLocationSignal()
             }
+        }
+
+        binding.settingButton.setOnClickListener {
+            showSettingDialog()
         }
     }
 
@@ -133,11 +138,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         } else {
             Toast.makeText(this, "위치권한을 설정해주세요.", Toast.LENGTH_SHORT).show()
         }
+    }
 
+    fun showSettingDialog() {
+        SettingDialog().show(supportFragmentManager, "SettingDialog")
     }
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1
     }
 }
-
