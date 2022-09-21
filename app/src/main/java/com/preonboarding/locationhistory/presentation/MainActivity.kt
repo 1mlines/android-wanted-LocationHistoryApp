@@ -1,20 +1,29 @@
 package com.preonboarding.locationhistory.presentation
 
-import android.content.pm.PackageManager
+import android.Manifest
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 
+
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapFragment: MapFragment
+
+    companion object {
+        val locationPermissions = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,46 +32,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        checkUserPermission()
+        // permission Check
+        permissionLauncher.launch(locationPermissions)
 
         initMap()
         bindViews()
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun checkUserPermission(){
-        val permissions:Array<String> = arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
-
-//        var denied = permissions.count { ContextCompat.checkSelfPermission(this, it.value)  == PackageManager.PERMISSION_DENIED }
-//        if (denied > 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            requestPermissions(permissions.values.toTypedArray(), Constants.REQUEST_PERMISSIONS)
-//        }
-
-        if ( checkSelfPermission(permissions[0]) == PackageManager.PERMISSION_DENIED){
-            requestPermissions(permissions ,10 )
-            Toast.makeText(this, "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "위치 사용를 사용 할 수 있습니다", Toast.LENGTH_SHORT).show()
-        }
-
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if ( requestCode == PackageManager.PERMISSION_GRANTED ){
-            grantResults.forEach {
-                if (it == PackageManager.PERMISSION_DENIED){
-                    Toast.makeText(this, " 위치 권한이 필요합니다. ", Toast.LENGTH_SHORT).show()
-                }
+    val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val responsePermissions = permissions.entries.filter {
+                it.key in locationPermissions
+            }
+            if (responsePermissions.filter { it.value == true }.size == locationPermissions.size) {
+                // 사용자 위치 추적 메소드 기입 부분
+                Toast.makeText(this, "위치 정보 사용 가능", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "위치 정보를 사용할 수 없습니다. ", Toast.LENGTH_SHORT).show()
             }
         }
 
-    }
 
     private fun initMap() {
         mapFragment = supportFragmentManager.findFragmentById(R.id.naverMapFragment) as MapFragment?
