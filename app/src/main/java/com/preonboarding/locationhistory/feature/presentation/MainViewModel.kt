@@ -22,7 +22,7 @@ class MainViewModel @Inject constructor(
     val historyFromDate: LiveData<List<History>?>
         get() = _historyFromDate
 
-    fun getHistoryFromDate(date: Long) {
+    fun getHistoryFromDate(date: String) {
         viewModelScope.launch {
             _historyFromDate.value = getHistoryUseCase(date)
         }
@@ -34,8 +34,6 @@ class MainViewModel @Inject constructor(
                 saveHistoryUseCase(date, latitude, longitude)
             }.onFailure {
                 Log.e("saveHistory", "$it")
-            }.onSuccess {
-                getHistoryFromDate(date)
             }
         }
     }

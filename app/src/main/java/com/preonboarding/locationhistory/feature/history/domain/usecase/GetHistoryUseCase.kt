@@ -8,10 +8,9 @@ import javax.inject.Inject
 class GetHistoryUseCase @Inject constructor(
     private val mapRepository: MapRepository
 ) {
-    suspend operator fun invoke(date: Long): List<History>? {
-        val formatDate = date.toFormatDate()
+    suspend operator fun invoke(date: String): List<History>? {
         return runCatching {
-            mapRepository.getHistoryFromDate(formatDate)
+            mapRepository.getHistoryFromDate(date)
         }.getOrNull()
     }
 }

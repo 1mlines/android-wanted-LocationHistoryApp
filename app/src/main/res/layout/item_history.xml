@@ -5,6 +5,9 @@
 
     <data>
 
+        <variable
+            name="history"
+            type="com.preonboarding.locationhistory.data.entity.History" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -42,6 +45,7 @@
 
         <TextView
             android:id="@+id/tv_latitude_content"
+            bindLocation="@{history.latitude}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -53,6 +57,7 @@
 
         <TextView
             android:id="@+id/tv_longitude_content"
+            bindLocation="@{history.longitude}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -64,6 +69,7 @@
 
         <TextView
             android:id="@+id/tv_date_content"
+            text="@{history.time}"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"

@@ -12,28 +12,43 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.base.BaseActivity
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
+import com.preonboarding.locationhistory.feature.history.presentation.HistoryDialog
 import com.preonboarding.locationhistory.feature.map.presentation.CustomBalloonAdapter
+import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private val ACCESS_FINE_LOCATION = 1000
+
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         clickBtnAddress()
-
+        initView()
         // 커스텀 말풍선 등록
         binding.mapView.setCalloutBalloonAdapter(CustomBalloonAdapter(layoutInflater))
+    }
+
+    private fun initView() {
+        binding.apply {
+            btnHistory.setOnClickListener {
+                val dialog = HistoryDialog(mainViewModel)
+                dialog.show(this@MainActivity.supportFragmentManager, "hd")
+            }
+        }
     }
 
     private fun clickBtnAddress() {

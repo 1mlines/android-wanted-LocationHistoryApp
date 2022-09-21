@@ -9,28 +9,54 @@ import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.data.entity.toFormatDate
 import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
+import com.preonboarding.locationhistory.feature.presentation.MainViewModel
 import java.util.*
 
-class HistoryDialog : DialogFragment() {
+class HistoryDialog(
+    private val viewModel: MainViewModel
+) : DialogFragment() {
     private var _binding: DialogHistoryBinding? = null
     private val binding
         get() = _binding!!
+
+    private val historyAdapter: HistoryListAdapter by lazy {
+        HistoryListAdapter()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.getHistoryFromDate(getCurrentDate())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.dialog_history, container, false)
         val view = binding.root
+        observeToObservable()
         initView()
         return view
     }
 
     private fun initView() {
-        binding.tvHistoryDate.setOnClickListener {
-            showDatePicker()
+        binding.apply {
+            tvHistoryDate.apply {
+                setOnClickListener {
+                    showDatePicker()
+                }
+                text = getCurrentDate()
+            }
+            rvHistoryList.adapter = historyAdapter
+        }
+    }
+
+    private fun observeToObservable() {
+        viewModel.historyFromDate.observe(this@HistoryDialog) { historyList ->
+            historyAdapter.submitList(historyList?.toList())
         }
     }
 
@@ -38,7 +64,9 @@ class HistoryDialog : DialogFragment() {
         val calendar = Calendar.getInstance()
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-                binding.tvHistoryDate.text = "${year}.${month + 1}.${dayOfMonth}"
+                val date = "${year}." + formatMonth(month + 1) + ".${dayOfMonth}"
+                binding.tvHistoryDate.text = date
+                viewModel.getHistoryFromDate(date)
             }
         DatePickerDialog(
             requireActivity(),
@@ -61,5 +89,17 @@ class HistoryDialog : DialogFragment() {
         super.onDestroyView()
         binding.unbind()
         _binding = null
+    }
+
+    private fun getCurrentDate() =
+        System.currentTimeMillis().toFormatDate()
+
+    private fun formatMonth(month: Int): String {
+        val formatMonth = "0$month"
+        return if (formatMonth.length != 2) {
+            formatMonth.substring(formatMonth.length - 2, formatMonth.length)
+        } else {
+            formatMonth
+        }
     }
 }
