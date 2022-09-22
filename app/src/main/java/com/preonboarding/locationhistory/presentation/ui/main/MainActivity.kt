@@ -25,7 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
-import com.preonboarding.locationhistory.presentation.custom.dialog.AddressDialog
+import com.preonboarding.locationhistory.presentation.custom.dialog.AddressFragmentDialog
 import com.preonboarding.locationhistory.presentation.custom.dialog.TimerFragmentDialog
 import com.preonboarding.locationhistory.presentation.custom.dialog.bottom.HistoryBottomSheetFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -107,9 +107,12 @@ class MainActivity : AppCompatActivity() {
                 "SettingFragmentDialog"
             )
         }
+
         binding.mainAddressBtn.setOnClickListener {
-            AddressDialog(this).show(
-                getAddress().toString().substring(5)
+            val address = getAddress().toString().substring(5)
+            AddressFragmentDialog(address).show(
+                supportFragmentManager,
+                "AddressFragmentDialog"
             )
         }
     }
