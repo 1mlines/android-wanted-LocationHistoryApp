@@ -39,7 +39,7 @@ class LocationWorker @AssistedInject constructor(
 
                 val now = System.currentTimeMillis()
                 val date = Date(now)
-                val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
+                val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.KOREA)
                 val time = simpleDateFormat.format(date)
                 if (latitude != null && longitude != null) {
                     val entity = LocationEntity(

@@ -23,6 +23,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.custom.dialog.AddressDialog
 import com.preonboarding.locationhistory.presentation.custom.dialog.TimerFragmentDialog
@@ -57,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         if (checkLocationService()) {
             permissionCheck()
         } else {
-            Toast.makeText(this, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.check_gps_text), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.CREATED) {
                 mainViewModel.currentDate.collect {
-                    Timber.tag(TAG).e("오늘 날짜 : $it")
+                    Timber.tag(TAG).d("오늘 날짜 : $it")
                 }
             }
         }
@@ -121,11 +122,11 @@ class MainActivity : AppCompatActivity() {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // 권한 거절 (다시 한 번 물어봄)
                 val builder = AlertDialog.Builder(this)
-                builder.setMessage("현재 위치를 확인하시려면 위치 권한을 허용해주세요.")
-                builder.setPositiveButton("확인") { dialog, which ->
+                builder.setMessage(getString(R.string.check_location_permission_text))
+                builder.setPositiveButton(getString(R.string.dialog_ok_text)) { dialog, which ->
                     ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION)
                 }
-                builder.setNegativeButton("취소") { dialog, which ->
+                builder.setNegativeButton(getString(R.string.dialog_cancel_text)) { dialog, which ->
                 }
                 builder.show()
             } else {
@@ -136,12 +137,12 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     // 다시 묻지 않음 클릭 (앱 정보 화면으로 이동)
                     val builder = AlertDialog.Builder(this)
-                    builder.setMessage("현재 위치를 확인하시려면 설정에서 위치 권한을 허용해주세요.")
-                    builder.setPositiveButton("설정으로 이동") { dialog, which ->
+                    builder.setMessage(getString(R.string.check_location_permission_text))
+                    builder.setPositiveButton(getString(R.string.go_to_setting_text)) { dialog, which ->
                         val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
                         startActivity(intent)
                     }
-                    builder.setNegativeButton("취소") { dialog, which ->
+                    builder.setNegativeButton(getString(R.string.dialog_cancel_text)) { dialog, which ->
                     }
                     builder.show()
                 }
@@ -158,14 +159,14 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == ACCESS_FINE_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // 권한 요청 후 승인됨 (추적 시작)
-                Toast.makeText(this, "위치 권한이 승인되었습니다", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.permit_location_text), Toast.LENGTH_SHORT).show()
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     checkBackgroundLocationAccess()
                 }
                 startTracking()
             } else {
                 // 권한 요청 후 거절됨 (다시 요청 or 토스트)
-                Toast.makeText(this, "위치 권한이 거절되었습니다", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.reject_location_text), Toast.LENGTH_SHORT).show()
                 permissionCheck()
             }
         }
@@ -189,7 +190,7 @@ class MainActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(
                     this,
                     arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                    2000
+                    REQUEST_CODE
                 )
             }
         } else {
@@ -199,7 +200,7 @@ class MainActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ),
-                2000
+                REQUEST_CODE
             )
         }
     }
@@ -280,7 +281,7 @@ class MainActivity : AppCompatActivity() {
                 userAddress = currentAddress[0].getAddressLine(0)
             }
         } else {
-            userAddress = "gps 연결을 확인해주세요"
+            userAddress = getString(R.string.check_gps_text)
         }
         return userAddress
     }
@@ -288,5 +289,6 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "MainActivity"
         private const val ACCESS_FINE_LOCATION = 1000 // Request Code
+        private const val REQUEST_CODE = 2000
     }
 }
