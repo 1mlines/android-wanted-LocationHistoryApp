@@ -8,7 +8,9 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.*
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -17,8 +19,9 @@ import com.preonboarding.locationhistory.databinding.FragmentHistoryBottomSheetB
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.*
 
 
@@ -53,6 +56,7 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mainViewModel.getHistoryWithDate()
         initAdapter()
         initListener()
         bindingViewModel()
@@ -64,24 +68,29 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun bindingViewModel() {
-        lifecycleScope.launchWhenStarted {
-            with(mainViewModel) {
-                currentDate.collect {
-                    binding.historyBottomDateTv.text = it
+        lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+                with(mainViewModel) {
+                    currentDate.collect {
+                        binding.historyBottomDateTv.text = it
 
-                    val dateInfo = it.split("-")
-                    this.calendar.apply {
-                        set(Calendar.YEAR, dateInfo[0].toInt())
-                        set(Calendar.MONTH, dateInfo[1].toInt())
-                        set(Calendar.DAY_OF_MONTH, dateInfo[2].toInt())
+                        val dateInfo = it.split("-")
+                        this.calendar.apply {
+                            set(Calendar.YEAR, dateInfo[0].toInt())
+                            set(Calendar.MONTH, dateInfo[1].toInt())
+                            set(Calendar.DAY_OF_MONTH, dateInfo[2].toInt())
+                        }
                     }
                 }
             }
         }
 
-        lifecycleScope.launchWhenStarted {
-            mainViewModel.currentHistory.collect {
-                historyListAdapter.submitList(it)
+        lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.STARTED) {
+                mainViewModel.currentHistory.collect {
+                    Timber.tag(TAG).e(it.toString())
+                    historyListAdapter.submitList(it)
+                }
             }
         }
     }
@@ -91,12 +100,23 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
             createDatePickerDialog()
         }
 
-        binding.historyBottomCancelBtn.setOnClickListener {
+        binding.historyBottomXBtn.setOnClickListener {
             dialog?.dismiss()
         }
+    }
 
-        binding.historyBottomOkBtn.setOnClickListener {
-            dialog?.dismiss()
+    private fun updateHistoryList() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                kotlin.runCatching {
+                    mainViewModel.getHistoryWithDate()
+                }
+                    .onSuccess {
+                        mainViewModel.currentHistory.collectLatest {
+                            historyListAdapter.submitList(it)
+                        }
+                    }
+            }
         }
     }
 
@@ -107,6 +127,7 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
             this.requireContext(),
             { _, year, month, dayOfMonth ->
                 mainViewModel.updateCurrentDate(year, month, dayOfMonth)
+                updateHistoryList()
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH) - 1,
