@@ -123,7 +123,45 @@
 
 
 
+#### 맵 연동
+*map.html*
+![image](https://user-images.githubusercontent.com/45396949/191758710-23f381ef-862a-4ee8-a42a-bdeda6b3da20.png)
+- assets 파일에 html 파일을 구성하여 apk에 포함되도록 구성했습니다.
+- 웹뷰에서 호출하는 html으로, 비동기적으로 JavaScript에서 구현한 initMap()를 호출하여 Map을 구성합니다. 
 
+*javascript* 
+
+![image](https://user-images.githubusercontent.com/45396949/191758329-9bd6a89b-7214-425d-86f3-eabb6c5055d9.png)
+- zoom: 20 으로 건물이 보이는 정도로 거리를 유지했습니다.
+- disableDefaultUI: true 로 지정하여 기본적으로 구성하는 버튼을 사용하지 않도록 만들었습니다.
+
+#### 히스토리 불러오기
+
+*LocalDataSource*
+
+![image](https://user-images.githubusercontent.com/45396949/191771361-7d30691a-35b6-402d-9af9-32a992e900e0.png)
+- Room DB를 flow를 이용하여 변경이 발생했을 시, 데이터를 방출할 수 있는 구조로 설계했습니다. 
+
+*WebViewBridge*
+
+![image](https://user-images.githubusercontent.com/45396949/191771614-a64ecaee-b330-4452-8aae-e08c058001cd.png)
+
+-WebViewBridge를 통해 collect로부터 전달받은 history 정보를 Map에 전달합니다. 
+
+*JavaScriptUrlUtil*
+
+![image](https://user-images.githubusercontent.com/45396949/191772451-c7d92157-7015-4423-b6cf-0b96dea6f373.png)
+
+- Util 클래스를 통해서 webView 요청을 위한 Url을 생성합니다.
+- javascript를 호출하기 위한 url로, error 처리를 위해서 try/catch 문으로 작성하였습니다. 
+
+*JavaScript*
+
+![image](https://user-images.githubusercontent.com/45396949/191773136-2b3aaf6d-69c3-4f4f-8a84-997064c6a367.png)
+
+- url을 통해 실행될 JavaScript 파일입니다.
+- bridge를 통한 데이터 전달은 직렬화를 통해서만 가능하기 때문에 javascript에서 다시 역직렬화하여 객체값으로 구성했습니다.
+- room에 저장된 위/경도에 따라 마커를 추가하도록 합니다. 
 
 
 
