@@ -3,13 +3,18 @@ package com.preonboarding.locationhistory.feature.presentation
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -17,6 +22,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.base.BaseActivity
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
@@ -26,13 +34,35 @@ import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private val ACCESS_FINE_LOCATION = 1000
 
+    private var alarmMgr: AlarmManager? = null
+    private lateinit var alarmIntent: PendingIntent
+
     private val mainViewModel: MainViewModel by viewModels()
+
+    var mLocationManager: LocationManager? = null
+    var mLocationListener: LocationListener? = null
+
+    val gpsLocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            val provider: String = location.provider
+            val longitude: Double = location.longitude
+            val latitude: Double = location.latitude
+            val altitude: Double = location.altitude
+
+            Log.e("gpsLocationListener", "$latitude $altitude")
+        }
+
+        //아래 3개함수는 형식상 필수부분
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,12 +79,27 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     }
 
+//    @SuppressLint("UnspecifiedImmutableFlag")
+//    fun addAlarm(){
+//        val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//        val intent = Intent(this, Alarm::class.java)
+//        val pIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+//
+//
+//
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pIntent)
+//        }
+//    }
+
+
     private fun initView() {
         binding.btnSetting.setOnClickListener {
             val dialog = SetTimeDialog()
             dialog.show(supportFragmentManager, "다이얼로그")
         }
     }
+
 
     private fun clickBtnAddress() {
         binding.btnAddress.setOnClickListener {
@@ -170,6 +215,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
         val lm: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val userNowLocation: Location? = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+        mainViewModel.setTime.observe(this) {
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10*60*it.toString().toLong(),0F,gpsLocationListener)
+        }
+
+
+
         //위도 , 경도
         val uLatitude = userNowLocation?.latitude
         val uLongitude = userNowLocation?.longitude
