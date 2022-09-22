@@ -6,13 +6,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.preonboarding.locationhistory.local.database.AppDatabase
-import com.preonboarding.locationhistory.local.entity.History
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
@@ -37,20 +35,17 @@ class HistoryDaoTest {
 
     @Test
     fun historyDaoTest() {
-        val history = History(latitude = 3.3, longitude = 3.3)
-        appDatabase.historyDao().insertHistory(latitude = 3.3, longitude = 3.3)
+        val latitude = 3.3
+        val longitude = 4.4
+        val createdAt = "2022-09-22" //today's yyyy-mm-dd
+        appDatabase.historyDao().insertHistory(latitude, longitude)
 
-//        var historyByDistance = appDatabase.historyDao().findDistinctByDistance(distance = 0.2)[0]
-//        Log.d("historyByDistance", historyByDistance.toString())
-//        assertThat(history.latitude, equalTo(historyByDistance.latitude))
+        var findAll = appDatabase.historyDao().findAll()
+        Log.d("findAll", findAll.toString())
+        assertThat(latitude, equalTo(findAll[0].latitude))
 
-//        var historyByDistanceAndCreatedAt = appDatabase.historyDao()
-//            .findHistoryByDistanceAndCreatedAt(
-//                distance = 0.2,
-//                createdAt = LocalDate.now().toString()
-//            )[0]
-//        Log.d("now", LocalDate.now().toString())
-//        Log.d("historyByDistanceAndCreatedAt", historyByDistanceAndCreatedAt.toString())
-//        assertThat(history.latitude, equalTo(historyByDistanceAndCreatedAt.latitude))
+        var findByCreatedAt = appDatabase.historyDao().findByCreatedAt(createdAt)
+        Log.d("findByCreatedAt", findByCreatedAt.toString())
+        assertThat(latitude, equalTo(findByCreatedAt[0].latitude))
     }
 }
