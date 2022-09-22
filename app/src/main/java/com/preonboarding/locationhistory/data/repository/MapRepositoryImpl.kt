@@ -2,7 +2,7 @@ package com.preonboarding.locationhistory.data.repository
 
 import com.preonboarding.locationhistory.data.database.MapDao
 import com.preonboarding.locationhistory.data.entity.History
-import com.preonboarding.locationhistory.domain.MapRepository
+import com.preonboarding.locationhistory.feature.history.domain.MapRepository
 import javax.inject.Inject
 
 class MapRepositoryImpl @Inject constructor(

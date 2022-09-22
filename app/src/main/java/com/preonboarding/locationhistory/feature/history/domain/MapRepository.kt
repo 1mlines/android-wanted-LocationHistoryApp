@@ -1,4 +1,4 @@
-package com.preonboarding.locationhistory.domain
+package com.preonboarding.locationhistory.feature.history.domain
 
 import com.preonboarding.locationhistory.data.entity.History
 

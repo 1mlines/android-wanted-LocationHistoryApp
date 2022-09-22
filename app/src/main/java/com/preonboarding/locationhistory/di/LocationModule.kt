@@ -1,7 +1,7 @@
 package com.preonboarding.locationhistory.di
 
 import com.preonboarding.locationhistory.data.repository.MapRepositoryImpl
-import com.preonboarding.locationhistory.domain.MapRepository
+import com.preonboarding.locationhistory.feature.history.domain.MapRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
