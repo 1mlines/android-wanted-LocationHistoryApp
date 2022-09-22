@@ -8,19 +8,13 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.view.*
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.adapter.HistoryDialogAdapter
 import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
 import com.preonboarding.locationhistory.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -48,21 +42,11 @@ class HistoryDialog : DialogFragment() {
         binding.lifecycleOwner = this
         binding.mainViewModel = mainViewModel
 
-        initViewModel()
-        clickListeners()
-        getTodayCalendar()
         makeHistoryRecyclerView()
+        getTodayCalendar()
+        initViewModel()
+
         return binding.root
-    }
-
-    private fun clickListeners() {
-        binding.textViewHistoryDialogDate.setOnClickListener {
-            showDateDialog()
-        }
-
-        binding.buttonHistoryDialogCancel.setOnClickListener {
-            dialog?.dismiss()
-        }
     }
 
     private fun dialogResize() {
@@ -104,15 +88,9 @@ class HistoryDialog : DialogFragment() {
     }
 
     private fun makeHistoryRecyclerView() {
-        lifecycleScope.launch {
-            mainViewModel.historyResponse.value =
-                mainViewModel.findByDistanceAndCreatedAt(mainViewModel.dateName.value!!)
-
-            mAdapter.setData(mainViewModel.historyResponse.value!!)
-            binding.recyclerViewHistoryDialog.apply {
-                adapter = mAdapter
-                layoutManager = LinearLayoutManager(context)
-            }
+        binding.recyclerViewHistoryDialog.apply {
+            adapter = mAdapter
+            layoutManager = LinearLayoutManager(context)
         }
     }
 
@@ -132,13 +110,32 @@ class HistoryDialog : DialogFragment() {
     }
 
     private fun initViewModel() {
-        mainViewModel.dialog.observe(this) {
-            if(it.consumed) return@observe
+        mainViewModel.dialogDatePicker.observe(this) {
+            if (it.consumed) return@observe
+
+            showDateDialog()
+            it.consume()
+        }
+
+        mainViewModel.dialogConfirm.observe(this) {
+            if (it.consumed) return@observe
 
             dialog?.dismiss()
             it.consume()
         }
+
+        mainViewModel.dialogCancel.observe(this) {
+            if (it.consumed) return@observe
+
+            dialog?.dismiss()
+            it.consume()
+        }
+
+        mainViewModel.historyResponse.observe(this) {
+            mAdapter.setData(it)
+        }
     }
+
     override fun onResume() {
         super.onResume()
 
