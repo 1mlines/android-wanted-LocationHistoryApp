@@ -7,10 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.preonboarding.locationhistory.domain.model.Location
 import com.preonboarding.locationhistory.domain.repository.LocationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,8 +21,13 @@ class MainViewModel @Inject constructor(
     private val _currentLocationSignal = MutableLiveData(false)
     val currentLocationSignal: LiveData<Boolean> = _currentLocationSignal
 
+    fun getLocations(date: Long) {
+        viewModelScope.launch {
+            _locations.value = repository.getLocations(date)
+        }
+    }
 
-    fun showHistories(){
+    fun showHistories() {
         viewModelScope.launch {
             _locations.value = repository.getAllLocations()
         }

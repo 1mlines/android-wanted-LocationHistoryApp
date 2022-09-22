@@ -20,6 +20,7 @@ import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.WebViewBridge
 import com.preonboarding.locationhistory.presentation.base.BaseActivity
+import com.preonboarding.locationhistory.presentation.ui.history.HistoryDialog
 import com.preonboarding.locationhistory.presentation.ui.setting.SettingDialog
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -65,6 +66,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
         binding.settingButton.setOnClickListener {
             showSettingDialog()
+        }
+
+        binding.historyButton.setOnClickListener {
+            showHistoryDialog()
         }
     }
 
@@ -139,6 +144,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private fun showSettingDialog() {
         SettingDialog().show(supportFragmentManager, "SettingDialog")
+    }
+
+    private fun showHistoryDialog() {
+        HistoryDialog().show(supportFragmentManager, "HistoryDialog")
     }
 
     companion object {
