@@ -3,6 +3,7 @@ package com.preonboarding.locationhistory.presentation
 import android.Manifest
 import android.app.Dialog
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
@@ -24,14 +25,17 @@ import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
+import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MIN
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.databinding.DialogSaveHistorySettingsBinding
 import com.preonboarding.locationhistory.util.AnimationUtil.shakeAnimation
+import com.preonboarding.locationhistory.util.PreferencesUtil
 import timber.log.Timber
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback,
+    SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapFragment: MapFragment
     private lateinit var locationSource: FusedLocationSource
@@ -87,6 +91,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         initMap()
         bindViews()
+        initSharedPreferences()
     }
 
     override fun onRequestPermissionsResult(
@@ -128,67 +133,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             showSettingDialog()
         }
     }
-
-    /*
-    * settings dialog
-    * */
-
-    private fun showSettingDialog() {
-        Dialog(this).apply {
-            val dialogBinding: DialogSaveHistorySettingsBinding =
-                DataBindingUtil.inflate(
-                    LayoutInflater.from(this@MainActivity),
-                    R.layout.dialog_save_history_settings,
-                    binding.root,
-                    false
-                )
-            setContentView(dialogBinding.root)
-            show()
-
-            dialogBinding.cancelButton.setOnClickListener {
-                dismiss()
-            }
-
-            dialogBinding.confirmButton.setOnClickListener {
-
-                val isCorrectPeriod: Boolean = saveHistoryPeriodValidationCheck(
-                    dialogBinding.saveHistoryPeriodEditText.text.toString()
-                )
-                when (isCorrectPeriod) {
-                    true -> {
-                        //TODO savePeriod
-                        dismiss()
-                    }
-                    else -> {
-                        showValidationWarning(dialogBinding.saveHistoryPeriodWarningTextView)
-                    }
-                }
-            }
-        }
-
-    }
-
-    private fun saveHistoryPeriodValidationCheck(period: String): Boolean {
-        Timber.d("period $period")
-        return try {
-            when (period.toInt()) {
-                in SAVE_HISTORY_PERIOD_MIN..SAVE_HISTORY_PERIOD_MAX -> {
-                    true
-                }
-                else -> {
-                    false
-                }
-            }
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    private fun showValidationWarning(view: View) {
-        view.visibility = View.VISIBLE
-        view.startAnimation(shakeAnimation(view.context))
-    }
-
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
@@ -234,4 +178,82 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             isCompassEnabled = false
         }
     }
+
+    /*
+    * sharedPreferences
+    * */
+
+    private fun initSharedPreferences() {
+        PreferencesUtil.initSharedPreferences(this.applicationContext)
+        PreferencesUtil.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        key?.let {
+            if (it == SAVE_HISTORY_PERIOD_KEY) {
+                //TODO work 실행
+                Timber.d("period: ${PreferencesUtil.getSaveHistoryPeriod()}")
+            }
+        }
+    }
+
+    /*
+    * settings dialog
+    * */
+
+    private fun showSettingDialog() {
+        Dialog(this).apply {
+            val dialogBinding: DialogSaveHistorySettingsBinding =
+                DataBindingUtil.inflate(
+                    LayoutInflater.from(this@MainActivity),
+                    R.layout.dialog_save_history_settings,
+                    binding.root,
+                    false
+                )
+            setContentView(dialogBinding.root)
+            show()
+
+            dialogBinding.cancelButton.setOnClickListener {
+                dismiss()
+            }
+
+            dialogBinding.confirmButton.setOnClickListener {
+                val periodText = dialogBinding.saveHistoryPeriodEditText.text
+                val isCorrectPeriod: Boolean = saveHistoryPeriodValidationCheck(
+                    periodText.toString()
+                )
+                when (isCorrectPeriod) {
+                    true -> {
+                        PreferencesUtil.setSaveHistoryPeriod(periodText.toString().toInt())
+                        dismiss()
+                    }
+                    else -> {
+                        showValidationWarning(dialogBinding.saveHistoryPeriodWarningTextView)
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun saveHistoryPeriodValidationCheck(period: String): Boolean {
+        return try {
+            when (period.toInt()) {
+                in SAVE_HISTORY_PERIOD_MIN..SAVE_HISTORY_PERIOD_MAX -> {
+                    true
+                }
+                else -> {
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    private fun showValidationWarning(view: View) {
+        view.visibility = View.VISIBLE
+        view.startAnimation(shakeAnimation(view.context))
+    }
+
 }

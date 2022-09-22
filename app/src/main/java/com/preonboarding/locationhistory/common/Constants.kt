@@ -9,4 +9,8 @@ object Constants {
 
     const val SAVE_HISTORY_PERIOD_MIN = 15
     const val SAVE_HISTORY_PERIOD_MAX = 60
+
+    const val SAVE_HISTORY_PERIOD_KEY = "saveHistoryPeriodKey"
+    const val SHARED_PREFERENCES = "sharedPreferences"
+
 }
