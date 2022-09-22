@@ -17,6 +17,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.FragmentHistoryBottomSheetBinding
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
@@ -105,10 +108,18 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
 
     private fun updateHistoryList() {
         lifecycleScope.launch {
-            mainViewModel.getHistoryWithDate()
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                kotlin.runCatching {
+                    mainViewModel.getHistoryWithDate()
+                }
+                    .onSuccess {
+                        mainViewModel.currentHistory.collectLatest {
+                            historyListAdapter.submitList(it)
+                        }
+                    }
+            }
         }
     }
-
 
     private fun createDatePickerDialog() {
         val calendar = mainViewModel.calendar

@@ -79,7 +79,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             kotlin.runCatching {
                 locationRepository.getLocationsWithDate(date = _currentDate.value)
-                    .collectLatest {
+                    .collect {
                         Timber.tag(TAG).e("${_currentDate.value} 날짜로 가져온 $it")
                         _currentHistory.value = it.toMutableList()
                     }
