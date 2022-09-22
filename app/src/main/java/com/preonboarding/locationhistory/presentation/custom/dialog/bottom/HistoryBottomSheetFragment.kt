@@ -68,7 +68,6 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun bindingViewModel() {
-
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.STARTED) {
                 with(mainViewModel) {
