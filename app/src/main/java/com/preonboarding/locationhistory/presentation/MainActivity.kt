@@ -42,10 +42,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapFragment: MapFragment
-    private lateinit var locationSource: FusedLocationSource
     private lateinit var naverMap: NaverMap
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val fusedLocationClient: FusedLocationProviderClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
+    private val locationSource: FusedLocationSource by lazy { FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE) }
 
     companion object {
         val locationPermissions = arrayOf(
@@ -110,8 +110,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         // permission Check
         permissionLauncher.launch(locationPermissions)
-        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         initMap()
         bindViews()
@@ -176,15 +174,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         naverMap.locationSource = locationSource
 
         setMapUiSettings()
+        getCurrentLatLng()
 
+        trackLocationChanged()
+    }
+
+    private fun trackLocationChanged() {
+        naverMap.addOnLocationChangeListener { location ->
+            naverMap.locationOverlay.run {
+                isVisible = true
+                position = LatLng(location.latitude, location.longitude)
+            }
+
+            val cameraUpdate = CameraUpdate.scrollTo(
+                LatLng(location.latitude, location.longitude)
+            )
+
+            naverMap.moveCamera(cameraUpdate)
+
+        }
+    }
+
+    private fun getCurrentLatLng() {
         var currentLocation: Location?
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
@@ -192,18 +206,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             currentLocation = location
 
-            naverMap.locationOverlay.run {
-                isVisible = true
-                position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+            if (currentLocation != null) {
+                Timber.e("${currentLocation?.latitude} // ${currentLocation?.longitude}")
             }
 
-            val cameraUpdate = CameraUpdate.scrollTo(
-                LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
-            )
-
-            naverMap.moveCamera(cameraUpdate)
-
-            Timber.e("${currentLocation!!.latitude} // ${currentLocation!!.longitude}")
         }
     }
 
