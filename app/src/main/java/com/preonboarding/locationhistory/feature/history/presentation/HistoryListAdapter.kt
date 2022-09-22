@@ -10,7 +10,9 @@ import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.data.entity.History
 import com.preonboarding.locationhistory.databinding.ItemHistoryBinding
 
-class HistoryListAdapter : ListAdapter<History, HistoryListAdapter.HistoryViewHolder>(diffUtil) {
+class HistoryListAdapter(
+    private val itemClickListener: (History) -> Unit
+) : ListAdapter<History, HistoryListAdapter.HistoryViewHolder>(diffUtil) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
         return HistoryViewHolder(
@@ -19,7 +21,8 @@ class HistoryListAdapter : ListAdapter<History, HistoryListAdapter.HistoryViewHo
                 R.layout.item_history,
                 parent,
                 false
-            )
+            ),
+            itemClickListener
         )
     }
 
@@ -29,7 +32,19 @@ class HistoryListAdapter : ListAdapter<History, HistoryListAdapter.HistoryViewHo
 
     class HistoryViewHolder(
         private val binding: ItemHistoryBinding,
+        private val itemClickListener: (History) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.apply {
+                itemView.setOnClickListener {
+                    history?.let {
+                        itemClickListener(it)
+                    }
+                }
+            }
+        }
+
         fun bind(item: History) {
             binding.apply {
                 history = item

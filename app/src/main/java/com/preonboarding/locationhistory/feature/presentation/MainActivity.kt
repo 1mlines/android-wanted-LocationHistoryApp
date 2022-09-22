@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.base.BaseActivity
+import com.preonboarding.locationhistory.data.entity.History
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.feature.history.presentation.HistoryDialog
 import com.preonboarding.locationhistory.feature.map.presentation.CustomBalloonAdapter
@@ -179,5 +180,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.mapView.addPOIItem(marker)
 
         Toast.makeText(this, "lat: $uLatitude, long: $uLongitude", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun doOnclick(item: History){
+        //TODO 해당 좌표로 이동하는 로직 넣으면 좋을듯
     }
 }
