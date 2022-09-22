@@ -2,19 +2,22 @@ package com.preonboarding.locationhistory.presentation.ui.main
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.*
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.view.View
 import android.view.ViewTreeObserver
 import android.webkit.GeolocationPermissions
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -184,8 +187,26 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         ) {
             checkPermission()
         } else {
-            Toast.makeText(this, getString(R.string.locationError), Toast.LENGTH_SHORT).show()
+            showRationalDialogForPermissions()
         }
+    }
+
+    private fun showRationalDialogForPermissions() {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.locationErrorMsg)
+            .setPositiveButton(R.string.setting) { _, _ ->
+                try {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                }
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }.show()
     }
 
     private fun showSettingDialog() {
