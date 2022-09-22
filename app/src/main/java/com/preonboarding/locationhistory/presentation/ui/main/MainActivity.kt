@@ -56,17 +56,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindingViewModel() {
-        lifecycleScope.launchWhenCreated {
-            mainViewModel.currentDate.collect {
-                Timber.tag(TAG).e("오늘 날짜 : $it")
+        lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.CREATED) {
+                mainViewModel.currentDate.collect {
+                    Timber.tag(TAG).e("오늘 날짜 : $it")
+                }
             }
         }
 
-        lifecycleScope.launchWhenCreated {
-            mainViewModel.currentHistory.collect {
-                Timber.tag(TAG).e("히스토리 : $it")
-            }
-        }
+//        lifecycleScope.launch {
+//            repeatOnLifecycle(state = Lifecycle.State.CREATED) {
+//                mainViewModel.currentHistory.collect {
+//                    Timber.tag(TAG).e("히스토리 : $it")
+//                }
+//            }
+//        }
+
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
                 mainViewModel.localMarker.collect { markList ->

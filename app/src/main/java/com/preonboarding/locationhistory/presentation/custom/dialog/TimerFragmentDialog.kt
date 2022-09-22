@@ -32,7 +32,7 @@ class TimerFragmentDialog : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         isCancelable = false
         return binding.root

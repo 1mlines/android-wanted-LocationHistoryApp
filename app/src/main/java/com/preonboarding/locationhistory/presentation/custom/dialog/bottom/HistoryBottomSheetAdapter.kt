@@ -7,8 +7,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.preonboarding.locationhistory.databinding.ItemHistoryListBinding
 import com.preonboarding.locationhistory.presentation.model.Location
+import timber.log.Timber
 
-class HistoryBottomSheetAdapter : ListAdapter<Location, HistoryBottomSheetAdapter.ViewHolder>(diffCallback) {
+class HistoryBottomSheetAdapter
+    : ListAdapter<Location, HistoryBottomSheetAdapter.ViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(ItemHistoryListBinding.inflate(
@@ -37,12 +39,18 @@ class HistoryBottomSheetAdapter : ListAdapter<Location, HistoryBottomSheetAdapte
     }
 
     companion object {
-        private val diffCallback = object : DiffUtil.ItemCallback<Location>() {
-            override fun areItemsTheSame(oldItem: Location, newItem: Location): Boolean =
-                oldItem.id == newItem.id
+        private const val TAG = "HistoryBottomSheetAdapter"
 
-            override fun areContentsTheSame(oldItem: Location, newItem: Location): Boolean =
-                oldItem == newItem
+        private val diffCallback = object : DiffUtil.ItemCallback<Location>() {
+            override fun areItemsTheSame(oldItem: Location, newItem: Location): Boolean {
+                Timber.tag(TAG).e("oldid : ${oldItem.id} newid : ${newItem.id} return ${oldItem.id == newItem.id}")
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: Location, newItem: Location): Boolean {
+                Timber.tag(TAG).e("olditem : $oldItem newitem : $newItem return ${oldItem == newItem}")
+                return oldItem == newItem
+            }
         }
     }
 }
