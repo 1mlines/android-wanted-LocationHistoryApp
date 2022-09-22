@@ -10,7 +10,11 @@ import com.preonboarding.locationhistory.data.entity.History
 import com.preonboarding.locationhistory.feature.history.domain.usecase.GetHistoryUseCase
 import com.preonboarding.locationhistory.feature.history.domain.usecase.SaveHistoryUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.daum.mf.map.api.MapPOIItem
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,9 +28,13 @@ class MainViewModel @Inject constructor(
         get() = _historyFromDate
 
     private val _setTime = MutableLiveData<String>()
-    val setTime: LiveData<String> = _setTime
+    val setTime: LiveData<String>
+        get() = _setTime
 
-    init{
+    private val _currentMarkerList = MutableStateFlow<List<MapPOIItem>>(emptyList())
+    val currentMarkerList = _currentMarkerList.asStateFlow()
+
+    init {
         getSetTime()
     }
 
@@ -46,9 +54,29 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun getSetTime(){
+    fun clearMarkerList() {
         viewModelScope.launch {
-            _setTime.value=LocationHistoryApp.prefs.setTime
+            _currentMarkerList.value = emptyList()
         }
     }
+
+    fun addMarkerList(marker: MapPOIItem) {
+        viewModelScope.launch {
+            Log.d("marker", "marker: $marker")
+            _currentMarkerList.update {
+                val newList = mutableListOf<MapPOIItem>()
+                newList.addAll(_currentMarkerList.value)
+                newList.add(marker)
+                newList.toList()
+            }
+            Log.d("marker", "markerList: ${_currentMarkerList.value.toString()}")
+        }
+    }
+
+    private fun getSetTime() {
+        viewModelScope.launch {
+            _setTime.value = LocationHistoryApp.prefs.setTime
+        }
+    }
+
 }

@@ -9,13 +9,15 @@ import java.text.SimpleDateFormat
 @Parcelize
 @Entity
 data class History(
-    @PrimaryKey
     val time: String,
 
     val date: String,
     val latitude: Double,
     val longitude: Double,
-) : Parcelable
+) : Parcelable {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
+}
 
 fun Long.toFormatTime(): String = SimpleDateFormat("yyyy.MM.dd HH:mm").format(this)
 
