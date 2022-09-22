@@ -27,6 +27,8 @@ class LocationRepository @Inject constructor(
                         entity.asModel()
                     }
                 )
+            } else {
+                emit(emptyList())
             }
         }
     }

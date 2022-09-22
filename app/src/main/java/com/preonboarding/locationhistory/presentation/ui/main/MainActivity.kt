@@ -10,10 +10,12 @@ import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -24,6 +26,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.custom.dialog.AddressDialog
 import com.preonboarding.locationhistory.presentation.custom.dialog.HistoryFragmentDialog
+import com.preonboarding.locationhistory.presentation.custom.dialog.bottom.HistoryBottomSheetFragment
 import com.preonboarding.locationhistory.presentation.custom.dialog.TimerFragmentDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -38,32 +41,36 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapView: MapView
+
     private val mainViewModel: MainViewModel by viewModels()
-    private val ACCESS_FINE_LOCATION = 1000     // Request Code
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         mainViewModel.initCurrentDate()
+
+        bindingViewModel()
+        initMapView()
+        initListener()
 
         if (checkLocationService()) {
             permissionCheck()
         } else {
             Toast.makeText(this, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
         }
-
-        bindingViewModel()
-        initMapView()
-        initListener()
-        setContentView(binding.root)
     }
 
     private fun bindingViewModel() {
-        lifecycleScope.launchWhenCreated {
-            mainViewModel.currentDate.collect {
-                Timber.tag(HistoryFragmentDialog.TAG).e("오늘 날짜 : $it")
+        lifecycleScope.launch {
+            repeatOnLifecycle(state = Lifecycle.State.CREATED) {
+                mainViewModel.currentDate.collect {
+                    Timber.tag(TAG).e("오늘 날짜 : $it")
+                }
             }
         }
+
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
                 mainViewModel.localMarker.collect { markList ->
@@ -83,11 +90,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun initListener() {
         binding.mainHistoryBtn.setOnClickListener {
-            HistoryFragmentDialog().show(
-                supportFragmentManager,
-                "HistoryFragmentDialog"
+            HistoryBottomSheetFragment().show(
+                supportFragmentManager, "HistoryBottomSheetFragment"
             )
         }
+
         binding.mainSettingBtn.setOnClickListener {
             TimerFragmentDialog().show(
                 supportFragmentManager,
@@ -100,24 +107,6 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
-
-    // key hash값 얻기
-//    private fun getAppKeyHash() {
-//        try {
-//            val info =
-//                packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-//            for (signature in info.signatures) {
-//                var md: MessageDigest
-//                md = MessageDigest.getInstance("SHA")
-//                md.update(signature.toByteArray())
-//                val something = String(Base64.encode(md.digest(), 0))
-//                Log.e("Hash key", something)
-//            }
-//        } catch (e: Exception) {
-//
-//            Log.e("name not found", e.toString())
-//        }
-//    }
 
     private fun permissionCheck() {
         val preference = getPreferences(MODE_PRIVATE)
@@ -132,7 +121,6 @@ class MainActivity : AppCompatActivity() {
                     ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), ACCESS_FINE_LOCATION)
                 }
                 builder.setNegativeButton("취소") { dialog, which ->
-
                 }
                 builder.show()
             } else {
@@ -149,7 +137,6 @@ class MainActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     builder.setNegativeButton("취소") { dialog, which ->
-
                     }
                     builder.show()
                 }
@@ -167,12 +154,48 @@ class MainActivity : AppCompatActivity() {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // 권한 요청 후 승인됨 (추적 시작)
                 Toast.makeText(this, "위치 권한이 승인되었습니다", Toast.LENGTH_SHORT).show()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    checkBackgroundLocationAccess()
+                }
                 startTracking()
             } else {
                 // 권한 요청 후 거절됨 (다시 요청 or 토스트)
                 Toast.makeText(this, "위치 권한이 거절되었습니다", Toast.LENGTH_SHORT).show()
                 permissionCheck()
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun checkBackgroundLocationAccess() {
+        val permissionAccessCoarseLocationApproved = ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) ==
+            PackageManager.PERMISSION_GRANTED
+
+        if (permissionAccessCoarseLocationApproved) {
+            val backgroundLocationPermissionApproved = ActivityCompat
+                .checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED
+
+            if (backgroundLocationPermissionApproved) {
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    2000
+                )
+            }
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ),
+                2000
+            )
         }
     }
 
@@ -189,7 +212,7 @@ class MainActivity : AppCompatActivity() {
 
         val lm: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val userNowLocation: Location? = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-        //위도 , 경도
+        // 위도 , 경도
         val uLatitude = userNowLocation?.latitude
         val uLongitude = userNowLocation?.longitude
         val uNowPosition = MapPoint.mapPointWithGeoCoord(uLatitude!!, uLongitude!!)
@@ -198,7 +221,7 @@ class MainActivity : AppCompatActivity() {
         // 현 위치에 마커 찍기
         val marker = MapPOIItem()
         marker.itemName = "현 위치"
-        marker.mapPoint =uNowPosition
+        marker.mapPoint = uNowPosition
         marker.markerType = MapPOIItem.MarkerType.BluePin
         marker.selectedMarkerType = MapPOIItem.MarkerType.RedPin
         mapView.addPOIItem(marker)
@@ -259,5 +282,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MainActivity"
+        private const val ACCESS_FINE_LOCATION = 1000     // Request Code
     }
 }
