@@ -325,8 +325,10 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
 - 주소 버튼을 클릭하면 dialog가 호출되고 상세 주소를 매개변수로 전달해서 dialog를 통해 보여줍니다.
 ```kotlin
     binding.mainAddressBtn.setOnClickListener {
-        AddressDialog(this).show(
-            getAddress().toString().substring(5)
+        val address = getAddress().toString().substring(5)
+        AddressFragmentDialog(address).show(
+            supportFragmentManager,
+            "AddressFragmentDialog"
         )
     }
 ```
