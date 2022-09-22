@@ -273,9 +273,9 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
 
 - 현재 위치 좌표값을 주소로 반환하는 역 지오코딩입니다.
 
-<img src="https://user-images.githubusercontent.com/51072429/191795776-58847477-ee00-472c-9022-da4a58385122.GIF" width="250" />
+<img src="https://user-images.githubusercontent.com/51072429/191809014-b2ec1cba-3c4e-48b7-9738-93aa7be88de0.GIF" width="250" />
 
-- MainActivity에서 현재 위치 추적이 시작될 때 현재 위치 위도와 경도 값을 반환합닏다.
+- MainActivity에서 현재 위치 추적이 시작될 때 현재 위치 위도와 경도 값을 반환합니다.
 ```kotlin
     private fun startTracking(): Location { 
         mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
@@ -291,8 +291,7 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
     }
 ```
 
-- 구글에서 제공하는 Geocoder 클래스의 getFromLocation 메서드로 위도 경도를 주소 리스트로 반환합니다.
-- 반환된 주소 리스트는 getAddressLine 메서드를 통해 상세 주소를 반환합니다.
+- 구글에서 제공하는 Geocoder 클래스의 getFromLocation 메서드로 반환된 주소 리스트는 getAddressLine 메서드를 통해 상세 주소를 반환합니다.
 ```kotlin
     private fun getAddress(): String? {
         val userLocation: Location? = startTracking()
@@ -323,7 +322,7 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
     }
 ```
 
-- 주소 버튼을 클릭하면 dialog가 호출되고 상세 주소를 매개변수로 전달해서 dialog 팝업을 통해 보여줍니다.
+- 주소 버튼을 클릭하면 dialog가 호출되고 상세 주소를 매개변수로 전달해서 dialog를 통해 보여줍니다.
 ```kotlin
     binding.mainAddressBtn.setOnClickListener {
         AddressDialog(this).show(
