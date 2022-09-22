@@ -163,7 +163,100 @@
 - bridge를 통한 데이터 전달은 직렬화를 통해서만 가능하기 때문에 javascript에서 다시 역직렬화하여 객체값으로 구성했습니다.
 - room에 저장된 위/경도에 따라 마커를 추가하도록 합니다. 
 
+### 김정호
 
+- 맡은 부분
+    - 설정 다이얼로그
+- 기여한 점
+    - `BaseDialog` 구성
+    - `WorkManager` 를 통해 `SharedPreferences` 에 유저가 설정한 저장 간격을 저장
+    - `WorkManager` 에서 `Hilt` 를 사용할 수 있도록 구성
+- 아쉬운 점
+    - `WorkManager` 를 좀 더 제대로 알았다면 클린한 코드가 완성됐을 것 같다.
+    - 협업 컨벤션을 명확히 지정하고 프로젝트에 임했다면 더 좋았을 것 같다.
 
+![Screenshot_1663867521 중간](https://user-images.githubusercontent.com/85336456/191812406-3c050777-078a-4a86-82fc-86adc1857f24.jpeg)
 
+- 취소 버튼을 누르거나 다이얼로그 외부 영역을 클릭하면 다이얼로그가 사라집니다.
+- 확인 버튼을 누르면 저장 간격을 내부 데이터베이스에 저장하고, 간격에 따라 현 위치를 내부 데이터베이스에 저장하는 동작을 시작합니다.
 
+```kotlin
+        binding.confirm.setOnClickListener {
+            val interval = binding.etMinute.text.toString().toLong()
+
+            val workRequest =
+                PeriodicWorkRequestBuilder<CurrentLocationWorker>(interval, TimeUnit.MINUTES)
+                    .build()
+            workManager.enqueue(workRequest)
+
+            viewModel.updateStorageInterval(interval)
+            dismiss()
+        }
+```
+
+- 저장 버튼을 눌렀을 때 동작하는 로직입니다.
+- `workManager` 를 `viewModel` 에 넣을지도 고민했지만, `viewModel` 에서는 안드로이드 의존을 최대한 피하는게 좋겠다고 판단하여 `DialogFragment` 에서 사용하였습니다.
+
+```kotlin
+@HiltWorker
+class CurrentLocationWorker @AssistedInject constructor(
+    @Assisted private val context: Context,
+    @Assisted parameters: WorkerParameters,
+    private val locationRepository: LocationRepository
+) : CoroutineWorker(context, parameters) {
+
+    override suspend fun doWork(): Result {
+
+        lateinit var result: Result
+
+        coroutineScope {
+            withContext(Dispatchers.IO) {
+                if (checkPermission()) {
+                    val manager: LocationManager =
+                        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+                    val currentLocation: android.location.Location? =
+                        manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+
+                    val latitude = currentLocation?.latitude
+                    val longitude = currentLocation?.longitude
+                    val currentTimestamp = Timestamp(System.currentTimeMillis()).time
+
+                    val location = if (latitude != null && longitude != null) {
+                        Location(0, latitude.toFloat(), longitude.toFloat(), currentTimestamp)
+                    } else {
+                        Location.EMPTY
+                    }
+
+                    insertLocation(location)
+
+                    result = Result.success()
+                } else {
+                    result = Result.failure()
+                }
+            }
+        }
+
+        return result
+    }
+
+    private fun checkPermission(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED && 
+                ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private suspend fun insertLocation(location: Location) {
+        locationRepository.insertLocation(location)
+    }
+}
+```
+
+- 설정 간격에 따라 내부 데이터베이스에 현 위치를 저장하는 로직입니다.
+- 안드로이드 기기에서 GPS를 통해 현 위치를 추적합니다.
+- `js`, `webView` 로 앱을 구성한만큼 `js` 의 로직으로 현 위치를 불러오고 싶었으나, 시간 상 여유가 부족하여 더 나은 로직을 발견하지 못했습니다.
