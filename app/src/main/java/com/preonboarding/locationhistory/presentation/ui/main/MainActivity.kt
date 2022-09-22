@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         mainViewModel.initCurrentDate()
-        mainViewModel.getHistoryWithDate()
+        // mainViewModel.getHistoryWithDate()
 
         bindingViewModel()
         initMapView()

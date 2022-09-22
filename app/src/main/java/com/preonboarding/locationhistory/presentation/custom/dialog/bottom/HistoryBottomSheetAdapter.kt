@@ -33,22 +33,18 @@ class HistoryBottomSheetAdapter
                 itemHistoryNumberTv.text = "%d".format(adapterPosition + 1)
                 itemHistoryLatitudeTv.text = location.latitude.toString()
                 itemHistoryLongitudeTv.text = location.longitude.toString()
-                itemHistoryDateTv.text = location.date.toString()
+                itemHistoryDateTv.text = location.date
             }
         }
     }
 
     companion object {
-        private const val TAG = "HistoryBottomSheetAdapter"
-
         private val diffCallback = object : DiffUtil.ItemCallback<Location>() {
             override fun areItemsTheSame(oldItem: Location, newItem: Location): Boolean {
-                Timber.tag(TAG).e("oldid : ${oldItem.id} newid : ${newItem.id} return ${oldItem.id == newItem.id}")
                 return oldItem.id == newItem.id
             }
 
             override fun areContentsTheSame(oldItem: Location, newItem: Location): Boolean {
-                Timber.tag(TAG).e("olditem : $oldItem newitem : $newItem return ${oldItem == newItem}")
                 return oldItem == newItem
             }
         }
