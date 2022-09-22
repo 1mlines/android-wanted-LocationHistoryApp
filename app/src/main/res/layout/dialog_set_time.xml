@@ -8,11 +8,11 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <EditText
             android:id="@+id/edit_set_text"
+            style="@style/Content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@id/tv_set_time_save"
@@ -21,6 +21,7 @@
 
         <TextView
             android:id="@+id/tv_set_time_save"
+            style="@style/Content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
@@ -30,6 +31,7 @@
 
         <TextView
             android:id="@+id/tv_set_time"
+            style="@style/Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/set_time"
@@ -38,6 +40,7 @@
 
         <TextView
             android:id="@+id/tv_set_time_min"
+            style="@style/Content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@color/white"
@@ -57,8 +60,10 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_set_time_cancel"
+            style="@style/ButtonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/button_color"
             android:text="취소"
             app:layout_constraintEnd_toEndOf="@id/tv_set_time_save"
             app:layout_constraintStart_toStartOf="@id/tv_set_time_save"
@@ -66,8 +71,10 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_set_time_positive"
+            style="@style/ButtonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@color/button_color"
             android:text="확인"
             app:layout_constraintBottom_toBottomOf="@id/btn_set_time_cancel"
             app:layout_constraintStart_toEndOf="@id/btn_set_time_cancel"
