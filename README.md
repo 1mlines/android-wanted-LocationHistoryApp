@@ -280,13 +280,14 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
 - HILT
 - ROOM
 - WORKER MANAGER
+- KAKAO MAP
 - TIMBER 
 
 ---
 
 ## 6. Git Convention
 
-- Commit Message
+### Commit Message
  
 ```
 [type] message
@@ -299,7 +300,7 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
   -  ```refactor``` : 코드 리팩토링
   -  ```chore``` : 빌드 업무 수정 등 로직에 큰 변화 없는 업무
 
-- Branch Strategy
+### Branch Strategy
 
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/85485290/191769024-ba45dc94-842c-4d1c-a28b-bc3617708ffb.png">
 
