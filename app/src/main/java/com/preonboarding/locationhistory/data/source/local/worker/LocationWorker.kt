@@ -13,7 +13,6 @@ import com.preonboarding.locationhistory.data.source.local.entity.LocationEntity
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
-import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 

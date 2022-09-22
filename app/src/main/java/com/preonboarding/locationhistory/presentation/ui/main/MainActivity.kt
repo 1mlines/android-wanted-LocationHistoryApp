@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
@@ -22,14 +24,17 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
-import com.preonboarding.locationhistory.presentation.custom.dialog.bottom.HistoryBottomSheetFragment
+import com.preonboarding.locationhistory.presentation.custom.dialog.AddressDialog
 import com.preonboarding.locationhistory.presentation.custom.dialog.TimerFragmentDialog
+import com.preonboarding.locationhistory.presentation.custom.dialog.bottom.HistoryBottomSheetFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 import timber.log.Timber
+import java.io.IOException
+import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -85,7 +90,8 @@ class MainActivity : AppCompatActivity() {
     private fun initListener() {
         binding.mainHistoryBtn.setOnClickListener {
             HistoryBottomSheetFragment().show(
-                supportFragmentManager, "HistoryBottomSheetFragment"
+                supportFragmentManager,
+                "HistoryBottomSheetFragment"
             )
         }
 
@@ -93,6 +99,11 @@ class MainActivity : AppCompatActivity() {
             TimerFragmentDialog().show(
                 supportFragmentManager,
                 "SettingFragmentDialog"
+            )
+        }
+        binding.mainAddressBtn.setOnClickListener {
+            AddressDialog(this).show(
+                getAddress().toString().substring(5)
             )
         }
     }
@@ -196,7 +207,7 @@ class MainActivity : AppCompatActivity() {
 
     // 사용자 위치추적 시작
     @SuppressLint("MissingPermission")
-    private fun startTracking() {
+    private fun startTracking(): Location {
         mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
 
         val lm: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -213,6 +224,8 @@ class MainActivity : AppCompatActivity() {
         marker.markerType = MapPOIItem.MarkerType.BluePin
         marker.selectedMarkerType = MapPOIItem.MarkerType.RedPin
         mapView.addPOIItem(marker)
+
+        return userNowLocation
     }
 
     // 위치추적 중지
@@ -238,8 +251,37 @@ class MainActivity : AppCompatActivity() {
         mapView.addPOIItem(marker)
     }
 
+//    위도 경도로 주소 반환
+    private fun getAddress(): String? {
+        val userLocation: Location? = startTracking()
+        var userAddress: String? = null
+
+        if (userLocation != null) {
+            val latitude = userLocation.latitude
+            val longitude = userLocation.longitude
+
+            val mGeoCoder = Geocoder(this, Locale.KOREAN)
+            var currentAddress: List<Address>? = null
+            try {
+                currentAddress = mGeoCoder.getFromLocation(
+                    latitude,
+                    longitude,
+                    1
+                )
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            if (currentAddress != null) {
+                userAddress = currentAddress[0].getAddressLine(0)
+            }
+        } else {
+            userAddress = "gps 연결을 확인해주세요"
+        }
+        return userAddress
+    }
+
     companion object {
         private const val TAG = "MainActivity"
-        private const val ACCESS_FINE_LOCATION = 1000     // Request Code
+        private const val ACCESS_FINE_LOCATION = 1000 // Request Code
     }
 }

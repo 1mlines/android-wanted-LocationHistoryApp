@@ -2,16 +2,15 @@ package com.preonboarding.locationhistory.presentation.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.preonboarding.locationhistory.data.model.asModel
 import com.preonboarding.locationhistory.data.repository.LocationRepository
+import com.preonboarding.locationhistory.data.repository.TimerRepository
 import com.preonboarding.locationhistory.presentation.model.Location
+import com.preonboarding.locationhistory.presentation.uistates.DurationUiStates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import com.preonboarding.locationhistory.data.model.asModel
-import com.preonboarding.locationhistory.data.repository.TimerRepository
-import com.preonboarding.locationhistory.presentation.uistates.DurationUiStates
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat

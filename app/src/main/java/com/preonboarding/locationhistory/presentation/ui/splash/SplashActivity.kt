@@ -1,9 +1,9 @@
 package com.preonboarding.locationhistory.presentation.ui.splash
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import androidx.appcompat.app.AppCompatActivity
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.presentation.ui.main.MainActivity
 
@@ -17,8 +17,6 @@ class SplashActivity : AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
             finish()
-        },3000)
+        }, 3000)
     }
 }
-
-

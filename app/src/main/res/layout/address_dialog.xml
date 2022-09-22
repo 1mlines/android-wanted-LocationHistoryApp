@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_round"
+    android:orientation="vertical"
+    android:padding="@dimen/layout_margin_default"
+    tools:context=".presentation.custom.dialog.AddressDialog">
+
+    <TextView
+        android:id="@+id/address_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/address_dialog_title"
+        android:textColor="@color/white"
+        android:textSize="25sp" />
+
+    <View
+        android:id="@+id/address_dialog_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
+
+    <TextView
+        android:id="@+id/address_dialog_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/layout_margin_default">
+
+        <Button
+            android:id="@+id/address_dialog_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/layout_margin_default"
+            android:backgroundTint="@color/black"
+            android:text="@string/dialog_cancel_text" />
+
+        <Button
+            android:id="@+id/address_dialog_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/layout_margin_default"
+            android:backgroundTint="@color/black"
+            android:text="@string/dialog_ok_text" />
+
+    </LinearLayout>
+
+</LinearLayout>

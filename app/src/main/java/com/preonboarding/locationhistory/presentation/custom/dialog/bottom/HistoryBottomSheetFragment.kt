@@ -17,13 +17,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.FragmentHistoryBottomSheetBinding
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
-
 
 class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentHistoryBottomSheetBinding
@@ -45,10 +42,10 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         // Inflate the layout for this fragment
         binding = FragmentHistoryBottomSheetBinding.inflate(inflater, container, false)
         return binding.root
@@ -137,7 +134,7 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH) - 1,
-            calendar.get(Calendar.DAY_OF_MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
         )
         datePickerDialog.show()
     }
