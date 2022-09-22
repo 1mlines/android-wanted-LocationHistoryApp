@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "history")
 data class History(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    var id: Long? = null,
     val latitude: Double,
     val longitude: Double,
     @ColumnInfo(name = "created_at", defaultValue = "CURRENT_TIMESTAMP")
-    val createdAt: Long
+    var createdAt: String? = null
 )
