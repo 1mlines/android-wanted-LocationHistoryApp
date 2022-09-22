@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.naver.maps.map.NaverMapSdk
 import com.preonboarding.locationhistory.common.Constants.NAVER_CLIENT_ID
+import com.preonboarding.locationhistory.util.PreferencesUtil
 import timber.log.Timber
 
 class WantedApplication : Application() {
@@ -16,6 +17,11 @@ class WantedApplication : Application() {
 
         initNaverMapSdk()
         initTimber()
+        initSharedPreferences()
+    }
+
+    private fun initSharedPreferences() {
+        PreferencesUtil.initSharedPreferences(this)
     }
 
     private fun initTimber() {

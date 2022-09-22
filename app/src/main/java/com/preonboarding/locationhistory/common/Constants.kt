@@ -9,4 +9,11 @@ object Constants {
     const val WORK_SAVE_HISTORY: String = "work_history_save"
 
     const val LOCATION_PERMISSION_REQUEST_CODE = 10
+
+    const val SAVE_HISTORY_PERIOD_MIN = 15
+    const val SAVE_HISTORY_PERIOD_MAX = 60
+
+    const val SAVE_HISTORY_PERIOD_KEY = "saveHistoryPeriodKey"
+    const val SHARED_PREFERENCES = "sharedPreferences"
+
 }
