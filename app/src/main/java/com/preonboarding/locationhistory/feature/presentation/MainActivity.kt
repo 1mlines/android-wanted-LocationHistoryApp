@@ -4,14 +4,11 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -23,7 +20,6 @@ import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.feature.map.presentation.CustomBalloonAdapter
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
-import net.daum.mf.map.api.MapReverseGeoCoder
 import net.daum.mf.map.api.MapView
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
@@ -63,26 +59,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     Manifest.permission.ACCESS_FINE_LOCATION
                 )
             ) {
-
                 denyAccess("현재 위치를 확인하시려면 위치 권한을 허용해주세요.", "취소")
-
-                /*// 권한 거절 (다시 한 번 물어봄)
-                val builder = AlertDialog.Builder(this)
-                builder.apply {
-                    setMessage("현재 위치를 확인하시려면 위치 권한을 허용해주세요.")
-                    setPositiveButton("확인") { dialog, which ->
-                        ActivityCompat.requestPermissions(
-                            Activity(),
-                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                            ACCESS_FINE_LOCATION
-                        )
-                    }
-                    setNegativeButton("취소") { dialog, which ->
-
-                    }
-                    show()
-                }*/
-
             } else {
                 if (isFirstCheck) {
                     // 최초 권한 요청
@@ -95,22 +72,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 } else {
                     // 다시 묻지 않음 클릭 (앱 정보 화면으로 이동)
                     denyAccess("현재 위치를 확인하시려면 위치 권한을 허용해주세요.", "설정으로 이동")
-
-                    /*val builder = AlertDialog.Builder(this)
-                    builder.setMessage("현재 위치를 확인하시려면 설정에서 위치 권한을 허용해주세요.")
-                    builder.apply {
-                        setPositiveButton("설정으로 이동") { dialog, which ->
-                            val intent = Intent(
-                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.parse("package:$packageName")
-                            )
-                            startActivity(intent)
-                        }
-                        setNegativeButton("취소") { dialog, which ->
-
-                        }
-                        show()
-                    }*/
                 }
             }
         } else {
@@ -192,30 +153,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         Toast.makeText(this, "lat: $uLatitude, long: $uLongitude", Toast.LENGTH_SHORT).show()
         Log.d("locataion", "startTracking: lat: $uLatitude, long: $uLongitude")
 
+        // 위도, 경도로 상세 주소 받아오기
         val geocoder = Geocoder(this)
         val convertAddress = geocoder.getFromLocation(uLatitude, uLongitude, 1)
         binding.tvAddress.text = convertAddress.toString()
-
     }
 
-    // markers 배열을 순회하면서
-    //marker.setMap(null)을 호출해 주세요..? (삭제해도 ㄱㅊ )
     private fun markerInit() {
-        /*var markers = mutableListOf<MapPOIItem.MarkerType>()
-        for (i: Int in 0..markers.size) {
-            markers[i].add
-        }*/
         binding.mapView.removeAllPOIItems() // 마커 제거 가능!!!!! (초기화)
-    }
-
-    // todo 위도, 경도로 위치 받아오기..
-    private fun reverseGeoCoding(reverseGeoCoder: MapReverseGeoCoder,geocoder: Geocoder ,s: String) {
-        //var reverseGeo: MapReverseGeoCoder.ReverseGeoCodingResultListener
-        //reverseGeo.onReverseGeoCoderFoundAddress(reverseGeoCoder, s)
-        //reverseGeo.onReverseGeoCoderFailedToFindAddress(reverseGeoCoder)
-
-        //reverseGeoCoder.toString()??
-
-        // geocoder.getFromLocation()
     }
 }
