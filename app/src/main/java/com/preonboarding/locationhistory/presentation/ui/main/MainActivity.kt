@@ -15,6 +15,9 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.gson.Gson
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
@@ -24,6 +27,8 @@ import com.preonboarding.locationhistory.presentation.ui.history.HistoryDialog
 import com.preonboarding.locationhistory.presentation.ui.setting.SettingDialog
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -49,13 +54,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.viewModel = viewModel
 
         checkPermission()
-
-        viewModel.locations.observe(this) {
-            if (it.isNotEmpty()) {
-                val locations = gson.toJson(it)
-                webViewBridge.showHistories(locations)
-            }
-        }
 
         viewModel.currentLocationSignal.observe(this) { isCheck ->
             if (isCheck) {
@@ -86,7 +84,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                viewModel.showHistories()
+                showHistories()
             }
         }
 
@@ -94,6 +92,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         binding.webView.addJavascriptInterface(webViewBridge, "Android")
         binding.webView.loadUrl("file:///android_asset/map.html")
+    }
+
+    private fun showHistories() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.locations.collect {
+                    val locations = gson.toJson(it)
+                    webViewBridge.showHistories(locations)
+                }
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")

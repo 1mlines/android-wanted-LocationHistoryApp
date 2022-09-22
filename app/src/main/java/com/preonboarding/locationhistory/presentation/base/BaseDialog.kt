@@ -16,7 +16,9 @@ import androidx.fragment.app.DialogFragment
 open class BaseDialog<T : ViewDataBinding>(
     @LayoutRes private val layout: Int
 ) : DialogFragment() {
-    protected lateinit var binding: T
+
+    private var _binding: T? = null
+    val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,7 +29,7 @@ open class BaseDialog<T : ViewDataBinding>(
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             requestWindowFeature(Window.FEATURE_NO_TITLE)
         }
-        binding = DataBindingUtil.inflate(inflater, layout, container, false)
+        _binding = DataBindingUtil.inflate(inflater, layout, container, false)
         return binding.root
     }
 
@@ -44,5 +46,10 @@ open class BaseDialog<T : ViewDataBinding>(
         params.width = (display.widthPixels * 0.8).toInt() // 디바이스의 너비 80%
 
         dialog?.window?.attributes = params
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
