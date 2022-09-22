@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         initMap()
         bindViews()
-        initSharedPreferences()
+        registerOnSharedPreferenceChangeListener()
     }
 
     override fun onRequestPermissionsResult(
@@ -183,8 +183,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     * sharedPreferences
     * */
 
-    private fun initSharedPreferences() {
-        PreferencesUtil.initSharedPreferences(this.applicationContext)
+    private fun registerOnSharedPreferenceChangeListener() {
         PreferencesUtil.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
     }
 
