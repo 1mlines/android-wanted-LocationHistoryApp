@@ -59,7 +59,7 @@
 
 ### Permission Check
 
-<img src="https://user-images.githubusercontent.com/110798031/191757916-58bef982-9514-4b36-8fd5-967a1a8adb0b.png">
+<img src="https://user-images.githubusercontent.com/110798031/191803139-44360ae1-3610-4366-82cf-744a5e502183.png">
 
 |권한 승인|권한 거절|
 |:----:|:----:|
