@@ -1,6 +1,7 @@
 package com.preonboarding.locationhistory.presentation
 
 import android.Manifest
+import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
@@ -15,24 +16,38 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.WantedApplication.Companion.getAppContext
+import com.preonboarding.locationhistory.WantedApplication.Companion.instance
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MIN
+import com.preonboarding.locationhistory.data.History
+import com.preonboarding.locationhistory.data.HistoryDB
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
+import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
 import com.preonboarding.locationhistory.databinding.DialogSaveHistorySettingsBinding
 import com.preonboarding.locationhistory.util.AnimationUtil.shakeAnimation
 import com.preonboarding.locationhistory.util.PreferencesUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     SharedPreferences.OnSharedPreferenceChangeListener {
@@ -40,8 +55,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var mapFragment: MapFragment
     private lateinit var locationSource: FusedLocationSource
     private lateinit var naverMap: NaverMap
-
+    private lateinit var historyBinding: DialogHistoryBinding
+    private lateinit var dialogViewModel: HistoryDialogViewModel
+    private lateinit var settingDay: String
+    private lateinit var adapter: HistoryDialogAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var db: HistoryDB
 
     companion object {
         val locationPermissions = arrayOf(
@@ -83,6 +102,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        db = HistoryDB.getDatabase(getAppContext())!!
+
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
+        val today = dateFormat.format(System.currentTimeMillis())
+        settingDay = today //처음 킬때는 오늘날짜 추후에 변경시에는 세팅된 날짜로
 
         // permission Check
         permissionLauncher.launch(locationPermissions)
@@ -126,13 +151,97 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         historyButton.setOnClickListener {
-            // TODO
+            getHistoryDialog()
         }
 
         settingsButton.setOnClickListener {
             showSettingDialog()
         }
     }
+
+    //히스토리 다이얼로그를 띄우고 리사이클러뷰 생성
+    private fun getHistoryDialog() {
+        historyBinding = DialogHistoryBinding.inflate(layoutInflater)
+        val historyDialog = AlertDialog.Builder(this).setView(historyBinding.root).create()
+        historyDialog.setCanceledOnTouchOutside(true)
+
+        dialogViewModel = ViewModelProvider(
+            this,
+            HistoryDialogViewModel.Factory(instance)
+        ).get(HistoryDialogViewModel::class.java)
+        historyBinding.viewModel = dialogViewModel
+
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
+        val today = dateFormat.format(System.currentTimeMillis())
+
+        if (settingDay == today) {
+            historyBinding.DialogDatepickerTextView.text = today
+            setHistory(today)
+
+        } else {
+            historyBinding.DialogDatepickerTextView.text = settingDay
+            setHistory(settingDay)
+
+        }
+
+
+
+        historyBinding.DialogCancelButton.setOnClickListener {
+            historyDialog.dismiss()
+        }
+
+        historyBinding.DialogConfirmButton.setOnClickListener {
+            setHistory(settingDay)
+            Toast.makeText(this, "날짜 변경 완료!", Toast.LENGTH_SHORT).show()
+            historyDialog.dismiss()
+        }
+        historyBinding.DialogDatepickerTextView.setOnClickListener {
+            val cal = Calendar.getInstance()
+            val dateSetListener =
+                DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+                    val dateString = "${year}.${month + 1}.$dayOfMonth"
+                    historyBinding.DialogDatepickerTextView.text = dateString
+                    settingDay = dateString
+                }
+            DatePickerDialog(
+                this,
+                dateSetListener,
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+        historyDialog.show()
+    }
+
+
+    //리사이클러뷰 생성
+    private fun setHistory(today: String) {
+        adapter = HistoryDialogAdapter()
+        historyBinding.DialogRecyclerView.adapter = adapter
+        dialogViewModel.getHistory(today).observe(this, androidx.lifecycle.Observer {
+            adapter.setData(it)
+            pinMap(it)
+            // 시간 보내줄때 유형 맞는지 확인 해야함!
+        })
+
+
+    }
+
+
+    //지도에 좌표 찍기
+    private fun pinMap(historyList: List<History>) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val load = async(Dispatchers.IO) {
+                for (i in historyList) {
+                    Timber.e(i.toString())
+                    //TODO
+                }
+            }
+            load.await()
+        }
+    }
+
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
@@ -167,6 +276,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             naverMap.moveCamera(cameraUpdate)
 
             Timber.e("${currentLocation!!.latitude} // ${currentLocation!!.longitude}")
+
         }
     }
 

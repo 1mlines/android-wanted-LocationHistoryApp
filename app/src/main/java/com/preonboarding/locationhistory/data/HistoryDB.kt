@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.preonboarding.locationhistory.WantedApplication.Companion.getAppContext
 
 @Database(entities = [History::class], version = 1)
 abstract class HistoryDB : RoomDatabase() {
@@ -13,19 +14,17 @@ abstract class HistoryDB : RoomDatabase() {
         private var instance: HistoryDB? = null
 
         @Synchronized
-        fun getInstance(context: Context): HistoryDB? {
+        fun getDatabase(context: Context): HistoryDB? {
             if (instance == null) {
                 synchronized(HistoryDB::class) {
                     instance = Room.databaseBuilder(
-                        context.applicationContext,
-                        HistoryDB::class.java,
-                        "locationDB"
+                        getAppContext(), HistoryDB::class.java, "history_db"
                     ).build()
                 }
+
             }
             return instance
         }
-
     }
 
 }
