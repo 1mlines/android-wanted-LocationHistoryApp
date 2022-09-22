@@ -32,7 +32,9 @@
   
 ***
 
-# Permission Check
+## 4. Feature & Screen
+
+### Permission Check
 
 <img src="https://user-images.githubusercontent.com/110798031/191757916-58bef982-9514-4b36-8fd5-967a1a8adb0b.png">
 
@@ -47,13 +49,13 @@
 
 ***
 
-# Alarm & Location Logic
+### Alarm & Location Logic
 <img src="https://user-images.githubusercontent.com/62296097/191752476-731287c3-cec0-40c1-8ec6-145f208008f8.png">
 
 
 *** 
 
-## TimerDialog 
+### TimerDialog 
 <img src="https://user-images.githubusercontent.com/62296097/191736374-64727464-7938-444e-a4d3-033300aeff4a.jpeg" width="200px" with>
 
 <p>
@@ -120,7 +122,7 @@ API 23 부터는 Doz 모드가 추가되어서 setExact()로도 정확한 시간
 
 
 ***
-## AlarmReceiver
+### AlarmReceiver
 
 ```kotlin
 override fun onReceive(context: Context?, intent: Intent?) {
@@ -151,7 +153,7 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
 
 *** 
 
-## Workmanager
+### Workmanager
 
 ```kotlin
  override suspend fun doWork(): Result {
@@ -191,3 +193,54 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
 위도와 경도가 null이 아닌 경우 locationRepository의 saveLocation을 호출하여 데이터베이스에 저장했습니다. 
 </p>
 
+---
+
+### History
+
+- 히스토리를 저장하고 다이얼로그로 띄워 확인하는 기능입니다.
+
+![ezgif com-gif-maker (6)](https://user-images.githubusercontent.com/85485290/191758541-7ea72280-2319-47bf-9f20-70763bcd6d46.gif)
+
+
+- DatePicker의 Calendar Instance는 앱을 사용하는 동안 한번만 생성하도록 하였고, mainViewModel.calendar로 언제든 참조 가능하게 하였습니다.
+```kotlin
+    var calendar: Calendar = Calendar.getInstance().apply {
+        set(Calendar.MONTH, this.get(Calendar.MONTH))
+        firstDayOfWeek = Calendar.MONDAY
+        set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+    }
+```
+
+
+- 히스토리를 띄우고 Date Picker에서 다른 날짜를 선택해 데이터를 reload 할 때 Flow의 ```collectLatest```로 요청이 들어왔을 때 최신의 데이터만 수집하도록 하였습니다.
+```kotlin
+    private fun updateHistoryList() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                kotlin.runCatching {
+                    mainViewModel.getHistoryWithDate()
+                }
+                    .onSuccess {
+                        mainViewModel.currentHistory.collectLatest {
+                            historyListAdapter.submitList(it)
+                        }
+                    }
+            }
+        }
+    }
+```
+
+
+- RecyclerView의 ListAdapter를 사용하여 이전 데이터와의 비교를 통해 바뀐 데이터 부분만 갱신하도록 하였습니다.
+```kotlin
+    companion object {
+        private val diffCallback = object : DiffUtil.ItemCallback<Location>() {
+            override fun areItemsTheSame(oldItem: Location, newItem: Location): Boolean {
+                return oldItem.id == newItem.id
+            }
+            override fun areContentsTheSame(oldItem: Location, newItem: Location): Boolean {
+                return oldItem == newItem
+            }
+        }
+    }
+```
