@@ -45,10 +45,11 @@ local DB를 이용하여 위도 경도 데이터들을 처리
 
 ### 입력한 시간 간격마다 현 위치 DB 저장
 - FusedLocationProviderClient 이용하여 현 위치값 얻기
-- runableCode을 사용하여 주기적으로 현 위치를 DB에 저장
 
 ### 현 위치 주소 변환
 - GeoCoder를 이용하여 현 위치를 주소로 변환
+
+###
 
 <br><hr><br>
 
