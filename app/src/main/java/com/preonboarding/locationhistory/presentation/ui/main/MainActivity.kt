@@ -73,7 +73,11 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
                 mainViewModel.localMarker.collect { markList ->
-                    mapView.removeAllPOIItems()
+                    mapView.poiItems.filter {
+                        it.itemName != "현 위치"
+                    }.map {
+                        mapView.removePOIItem(it)
+                    }
                     markList.forEach {
                         addMarker("", latitude = it.latitude.toDouble(), longitude = it.longitude.toDouble())
                     }
