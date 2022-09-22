@@ -1,16 +1,12 @@
 package com.preonboarding.locationhistory.feature.history.domain.usecase
 
 import com.preonboarding.locationhistory.data.entity.History
-import com.preonboarding.locationhistory.data.entity.toFormatDate
 import com.preonboarding.locationhistory.domain.MapRepository
 import javax.inject.Inject
 
 class GetHistoryUseCase @Inject constructor(
     private val mapRepository: MapRepository
 ) {
-    suspend operator fun invoke(date: String): List<History>? {
-        return runCatching {
-            mapRepository.getHistoryFromDate(date)
-        }.getOrNull()
-    }
+    suspend operator fun invoke(date: String): List<History>? =
+        mapRepository.getHistoryFromDate(date)
 }

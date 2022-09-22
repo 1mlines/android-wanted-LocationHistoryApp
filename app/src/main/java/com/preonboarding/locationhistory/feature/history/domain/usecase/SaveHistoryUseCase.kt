@@ -11,10 +11,6 @@ class SaveHistoryUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(date: Long, latitude: Double, longitude: Double) {
         val history = History(date.toFormatTime(), date.toFormatDate(), latitude, longitude)
-        runCatching {
-            mapRepository.saveHistory(history)
-        }.onFailure { e ->
-            throw e
-        }
+        mapRepository.saveHistory(history)
     }
 }
