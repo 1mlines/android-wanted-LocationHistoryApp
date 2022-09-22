@@ -1,7 +1,6 @@
 package com.preonboarding.locationhistory.presentation
 
 import android.Manifest
-import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
@@ -11,14 +10,17 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -27,8 +29,6 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
-import com.preonboarding.locationhistory.WantedApplication.Companion.getAppContext
-import com.preonboarding.locationhistory.WantedApplication.Companion.instance
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
@@ -62,32 +62,29 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var db: HistoryDB
 
-    companion object {
-        val locationPermissions = arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    }
+    private val fusedLocationClient: FusedLocationProviderClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
+    private val locationSource: FusedLocationSource by lazy { FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE) }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    val permissionLauncher =
+    private val requestMultiplePermissions : ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            permissions.entries.forEach { permission ->
-                when {
-                    permission.value -> {
-                        Toast.makeText(this, "GRANTED", Toast.LENGTH_SHORT).show()
-                    }
-
-                    shouldShowRequestPermissionRationale(permission.key) -> {
-                        Toast.makeText(this, "REQUIRE PERMISSION", Toast.LENGTH_SHORT).show()
-                    }
-
-                    else -> {
-                        openSettings()
-                    }
+            var granted: Boolean = true
+            permissions.entries.forEach {
+                if (!it.value) {
+                    granted = false
                 }
             }
+            if (granted) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    backgroundLocationPermission(222)
+                } else {
+                   Log.i("api 10","FDFDFFFF")
+                }
+            } else {
+                Toast.makeText(this, "서비스를 사용하시려면 위치 추적이 허용되어야 합니다.,", Toast.LENGTH_LONG)
+                    .show()
+            }
         }
+
 
     private fun openSettings() {
         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -110,14 +107,58 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         settingDay = today //처음 킬때는 오늘날짜 추후에 변경시에는 세팅된 날짜로
 
         // permission Check
-        permissionLauncher.launch(locationPermissions)
-        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        checkLocationPermission()
+
 
         initMap()
         bindViews()
         registerOnSharedPreferenceChangeListener()
     }
+
+    fun checkLocationPermission(){
+        requestMultiplePermissions.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        )
+    }
+
+    // Android 11 이상 - BackgroundPermission Check
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun backgroundLocationPermission(backgroundLocationRequestCode: Int) {
+        if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("백그라운드 위치 사용이 필요합니다.")
+            .setMessage("원활한 서비스 제공을 위해 위치 권한을 항상 허용으로 설정해주세요. ")
+            .setPositiveButton("확인") { _,_ ->
+                // this request will take user to Application's Setting page
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), backgroundLocationRequestCode)
+                openAppSettings(this)
+            }
+            .setNegativeButton("취소") { dialog,_ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+
+    }
+
+    private fun checkPermissionGranted(permission: String) : Boolean {
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun openAppSettings(activity: Activity){
+        val intent : Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            data = Uri.fromParts("package", activity.packageName, null)
+        }
+        ContextCompat.startActivity(activity, intent, Bundle())
+
+    }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -248,25 +289,42 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         naverMap.locationSource = locationSource
 
         setMapUiSettings()
+        getCurrentLatLng()
 
+        trackLocationChanged()
+    }
+
+    private fun trackLocationChanged() {
+        naverMap.addOnLocationChangeListener { location ->
+            naverMap.locationOverlay.run {
+                isVisible = true
+                position = LatLng(location.latitude, location.longitude)
+            }
+
+            val cameraUpdate = CameraUpdate.scrollTo(
+                LatLng(location.latitude, location.longitude)
+            )
+
+            naverMap.moveCamera(cameraUpdate)
+
+        }
+    }
+
+    private fun getCurrentLatLng() {
         var currentLocation: Location?
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
 
+        checkLocationPermission()
+
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             currentLocation = location
 
-            naverMap.locationOverlay.run {
-                isVisible = true
-                position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+            if (currentLocation != null) {
+                Timber.e("${currentLocation?.latitude} // ${currentLocation?.longitude}")
             }
 
             val cameraUpdate = CameraUpdate.scrollTo(
