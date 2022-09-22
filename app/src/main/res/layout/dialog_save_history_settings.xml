@@ -46,13 +46,14 @@
 
         <EditText
             android:id="@+id/saveHistoryPeriodEditText"
-            android:layout_width="80dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:background="@drawable/bg_white_radius_5"
             android:hint="@string/save_history_period_range"
             android:importantForAutofill="no"
             android:inputType="numberDecimal"
+            android:paddingHorizontal="8dp"
             android:paddingVertical="2dp"
             android:textAlignment="center"
             app:layout_constraintBottom_toBottomOf="@id/saveHistoryPeriodTextView"
