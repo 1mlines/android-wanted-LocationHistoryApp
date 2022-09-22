@@ -25,7 +25,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.presentation.custom.dialog.AddressDialog
-import com.preonboarding.locationhistory.presentation.custom.dialog.HistoryFragmentDialog
 import com.preonboarding.locationhistory.presentation.custom.dialog.bottom.HistoryBottomSheetFragment
 import com.preonboarding.locationhistory.presentation.custom.dialog.TimerFragmentDialog
 import dagger.hilt.android.AndroidEntryPoint
