@@ -10,18 +10,23 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.preonboarding.locationhistory.LocationHistoryApp
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.base.BaseActivity
+import com.preonboarding.locationhistory.data.entity.toFormatDate
+import com.preonboarding.locationhistory.data.entity.toMapItem
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
+import com.preonboarding.locationhistory.feature.history.presentation.HistoryDialog
 import com.preonboarding.locationhistory.feature.map.presentation.CustomBalloonAdapter
 import com.preonboarding.locationhistory.feature.set.SetTimeDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
@@ -30,57 +35,60 @@ import net.daum.mf.map.api.MapView
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private val ACCESS_FINE_LOCATION = 1000
-
     private val mainViewModel: MainViewModel by viewModels()
-
-    val gpsLocationListener = object : LocationListener {
+    private lateinit var locationManager: LocationManager
+    private val gpsLocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
-            val provider: String = location.provider
-            val longitude: Double = location.longitude
-            val latitude: Double = location.latitude
-            val altitude: Double = location.altitude
-
-            Log.e("gpsLocationListener", "$latitude $altitude")
+            startTracking()
         }
 
-        //아래 3개함수는 형식상 필수부분
         override fun onProviderEnabled(provider: String) {}
         override fun onProviderDisabled(provider: String) {}
     }
+    private lateinit var balloonAdapter: CustomBalloonAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        clickBtnAddress()
-
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        permissionCheck()
         initView()
+        observeToObservable()
         markerInit()
-        // 커스텀 말풍선 등록
-        binding.mapView.setCalloutBalloonAdapter(CustomBalloonAdapter(layoutInflater))
-
     }
 
     private fun initView() {
-        binding.btnSetting.setOnClickListener {
-            val dialog = SetTimeDialog()
-            dialog.show(supportFragmentManager, "다이얼로그")
-        }
-    }
-
-
-    private fun clickBtnAddress() {
-        binding.btnAddress.setOnClickListener {
-            if (checkLocationService()) {
-                permissionCheck()
-            } else {
-                Toast.makeText(this, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+        balloonAdapter = CustomBalloonAdapter(layoutInflater, mainViewModel, this)
+        binding.apply {
+            btnHistory.setOnClickListener {
+                val historyDialog = HistoryDialog(mainViewModel)
+                historyDialog.show(this@MainActivity.supportFragmentManager, "hd")
             }
+            btnSetting.setOnClickListener {
+                val dialog = SetTimeDialog()
+                dialog.show(supportFragmentManager, "다이얼로그")
+            }
+            btnAddress.setOnClickListener {
+                if (checkLocationService()) {
+                    startTracking()
+                    val builder = AlertDialog.Builder(this@MainActivity)
+                    val location = getCurrentLocation()
+                    val detailAddress = getDetailAddress(location.first, location.second)
+                    builder.apply {
+                        setTitle("현재 위치")
+                        setMessage(detailAddress)
+                    }.show()
+                } else {
+                    Toast.makeText(this@MainActivity, "GPS를 켜주세요", Toast.LENGTH_SHORT).show()
+                }
+            }
+            mapView.setCalloutBalloonAdapter(balloonAdapter)
         }
     }
 
     private fun permissionCheck() {
-        val preference = getPreferences(MODE_PRIVATE)
-        val isFirstCheck = preference.getBoolean("isFirstPermissionCheck", true)
+        binding.mapView.currentLocationTrackingMode =
+            MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -94,9 +102,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             ) {
                 denyAccess("현재 위치를 확인하시려면 위치 권한을 허용해주세요.", "취소")
             } else {
-                if (isFirstCheck) {
+                if (LocationHistoryApp.prefs.isFirst) {
                     // 최초 권한 요청
-                    preference.edit().putBoolean("isFirstPermissionCheck", false).apply()
+                    LocationHistoryApp.prefs.isFirst = false
                     ActivityCompat.requestPermissions(
                         this,
                         arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -107,9 +115,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     denyAccess("현재 위치를 확인하시려면 위치 권한을 허용해주세요.", "설정으로 이동")
                 }
             }
-        } else {
-            // 권한이 있는 상태
-            startTracking()
         }
     }
 
@@ -125,24 +130,48 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 )
             }
             setNegativeButton("취소") { dialog, which ->
-
             }
             show()
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun observeToObservable() {
+        mainViewModel.apply {
+            setTime.observe(this@MainActivity) { time ->
+                locationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER,
+                    time.toString().toLong(),
+                    0F,
+                    gpsLocationListener
+                )//콜백으로 설정
+            }
+        }
+        lifecycleScope.launch {
+            mainViewModel.historyFromDate.collect { historyList ->
+                updateMarkerList(historyList.toMapItem())
+            }
+        }
+    }
+
+    private fun updateMarkerList(
+        markerList: List<MapPOIItem>
+    ) {
+        binding.mapView.removeAllPOIItems()
+        binding.mapView.addPOIItems(markerList.toTypedArray())
     }
 
     // 권한 요청 후 행동
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray,
+        grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == ACCESS_FINE_LOCATION) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // 권한 요청 후 승인됨 (추적 시작)
                 Toast.makeText(this, "위치 권한이 승인되었습니다", Toast.LENGTH_SHORT).show()
-                startTracking()
             } else {
                 // 권한 요청 후 거절됨 (다시 요청 or 토스트)
                 Toast.makeText(this, "위치 권한이 거절되었습니다", Toast.LENGTH_SHORT).show()
@@ -157,26 +186,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 
-    // 위치추적 시작
-    private fun startTracking1() {
-        binding.mapView.currentLocationTrackingMode =
-            MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
-    }
-
     @SuppressLint("MissingPermission")
     private fun startTracking() {
-        binding.mapView.currentLocationTrackingMode =
-            MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
-
-        val lm: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val userNowLocation: Location? = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
-        mainViewModel.setTime.observe(this) {
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                10 * 60 * it.toString().toLong(),
-                0F,
-                gpsLocationListener)//콜백으로 설정
-        }
+        val userNowLocation: Location? =
+            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
         //위도 , 경도
         val uLatitude = userNowLocation?.latitude
@@ -184,25 +197,49 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         val uNowPosition = MapPoint.mapPointWithGeoCoord(uLatitude!!, uLongitude!!)
 
         // 현 위치에 마커 찍기
-        val marker = MapPOIItem()
-        marker.itemName = "현 위치"
-        marker.mapPoint = uNowPosition
-        marker.markerType = MapPOIItem.MarkerType.BluePin
-        marker.selectedMarkerType = MapPOIItem.MarkerType.RedPin
-        binding.mapView.addPOIItem(marker)
-
+        val marker = MapPOIItem().apply {
+            itemName = "현 위치"
+            mapPoint = uNowPosition
+            markerType = MapPOIItem.MarkerType.BluePin
+            selectedMarkerType = MapPOIItem.MarkerType.RedPin
+        }
+        mainViewModel.saveHistory(getCurrentTime(), uLatitude, uLongitude)
+        updateHistory()
         Toast.makeText(this, "lat: $uLatitude, long: $uLongitude", Toast.LENGTH_SHORT).show()
-        Log.d("locataion", "startTracking: lat: $uLatitude, long: $uLongitude")
+    }
 
-        // 위도, 경도로 상세 주소 받아오기
+    @SuppressLint("MissingPermission")
+    private fun getCurrentLocation(): Pair<Double, Double> {
+        val userNowLocation: Location? =
+            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+        //위도 , 경도
+        val uLatitude = userNowLocation!!.latitude
+        val uLongitude = userNowLocation!!.longitude
+        return Pair(uLatitude, uLongitude)
+    }
+
+    private fun getDetailAddress(uLatitude: Double, uLongitude: Double): String {
         val geocoder = Geocoder(this)
-        val convertAddress = geocoder.getFromLocation(uLatitude, uLongitude, 1)
-        binding.tvAddress.text = convertAddress.toString()
+        val convertAddress =
+            geocoder.getFromLocation(uLatitude, uLongitude, 1).get(0).getAddressLine(0)
+        return convertAddress.toString()
     }
 
     private fun markerInit() {
-        binding.btnReload.setOnClickListener {
-            binding.mapView.removeAllPOIItems() // 마커 제거 가능!!!!! (초기화)
+        binding.apply {
+            btnReload.setOnClickListener {
+                mapView.removeAllPOIItems()
+            }
+            mainViewModel.clearMarkerList()
         }
+    }
+
+    private fun getCurrentTime(): Long {
+        return System.currentTimeMillis()
+    }
+
+    private fun updateHistory() {
+        mainViewModel.getHistoryFromDate(getCurrentTime().toFormatDate())
     }
 }

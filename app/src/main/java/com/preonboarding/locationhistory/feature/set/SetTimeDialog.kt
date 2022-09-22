@@ -29,7 +29,8 @@ class SetTimeDialog : DialogFragment() {
                 dismiss()
             }
             btnSetTimePositive.setOnClickListener {
-                LocationHistoryApp.prefs.setTime = editSetText.text.toString()
+                LocationHistoryApp.prefs.setTime =
+                    (editSetText.text.toString().toInt() * 60000L).toString()
                 dismiss()
             }
         }
