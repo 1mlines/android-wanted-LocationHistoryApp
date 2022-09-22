@@ -33,7 +33,7 @@
 ***
 
 # Alarm & Location Logic
-<img src="https://user-images.githubusercontent.com/62296097/191752476-731287c3-cec0-40c1-8ec6-145f208008f8.png">
+<img src="https://user-images.githubusercontent.com/62296097/191754433-e38ccd66-a371-4c16-ac92-bd6799f2e61f.png">
 
 
 *** 
@@ -131,7 +131,7 @@ override fun onReceive(context: Context?, intent: Intent?) {
 
 boot intent가 수신되면, locationRepository에서 현재 저장된 시간 간격을 받아와 알람을 다시 설정했습니다.
 
-설정에서 생성한 intent가 수신되면, Workmanager에게 요청을 보냅니다.
+설정에서 생성한 intent가 수신되면, 다시 알람을 재예약하고, Workmanager에게 요청을 보냅니다.
 </p>
 
 *** 
