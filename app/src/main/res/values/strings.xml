@@ -17,5 +17,11 @@
     <string name="main_address">주소</string>
     <string name="main_history">히스토리</string>
     <string name="main_settings">설정</string>
+    <string name="save_history_period">저장 간격</string>
+    <string name="save_history_period_range">15 ~ 60</string>
+    <string name="minute">분</string>
+    <string name="cancel">취소</string>
+    <string name="confirm">확인</string>
+    <string name="save_history_period_range_warning">15 ~ 60 까지만 입력 가능합니다.</string>
 
 </resources>
