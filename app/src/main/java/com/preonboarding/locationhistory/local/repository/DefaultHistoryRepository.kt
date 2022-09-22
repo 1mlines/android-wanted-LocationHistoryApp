@@ -19,5 +19,4 @@ class DefaultHistoryRepository(
     override fun findByDistanceAndCreatedAt(createdAt: String): LiveData<List<History>> {
         return historyLocalDataSource.findByDistanceAndCreatedAt(createdAt)
     }
-
 }
