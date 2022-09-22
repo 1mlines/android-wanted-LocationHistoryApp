@@ -12,15 +12,12 @@ class DefaultHistoryRepository(
         historyLocalDataSource.insertHistory(latitude, longitude)
     }
 
-    override fun findDistinctByDistance(distance: Double): LiveData<List<History>> {
-        return historyLocalDataSource.findDistinctByDistance(distance)
+    override fun findDistinctByDistance(): LiveData<List<History>> {
+        return historyLocalDataSource.findDistinctByDistance()
     }
 
-    override fun findByDistanceAndCreatedAt(
-        distance: Double,
-        createdAt: String
-    ): LiveData<List<History>> {
-        return historyLocalDataSource.findByDistanceAndCreatedAt(distance, createdAt)
+    override fun findByDistanceAndCreatedAt(createdAt: String): LiveData<List<History>> {
+        return historyLocalDataSource.findByDistanceAndCreatedAt(createdAt)
     }
 
 }

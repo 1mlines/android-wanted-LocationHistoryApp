@@ -12,14 +12,11 @@ class HistoryLocalDataSource internal constructor(
         historyDao.insertHistory(latitude, longitude)
     }
 
-    override fun findDistinctByDistance(distance: Double): LiveData<List<History>> {
-        return historyDao.findDistinctByDistance(distance)
+    override fun findDistinctByDistance(): LiveData<List<History>> {
+        return historyDao.findDistinctByDistance()
     }
 
-    override fun findByDistanceAndCreatedAt(
-        distance: Double,
-        createdAt: String
-    ): LiveData<List<History>> {
-        return historyDao.findByDistanceAndCreatedAt(distance, createdAt)
+    override fun findByDistanceAndCreatedAt(createdAt: String): LiveData<List<History>> {
+        return historyDao.findByDistanceAndCreatedAt(createdAt)
     }
 }

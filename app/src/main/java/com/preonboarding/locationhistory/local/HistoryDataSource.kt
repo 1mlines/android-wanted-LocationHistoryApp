@@ -5,6 +5,6 @@ import com.preonboarding.locationhistory.local.entity.History
 
 interface HistoryDataSource {
     fun insertHistory(latitude: Double, longitude: Double)
-    fun findDistinctByDistance(distance: Double): LiveData<List<History>>
-    fun findByDistanceAndCreatedAt(distance: Double, createdAt: String): LiveData<List<History>>
+    fun findDistinctByDistance(): LiveData<List<History>>
+    fun findByDistanceAndCreatedAt(createdAt: String): LiveData<List<History>>
 }
