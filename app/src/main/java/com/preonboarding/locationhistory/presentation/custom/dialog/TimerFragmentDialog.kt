@@ -71,7 +71,7 @@ class TimerFragmentDialog : DialogFragment() {
                         is DurationUiStates.DurationSaveSuccess -> {
                             val time: Long = binding.etTimer.text.toString().toLong()
                             Alarm.create(requireContext(), time)
-                            delay(3_000)
+                            delay(1_000)
                             dismiss()
                         }
                     }
