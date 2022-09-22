@@ -7,4 +7,6 @@ object Constants {
 
     const val WORK_REPEAT_INTERVAL: Long = 15
     const val WORK_SAVE_HISTORY: String = "work_history_save"
+
+    const val LOCATION_PERMISSION_REQUEST_CODE = 10
 }

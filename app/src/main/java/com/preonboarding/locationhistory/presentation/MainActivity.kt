@@ -1,27 +1,83 @@
 package com.preonboarding.locationhistory.presentation
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Criteria
+import android.location.Location
+import android.location.LocationManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.*
+import com.naver.maps.map.util.FusedLocationSource
 import androidx.appcompat.app.AppCompatActivity
 import androidx.work.*
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.WORK_REPEAT_INTERVAL
 import com.preonboarding.locationhistory.common.Constants.WORK_SAVE_HISTORY
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import timber.log.Timber
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-@RequiresApi(Build.VERSION_CODES.M)
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private val TAG: String = MainActivity::class.java.name
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapFragment: MapFragment
+    private lateinit var locationSource: FusedLocationSource
+    private lateinit var naverMap: NaverMap
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    companion object {
+        val locationPermissions = arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.entries.forEach { permission ->
+                when {
+                    permission.value -> {
+                        Toast.makeText(this, "GRANTED", Toast.LENGTH_SHORT).show()
+                    }
+
+                    shouldShowRequestPermissionRationale(permission.key) -> {
+                        Toast.makeText(this, "REQUIRE PERMISSION", Toast.LENGTH_SHORT).show()
+                    }
+
+                    else -> {
+                        openSettings()
+                    }
+                }
+            }
+        }
+
+    private fun openSettings() {
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            data = Uri.fromParts("package", packageName, null)
+        }.run(::startActivity)
+    }
     private val workManager: WorkManager by lazy { WorkManager.getInstance(this) }
     private val constraint: Constraints by lazy {
         Constraints.Builder()
@@ -43,14 +99,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             )
             .build()
 
-
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        checkUserPermission()
+        // permission Check
+        permissionLauncher.launch(locationPermissions)
+        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         initMap()
         bindViews()
@@ -69,53 +128,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private fun checkUserPermission() {
-        val permissions: Array<String> =
-            arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION)
-
-//        var denied = permissions.count { ContextCompat.checkSelfPermission(this, it.value)  == PackageManager.PERMISSION_DENIED }
-//        if (denied > 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            requestPermissions(permissions.values.toTypedArray(), Constants.REQUEST_PERMISSIONS)
-//        }
-
-        if (checkSelfPermission(permissions[0]) == PackageManager.PERMISSION_DENIED) {
-            requestPermissions(permissions, 10)
-            Toast.makeText(this, "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(this, "위치 사용를 사용 할 수 있습니다", Toast.LENGTH_SHORT).show()
-        }
-
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PackageManager.PERMISSION_GRANTED) {
-            grantResults.forEach {
-                if (it == PackageManager.PERMISSION_DENIED) {
-                    Toast.makeText(this, " 위치 권한이 필요합니다. ", Toast.LENGTH_SHORT).show()
-                }
+        if (locationSource.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
+            if (!locationSource.isActivated) {
+                naverMap.locationTrackingMode = LocationTrackingMode.None
             }
+            naverMap.locationTrackingMode = LocationTrackingMode.Face
+            return
         }
 
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     private fun initMap() {
-        mapFragment =
-            supportFragmentManager.findFragmentById(R.id.naverMapFragment) as MapFragment?
-                ?: MapFragment.newInstance().also {
-                    supportFragmentManager.beginTransaction()
-                        .add(R.id.naverMapFragment, it).commit()
-                }
+        mapFragment = supportFragmentManager.findFragmentById(R.id.naverMapFragment) as MapFragment?
+            ?: MapFragment.newInstance().also {
+                supportFragmentManager.beginTransaction()
+                    .add(R.id.naverMapFragment, it).commit()
+            }
 
         mapFragment.getMapAsync(this)
     }
-
 
     private fun bindViews() = with(binding) {
         addressButton.setOnClickListener {
@@ -133,7 +170,48 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     override fun onMapReady(naverMap: NaverMap) {
+        this.naverMap = naverMap
+        naverMap.locationSource = locationSource
 
+        setMapUiSettings()
+
+        var currentLocation: Location?
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            currentLocation = location
+
+            naverMap.locationOverlay.run {
+                isVisible = true
+                position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+            }
+
+            val cameraUpdate = CameraUpdate.scrollTo(
+                LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
+            )
+
+            naverMap.moveCamera(cameraUpdate)
+
+            Timber.e("${currentLocation!!.latitude} // ${currentLocation!!.longitude}")
+        }
+    }
+
+    private fun setMapUiSettings() {
+        naverMap.uiSettings.apply {
+            isLocationButtonEnabled = true
+            isTiltGesturesEnabled = true
+            isScaleBarEnabled = false
+            isCompassEnabled = false
+        }
     }
 
 

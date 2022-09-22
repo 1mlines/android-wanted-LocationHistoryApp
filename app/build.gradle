@@ -70,4 +70,7 @@ dependencies {
 
     // Timber
     implementation "com.jakewharton.timber:timber:$timberVersion"
+
+    // Google Play Service
+    implementation "com.google.android.gms:play-services-location:20.0.0"
 }
