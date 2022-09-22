@@ -2,10 +2,12 @@ package com.preonboarding.locationhistory.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.preonboarding.locationhistory.Event
 import com.preonboarding.locationhistory.local.HistoryRepository
 import com.preonboarding.locationhistory.local.entity.History
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,26 +18,42 @@ class MainViewModel @Inject constructor(
     val dateName: MutableLiveData<String> = MutableLiveData()
     val historyResponse: MutableLiveData<List<History>> = MutableLiveData()
     val historyList: MutableLiveData<List<History>> = MutableLiveData()
-    var dialog: MutableLiveData<Event<Unit>> = MutableLiveData()
+    var dialogConfirm: MutableLiveData<Event<Unit>> = MutableLiveData()
+    var dialogCancel: MutableLiveData<Event<Unit>> = MutableLiveData()
+    var dialogDatePicker: MutableLiveData<Event<Unit>> = MutableLiveData()
 
     fun changeDateName(name: String) {
         dateName.value = name
     }
 
-    suspend fun insertHistory(latitude: Double, longitude: Double) {
-        repository.insertHistory(latitude, longitude)
+    fun insertHistory(latitude: Double, longitude: Double) {
+        viewModelScope.launch {
+            repository.insertHistory(latitude, longitude)
+        }
     }
 
-    suspend fun findDistinctByDistance(): List<History> {
-        return repository.findDistinctByDistance()
+    fun findDistinctByDistance() {
+        viewModelScope.launch {
+            repository.findDistinctByDistance()
+        }
     }
 
-    suspend fun findByDistanceAndCreatedAt(createdAt: String): List<History> {
-        return repository.findByDistanceAndCreatedAt(createdAt)
+    fun findByDistanceAndCreatedAt(createdAt: String) {
+        viewModelScope.launch {
+            historyResponse.value = repository.findByDistanceAndCreatedAt(createdAt)
+        }
+    }
+
+    fun dialogDatePicker() {
+        dialogDatePicker.value = Event(Unit)
     }
 
     fun dialogConfirm() {
         historyList.value = historyResponse.value
-        dialog.value = Event(Unit)
+        dialogConfirm.value = Event(Unit)
+    }
+
+    fun dialogCancel() {
+        dialogCancel.value = Event(Unit)
     }
 }
