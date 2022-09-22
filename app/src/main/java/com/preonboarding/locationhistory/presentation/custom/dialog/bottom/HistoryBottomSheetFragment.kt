@@ -89,7 +89,13 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
             repeatOnLifecycle(state = Lifecycle.State.STARTED) {
                 mainViewModel.currentHistory.collect {
                     Timber.tag(TAG).e(it.toString())
-                    historyListAdapter.submitList(it)
+                    if(it.isEmpty()) {
+                        binding.historyBottomEmptyTv.visibility = View.VISIBLE
+                    }
+                    else {
+                        historyListAdapter.submitList(it)
+                        binding.historyBottomEmptyTv.visibility = View.GONE
+                    }
                 }
             }
         }

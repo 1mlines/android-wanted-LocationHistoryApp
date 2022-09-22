@@ -72,6 +72,19 @@
             layout="@layout/item_history_list" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/history_bottom_empty_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/history_list_empty_text"
+        android:textColor="@color/black"
+        android:layout_marginTop="@dimen/layout_margin_default"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/history_list_column_layout" />
+
      <androidx.recyclerview.widget.RecyclerView
          android:id="@+id/history_bottom_rv"
          android:layout_width="match_parent"
