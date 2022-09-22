@@ -23,7 +23,6 @@ class HistoryDaoTest {
     @Before
     fun setUp() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.preonboarding.locationhistory", appContext.packageName)
         appDatabase = Room.inMemoryDatabaseBuilder(appContext, AppDatabase::class.java).build()
     }
 
