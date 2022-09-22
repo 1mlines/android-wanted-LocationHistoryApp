@@ -105,6 +105,64 @@
 - 아쉬운 점
     - 이번 프로젝트를 진행하며 팀원들이 기능 구현에 어려움을 겪는 걸 봤는데, Base Architecture 구성을 맡음으로써 기능 구현에 도움이 많이 못 된 것이 아쉽습니다.
 
+### 임성용
+- 맡은 부분
+  - 인트로 화면 
+- 기여한 점 
+  - `Splash Screen` 구성 
+  - 3초 후 메인화면 이동 
+  - 네트워크 연결 상태 체크
+- 아쉬운 점
+  - Splash Screen Icon에 Animation 기능을 추가하지 못했습니다.
+  
+| Splash Screen | 위치 설정 권한 거부 | 네트워크 연결 상태 체크 |
+| :------: | :--------: | :--------------: |
+| <video src = "https://user-images.githubusercontent.com/96644159/191818822-cf0c7642-2e5b-4c34-aa3c-b3577400c9e8.mp4"> | <video src ="https://user-images.githubusercontent.com/96644159/191819950-03085e39-2016-46f3-abf0-419a6e3663ea.mp4"> |  <video src ="https://user-images.githubusercontent.com/96644159/191819965-4253c344-1170-4bbf-8fd1-3a6f8d87597e.mp4"> |
+  
+```kotlin
+    private fun initData() {
+        thread(true) {
+            for (i in 1..3) {
+                Thread.sleep(1000)
+            }
+            isReady = true
+        }
+    }
+```
+- 별도의 작업은 수행하지 않고 3초간의 딜레이를 주고 이후 작업을 진행합니다. 
+
+  
+```kotlin
+    private fun initSplashScreen() {
+        initData()
+
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return if (isReady) {
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        if (!isConnection()) {
+                            Snackbar.make(
+                                binding.root,
+                                R.string.networkError,
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                        checkPermission()
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+        )
+    }
+```
+- `addOnPreDrawListener`를 통하여 `Splash Screen`이 그려지는 것에 대한 결과를 받습니다.
+- `onPreDraw`는 `Splash Screen`이 보이는 동안 계속해서 호출되며, `isReady`가 true일 때 true를 반환하면서 해당 스크린을 지우도록 처리하였습니다.
+- `isReady`는 `initData`에서 3초 뒤에 true로 변경하도록 설정해두었습니다. 그로인해, `Splash Screen`이 3초 후에 제거됩니다.
+
 ### 서강휘 
 - 맡은 부분
   - 히스토리 표시하기
@@ -260,62 +318,3 @@ class CurrentLocationWorker @AssistedInject constructor(
 - 설정 간격에 따라 내부 데이터베이스에 현 위치를 저장하는 로직입니다.
 - 안드로이드 기기에서 GPS를 통해 현 위치를 추적합니다.
 - `js`, `webView` 로 앱을 구성한만큼 `js` 의 로직으로 현 위치를 불러오고 싶었으나, 시간 상 여유가 부족하여 더 나은 로직을 발견하지 못했습니다.
-
-### 임성용
-- 맡은 부분
-  - 인트로 화면 
-- 기여한 점 
-  - `Splash Screen` 구성 
-  - 3초 후 메인화면 이동 
-  - 네트워크 연결 상태 체크
-- 아쉬운 점
-  - Splash Screen Icon에 Animation 기능을 추가하지 못했습니다.
-  
-| Splash Screen | 위치 설정 권한 거부 | 네트워크 연결 상태 체크 |
-| :------: | :--------: | :--------------: |
-| <video src = "https://user-images.githubusercontent.com/96644159/191818822-cf0c7642-2e5b-4c34-aa3c-b3577400c9e8.mp4"> | <video src ="https://user-images.githubusercontent.com/96644159/191819950-03085e39-2016-46f3-abf0-419a6e3663ea.mp4"> |  <video src ="https://user-images.githubusercontent.com/96644159/191819965-4253c344-1170-4bbf-8fd1-3a6f8d87597e.mp4"> |
-  
-  
-```kotlin
-    private fun initData() {
-        thread(true) {
-            for (i in 1..3) {
-                Thread.sleep(1000)
-            }
-            isReady = true
-        }
-    }
-```
-- 별도의 작업은 수행하지 않고 3초간의 딜레이를 주고 이후 작업을 진행합니다. 
-
-  
-```kotlin
-    private fun initSplashScreen() {
-        initData()
-
-        val content: View = findViewById(android.R.id.content)
-        content.viewTreeObserver.addOnPreDrawListener(
-            object : ViewTreeObserver.OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    return if (isReady) {
-                        content.viewTreeObserver.removeOnPreDrawListener(this)
-                        if (!isConnection()) {
-                            Snackbar.make(
-                                binding.root,
-                                R.string.networkError,
-                                Snackbar.LENGTH_SHORT
-                            ).show()
-                        }
-                        checkPermission()
-                        true
-                    } else {
-                        false
-                    }
-                }
-            }
-        )
-    }
-```
-- `addOnPreDrawListener`를 통하여 `Splash Screen`이 그려지는 것에 대한 결과를 받습니다.
-- `onPreDraw`는 `Splash Screen`이 보이는 동안 계속해서 호출되며, `isReady`가 true일 때 true를 반환하면서 해당 스크린을 지우도록 처리하였습니다.
-- `isReady`는 `initData`에서 3초 뒤에 true로 변경하도록 설정해두었습니다. 그로인해, `Splash Screen`이 3초 후에 제거됩니다.
