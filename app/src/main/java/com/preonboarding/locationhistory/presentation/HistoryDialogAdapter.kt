@@ -13,21 +13,15 @@ import com.preonboarding.locationhistory.databinding.ItemHistoryBinding
 class HistoryDialogAdapter :
     ListAdapter<History, HistoryDialogAdapter.HistoryDialogViewHolder>(DiffCallback) {
 
-    private var hystoryList = emptyList<History>()
-
-    fun setData(historylists: List<History>) {
-        hystoryList = historylists
-        notifyDataSetChanged()
-    }
 
     class HistoryDialogViewHolder(private var binding: ItemHistoryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SimpleDateFormat")
         fun bind(data: History) {
-            binding.ItemNumTextView.text = data.num.toString()
-            binding.ItemLatitudeTextView.text = data.latitude.toString()
-            binding.ItemLongitudeTextView.text = data.longitude.toString()
-            binding.ItemDateTextView.text = data.createdAt
+            binding.itemNumTextView.text = data.num.toString()
+            binding.itemLatitudeTextView.text = data.latitude.toString()
+            binding.itemLongitudeTextView.text = data.longitude.toString()
+            binding.itemDateTextView.text = data.createdAt
         }
     }
 
@@ -55,7 +49,7 @@ class HistoryDialogAdapter :
             }
 
             override fun areContentsTheSame(oldItem: History, newItem: History): Boolean {
-                return oldItem.num == newItem.num
+                return oldItem.hashCode() == newItem.hashCode()
             }
         }
     }

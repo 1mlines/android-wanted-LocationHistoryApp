@@ -19,7 +19,7 @@
 
 
         <TextView
-            android:id="@+id/DialogTitleTextView"
+            android:id="@+id/dialogTitleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
@@ -29,26 +29,26 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
-            android:id="@+id/LineView"
+            android:id="@+id/lineView"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_margin="16dp"
             android:background="@color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/DialogTitleTextView" />
+            app:layout_constraintTop_toBottomOf="@id/dialogTitleTextView" />
 
         <TextView
-            android:id="@+id/DialogDateTextView"
+            android:id="@+id/dialogDateTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:text="@string/dialog_history_date"
-            app:layout_constraintEnd_toStartOf="@id/DialogDatepickerTextView"
-            app:layout_constraintTop_toBottomOf="@id/LineView" />
+            app:layout_constraintEnd_toStartOf="@id/dialogDatepickerTextView"
+            app:layout_constraintTop_toBottomOf="@id/lineView" />
 
         <TextView
-            android:id="@+id/DialogDatepickerTextView"
+            android:id="@+id/dialogDatepickerTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
@@ -60,40 +60,40 @@
             android:text="@string/dialog_history_datepicker"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/LineView" />
+            app:layout_constraintTop_toBottomOf="@id/lineView" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/DialogRecyclerView"
+            android:id="@+id/dialogRecyclerView"
             android:layout_width="0dp"
             android:layout_height="300dp"
             android:layout_margin="8dp"
             android:padding="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/DialogDatepickerTextView"
+            app:layout_constraintTop_toBottomOf="@id/dialogDatepickerTextView"
             tools:listitem="@layout/item_history" />
 
         <Button
-            android:id="@+id/DialogCancelButton"
+            android:id="@+id/dialogCancelButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:text="@string/dialog_history_btn_cancel"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/DialogConfirmButton"
+            app:layout_constraintEnd_toStartOf="@id/dialogConfirmButton"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/DialogRecyclerView" />
+            app:layout_constraintTop_toBottomOf="@id/dialogRecyclerView" />
 
         <Button
-            android:id="@+id/DialogConfirmButton"
+            android:id="@+id/dialogConfirmButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:text="@string/dialog_history_btn_confirm"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/DialogCancelButton"
-            app:layout_constraintTop_toBottomOf="@id/DialogRecyclerView" />
+            app:layout_constraintStart_toEndOf="@id/dialogCancelButton"
+            app:layout_constraintTop_toBottomOf="@id/dialogRecyclerView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

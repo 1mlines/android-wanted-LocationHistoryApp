@@ -9,13 +9,8 @@ import com.preonboarding.locationhistory.data.History
 import com.preonboarding.locationhistory.data.HistoryDB
 import com.preonboarding.locationhistory.data.HistoryRepository
 
-class HistoryDialogViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: HistoryRepository
 
-    init {
-        val historyDao = HistoryDB.getDatabase(getApplication())!!.historyDao()
-        repository = HistoryRepository(historyDao)
-    }
+class HistoryDialogViewModel(private val repository: HistoryRepository) : ViewModel() {
 
     fun getHistory(date: String): LiveData<List<History>> {
         return repository.getHistory(date)
@@ -23,12 +18,6 @@ class HistoryDialogViewModel(application: Application) : AndroidViewModel(applic
 
     fun insertHistory(history: History) {
         repository.insert(history)
-    }
-
-    class Factory(val application: Application) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return HistoryDialogViewModel(application) as T
-        }
     }
 
 }

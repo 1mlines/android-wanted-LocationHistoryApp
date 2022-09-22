@@ -1,6 +1,8 @@
 package com.preonboarding.locationhistory.presentation
 
 import android.Manifest
+import android.app.Activity
+import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
@@ -10,7 +12,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -23,24 +24,24 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.WantedApplication.Companion.getAppContext
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MIN
-import com.preonboarding.locationhistory.data.History
-import com.preonboarding.locationhistory.data.HistoryDB
+import com.preonboarding.locationhistory.data.*
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
 import com.preonboarding.locationhistory.databinding.DialogSaveHistorySettingsBinding
 import com.preonboarding.locationhistory.util.AnimationUtil.shakeAnimation
 import com.preonboarding.locationhistory.util.PreferencesUtil
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -53,19 +54,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapFragment: MapFragment
-    private lateinit var locationSource: FusedLocationSource
     private lateinit var naverMap: NaverMap
     private lateinit var historyBinding: DialogHistoryBinding
     private lateinit var dialogViewModel: HistoryDialogViewModel
     private lateinit var settingDay: String
     private lateinit var adapter: HistoryDialogAdapter
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var db: HistoryDB
+    private lateinit var factory: HistoryDialogViewModelFactory
 
-    private val fusedLocationClient: FusedLocationProviderClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
-    private val locationSource: FusedLocationSource by lazy { FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE) }
+    private val fusedLocationClient: FusedLocationProviderClient by lazy {
+        LocationServices.getFusedLocationProviderClient(
+            this
+        )
+    }
+    private val locationSource: FusedLocationSource by lazy {
+        FusedLocationSource(
+            this,
+            LOCATION_PERMISSION_REQUEST_CODE
+        )
+    }
 
-    private val requestMultiplePermissions : ActivityResultLauncher<Array<String>> =
+
+    private val requestMultiplePermissions: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             var granted: Boolean = true
             permissions.entries.forEach {
@@ -77,14 +87,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     backgroundLocationPermission(222)
                 } else {
-                   Log.i("api 10","FDFDFFFF")
                 }
             } else {
                 Toast.makeText(this, "서비스를 사용하시려면 위치 추적이 허용되어야 합니다.,", Toast.LENGTH_LONG)
                     .show()
             }
         }
-
 
     private fun openSettings() {
         Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -115,7 +123,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         registerOnSharedPreferenceChangeListener()
     }
 
-    fun checkLocationPermission(){
+    fun checkLocationPermission() {
         requestMultiplePermissions.launch(
             arrayOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -127,18 +135,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     // Android 11 이상 - BackgroundPermission Check
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun backgroundLocationPermission(backgroundLocationRequestCode: Int) {
-        if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+        if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
             return
         }
         AlertDialog.Builder(this)
             .setTitle("백그라운드 위치 사용이 필요합니다.")
             .setMessage("원활한 서비스 제공을 위해 위치 권한을 항상 허용으로 설정해주세요. ")
-            .setPositiveButton("확인") { _,_ ->
+            .setPositiveButton("확인") { _, _ ->
                 // this request will take user to Application's Setting page
-                requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), backgroundLocationRequestCode)
+                requestPermissions(
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    backgroundLocationRequestCode
+                )
                 openAppSettings(this)
             }
-            .setNegativeButton("취소") { dialog,_ ->
+            .setNegativeButton("취소") { dialog, _ ->
                 dialog.dismiss()
             }
             .create()
@@ -146,12 +157,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     }
 
-    private fun checkPermissionGranted(permission: String) : Boolean {
-        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+    private fun checkPermissionGranted(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun openAppSettings(activity: Activity){
-        val intent : Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+    fun openAppSettings(activity: Activity) {
+        val intent: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             data = Uri.fromParts("package", activity.packageName, null)
         }
@@ -206,9 +220,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         val historyDialog = AlertDialog.Builder(this).setView(historyBinding.root).create()
         historyDialog.setCanceledOnTouchOutside(true)
 
+        val dao : HistoryDao = db.historyDao()
+        val repository: HistoryRepository = HistoryRepositoryImpl(dao)
+        factory = HistoryDialogViewModelFactory(repository)
         dialogViewModel = ViewModelProvider(
-            this,
-            HistoryDialogViewModel.Factory(instance)
+            this, factory
         ).get(HistoryDialogViewModel::class.java)
         historyBinding.viewModel = dialogViewModel
 
@@ -216,32 +232,32 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         val today = dateFormat.format(System.currentTimeMillis())
 
         if (settingDay == today) {
-            historyBinding.DialogDatepickerTextView.text = today
+            historyBinding.dialogDatepickerTextView.text = today
             setHistory(today)
 
         } else {
-            historyBinding.DialogDatepickerTextView.text = settingDay
+            historyBinding.dialogDatepickerTextView.text = settingDay
             setHistory(settingDay)
 
         }
 
 
 
-        historyBinding.DialogCancelButton.setOnClickListener {
+        historyBinding.dialogCancelButton.setOnClickListener {
             historyDialog.dismiss()
         }
 
-        historyBinding.DialogConfirmButton.setOnClickListener {
+        historyBinding.dialogConfirmButton.setOnClickListener {
             setHistory(settingDay)
             Toast.makeText(this, "날짜 변경 완료!", Toast.LENGTH_SHORT).show()
             historyDialog.dismiss()
         }
-        historyBinding.DialogDatepickerTextView.setOnClickListener {
+        historyBinding.dialogDatepickerTextView.setOnClickListener {
             val cal = Calendar.getInstance()
             val dateSetListener =
                 DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
                     val dateString = "${year}.${month + 1}.$dayOfMonth"
-                    historyBinding.DialogDatepickerTextView.text = dateString
+                    historyBinding.dialogDatepickerTextView.text = dateString
                     settingDay = dateString
                 }
             DatePickerDialog(
@@ -259,12 +275,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     //리사이클러뷰 생성
     private fun setHistory(today: String) {
         adapter = HistoryDialogAdapter()
-        historyBinding.DialogRecyclerView.adapter = adapter
-        dialogViewModel.getHistory(today).observe(this, androidx.lifecycle.Observer {
-            adapter.setData(it)
+        historyBinding.dialogRecyclerView.adapter = adapter
+        dialogViewModel.getHistory(today).observe(this) {
+            adapter.submitList(it)
             pinMap(it)
             // 시간 보내줄때 유형 맞는지 확인 해야함!
-        })
+        }
 
 
     }
@@ -272,7 +288,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     //지도에 좌표 찍기
     private fun pinMap(historyList: List<History>) {
-        CoroutineScope(Dispatchers.Main).launch {
+        lifecycleScope.launch {
             val load = async(Dispatchers.IO) {
                 for (i in historyList) {
                     Timber.e(i.toString())
@@ -312,8 +328,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private fun getCurrentLatLng() {
         var currentLocation: Location?
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+            && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }

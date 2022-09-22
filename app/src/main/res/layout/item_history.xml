@@ -7,7 +7,7 @@
     android:weightSum="8">
 
     <TextView
-        android:id="@+id/ItemNumTextView"
+        android:id="@+id/itemNumTextView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -16,7 +16,7 @@
         android:text="@string/item_history_num" />
 
     <TextView
-        android:id="@+id/ItemLatitudeTextView"
+        android:id="@+id/itemLatitudeTextView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="2"
@@ -25,7 +25,7 @@
         android:text="@string/item_history_latitude" />
 
     <TextView
-        android:id="@+id/ItemLongitudeTextView"
+        android:id="@+id/itemLongitudeTextView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="2"
@@ -34,7 +34,7 @@
         android:text="@string/item_history_longitude" />
 
     <TextView
-        android:id="@+id/ItemDateTextView"
+        android:id="@+id/itemDateTextView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_weight="3"
