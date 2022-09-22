@@ -14,7 +14,6 @@
 |:----:|:----:|:----:|:----:|
 | [김현국](https://github.com/014967) | [노유리](https://github.com/yforyuri) | [이서윤](https://github.com/seoyoon513) | [임수진](https://github.com/sujin-kk) |
 
-
 ## 3. Architecture
 
 > Clean Architecture + MVVM Pattern
@@ -30,19 +29,33 @@
   - Local Repository 및 DataSource가 존재합니다.
   - 앱의 전반적인 비즈니스 로직을 처리합니다.
   
+  
+***
+
+# Permission Check
+
+<img src="https://user-images.githubusercontent.com/110798031/191757916-58bef982-9514-4b36-8fd5-967a1a8adb0b.png">
+
+|권한 승인|권한 거절|
+|:----:|:----:|
+|<img src="https://user-images.githubusercontent.com/110798031/191755875-a0a4e6ac-3532-4fae-8757-273fb80a3f15.gif" width="180" height="400">|<img src="https://user-images.githubusercontent.com/110798031/191757561-9b984447-b6c5-4496-8cb1-c5983e15d935.gif" width="180" height="400">|
+
+* 최초 앱 실행 시 GPS on/off를 체크하고 on 상태에서 권한을 요청합니다.
+* 권한을 거절하면 재요청 dialog를 띄우고 연이어 거절 시 설정 창에서 직접 권한을 수정합니다.
+* 위치 권한을 허용하지 않을 경우 앱을 실행하면 다시 허용 안내 dialog를 띄우고 요청 로직이 재수행 됩니다.
+* 권한을 허용하면 사용자 위치 추적이 시작되고 현재 사용자 위치에 마커가 표시됩니다.
+* 앱 종료 시 사용자 위치 추적이 종료됩니다.
 
 ***
 
-## 4. Feature & Screen
-
-### Alarm & Location Logic
-<img src="https://user-images.githubusercontent.com/62296097/191754433-e38ccd66-a371-4c16-ac92-bd6799f2e61f.png">
+# Alarm & Location Logic
+<img src="https://user-images.githubusercontent.com/62296097/191752476-731287c3-cec0-40c1-8ec6-145f208008f8.png">
 
 
 *** 
 
-### TimerDialog 
-<img src="https://user-images.githubusercontent.com/62296097/191736374-64727464-7938-444e-a4d3-033300aeff4a.jpeg" width="200px">
+## TimerDialog 
+<img src="https://user-images.githubusercontent.com/62296097/191736374-64727464-7938-444e-a4d3-033300aeff4a.jpeg" width="200px" with>
 
 <p>
 Timer Dialog에서는 알람 시간을 저장할 수 있습니다. 
@@ -108,7 +121,7 @@ API 23 부터는 Doz 모드가 추가되어서 setExact()로도 정확한 시간
 
 
 ***
-### AlarmReceiver
+## AlarmReceiver
 
 ```kotlin
 override fun onReceive(context: Context?, intent: Intent?) {
@@ -134,12 +147,12 @@ override fun onReceive(context: Context?, intent: Intent?) {
 
 boot intent가 수신되면, locationRepository에서 현재 저장된 시간 간격을 받아와 알람을 다시 설정했습니다.
 
-설정에서 생성한 intent가 수신되면, 다시 알람을 재예약하고, Workmanager에게 요청을 보냅니다.
+설정에서 생성한 intent가 수신되면, Workmanager에게 요청을 보냅니다.
 </p>
 
 *** 
 
-### Workmanager
+## Workmanager
 
 ```kotlin
  override suspend fun doWork(): Result {
@@ -179,55 +192,3 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
 위도와 경도가 null이 아닌 경우 locationRepository의 saveLocation을 호출하여 데이터베이스에 저장했습니다. 
 </p>
 
----
-
-### History
-
-- 히스토리를 저장하고 다이얼로그로 띄워 확인하는 기능입니다.
-
-![ezgif com-gif-maker (6)](https://user-images.githubusercontent.com/85485290/191758541-7ea72280-2319-47bf-9f20-70763bcd6d46.gif)
-
-
-- DatePicker의 Calendar Instance는 앱을 사용하는 동안 한번만 생성하도록 하였고, mainViewModel.calendar로 언제든 참조 가능하게 하였습니다.
-```kotlin
-    var calendar: Calendar = Calendar.getInstance().apply {
-        set(Calendar.MONTH, this.get(Calendar.MONTH))
-        firstDayOfWeek = Calendar.MONDAY
-        set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-    }
-```
-
-
-- 히스토리를 띄우고 Date Picker에서 다른 날짜를 선택해 데이터를 reload 할 때 Flow의 ```collectLatest```로 요청이 들어왔을 때 최신의 데이터만 수집하도록 하였습니다.
-```kotlin
-    private fun updateHistoryList() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                kotlin.runCatching {
-                    mainViewModel.getHistoryWithDate()
-                }
-                    .onSuccess {
-                        mainViewModel.currentHistory.collectLatest {
-                            historyListAdapter.submitList(it)
-                        }
-                    }
-            }
-        }
-    }
-```
-
-
-- RecyclerView의 ListAdapter를 사용하여 이전 데이터와의 비교를 통해 바뀐 데이터 부분만 갱신하도록 하였습니다.
-```kotlin
-    companion object {
-        private val diffCallback = object : DiffUtil.ItemCallback<Location>() {
-            override fun areItemsTheSame(oldItem: Location, newItem: Location): Boolean {
-                return oldItem.id == newItem.id
-            }
-
-            override fun areContentsTheSame(oldItem: Location, newItem: Location): Boolean {
-                return oldItem == newItem
-            }
-        }
-    }
-```
