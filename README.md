@@ -1,5 +1,12 @@
 # 원티드 프리온보딩 안드로이드
 
+  * [1. Summary](#1-summary)
+  * [2. People](#2-people)
+  * [3. Architecture](#3-architecture)
+  * [4. Feature & Screen](#4-feature-&-screen)
+  * [5. Technology Stack](#5-technology-stack)
+  * [6. Git Convention](#6-git-convention)
+
 ## 1. Summary
 
 <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=Android&logoColor=white"> <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=Kotlin&logoColor=white">
@@ -14,7 +21,7 @@
 |:----:|:----:|:----:|:----:|
 | [김현국](https://github.com/014967) | [노유리](https://github.com/yforyuri) | [이서윤](https://github.com/seoyoon513) | [임수진](https://github.com/sujin-kk) |
 
-## 3. Architecture
+## 3. Architecture 
 
 > Clean Architecture + MVVM Pattern
 
@@ -29,10 +36,26 @@
   - Local Repository 및 DataSource가 존재합니다.
   - 앱의 전반적인 비즈니스 로직을 처리합니다.
   
+- Fordering
+```
+🔖
+.
+├── data
+│   ├── model
+│   ├── repository
+│   └── source
+├── di
+└── presentation
+    ├── custom
+    ├── model
+    ├── ui
+    └── uistates
+```
+  
   
 ***
 
-## 4. Feature & Screen
+## 4. Feature & Screen ✨
 
 ### Permission Check
 
@@ -244,3 +267,46 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
         }
     }
 ```
+
+## 5. Technology Stack 🛠
+- Tools : Android Studio Dolphin
+- Language : Kotlin
+- Architecture Pattern : MVVM Pattern
+- Android Architecture Components(AAC)
+  - Flow
+  - ViewModel
+  - Coroutine
+  - View Binding
+- HILT
+- ROOM
+- WORKER MANAGER
+- TIMBER 
+
+---
+
+## 6. Git Convention
+
+- Commit Message
+ 
+```
+[type] message
+```
+
+- Commit Type
+  -  ```feat``` : 새로운 기능 추가
+  -  ```fix``` : 버그 수정
+  -  ```docs``` : 문서 수정
+  -  ```refactor``` : 코드 리팩토링
+  -  ```chore``` : 빌드 업무 수정 등 로직에 큰 변화 없는 업무
+
+- Branch Strategy
+
+<img width="400" alt="image" src="https://user-images.githubusercontent.com/85485290/191769024-ba45dc94-842c-4d1c-a28b-bc3617708ffb.png">
+
+- Branch Type
+  - ```develop``` : 개발 진행 중일때는 develop에 merge 한다.
+  - ```feature``` : 기능 개발 브랜치
+  - ```fix``` : 버그 및 기능 수정 브랜치
+  - ```refactor``` : 리팩토링 브랜치
+  - ```hotfix``` : main의 버그가 있으면 hotfix를 이용해 main에 merge 한다.
+  - ```main``` : 금요일 코드 제출을 위한 최종 브랜치
