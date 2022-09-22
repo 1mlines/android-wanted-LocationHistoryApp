@@ -267,7 +267,72 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
         }
     }
 ```
+---
 
+### Reverse geocoding
+
+- 현재 위치 좌표값을 주소로 반환하는 역 지오코딩입니다.
+
+<img src="https://user-images.githubusercontent.com/51072429/191795776-58847477-ee00-472c-9022-da4a58385122.GIF" width="250" />
+
+- MainActivity에서 현재 위치 추적이 시작될 때 현재 위치 위도와 경도 값을 반환합닏다.
+```kotlin
+    private fun startTracking(): Location { 
+        mapView.currentLocationTrackingMode = MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+
+        val lm: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val userNowLocation: Location? = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER) 
+        // 위도 , 경도
+        val uLatitude = userNowLocation?.latitude
+        val uLongitude = userNowLocation?.longitude
+        val uNowPosition = MapPoint.mapPointWithGeoCoord(uLatitude!!, uLongitude!!)
+          ...
+        return userNowLocation
+    }
+```
+
+- 구글에서 제공하는 Geocoder 클래스의 getFromLocation 메서드로 위도 경도를 주소 리스트로 반환합니다.
+- 반환된 주소 리스트는 getAddressLine 메서드를 통해 상세 주소를 반환합니다.
+```kotlin
+    private fun getAddress(): String? {
+        val userLocation: Location? = startTracking()
+        var userAddress: String? = null
+
+        if (userLocation != null) {
+            val latitude = userLocation.latitude
+            val longitude = userLocation.longitude
+
+            val mGeoCoder = Geocoder(this, Locale.KOREAN)
+            var currentAddress: List<Address>? = null
+            try {
+                currentAddress = mGeoCoder.getFromLocation(
+                    latitude,
+                    longitude,
+                    1
+                )
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            if (currentAddress != null) {
+                userAddress = currentAddress[0].getAddressLine(0)
+            }
+        } else {
+            userAddress = "gps 연결을 확인해주세요"
+        }
+        return userAddress
+    }
+```
+
+- 주소 버튼을 클릭하면 dialog가 호출되고 상세 주소를 매개변수로 전달해서 dialog 팝업을 통해 보여줍니다.
+```kotlin
+    binding.mainAddressBtn.setOnClickListener {
+        AddressDialog(this).show(
+            getAddress().toString().substring(5)
+        )
+    }
+```
+
+---
 ## 5. Technology Stack 🛠
 - Tools : Android Studio Dolphin
 - Language : Kotlin
