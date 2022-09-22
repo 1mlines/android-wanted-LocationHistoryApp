@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.preonboarding.locationhistory.databinding.LayoutRowHistoryBinding
+import com.preonboarding.locationhistory.databinding.ItemRowHistoryBinding
 import com.preonboarding.locationhistory.local.entity.History
 import com.preonboarding.locationhistory.local.util.DiffUtils
 
@@ -13,7 +13,7 @@ class HistoryDialogAdapter(
 
     private var historyList: List<History> = emptyList()
 
-    class HistoryDialogViewHolder(private val binding: LayoutRowHistoryBinding) :
+    class HistoryDialogViewHolder(private val binding: ItemRowHistoryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(history: History) {
             binding.history = history
@@ -23,7 +23,7 @@ class HistoryDialogAdapter(
         companion object {
             fun from(parent: ViewGroup): HistoryDialogViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = LayoutRowHistoryBinding.inflate(layoutInflater, parent, false)
+                val binding = ItemRowHistoryBinding.inflate(layoutInflater, parent, false)
                 return HistoryDialogViewHolder(binding)
             }
         }
