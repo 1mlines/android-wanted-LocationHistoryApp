@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.preonboarding.locationhistory.data.db.entity.LocationEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LocationDao {
@@ -15,5 +16,5 @@ interface LocationDao {
     suspend fun getLocations(date: Long): List<LocationEntity>
 
     @Query("SELECT * FROM locations ")
-    suspend fun getAllLocations(): List<LocationEntity>
+    fun getAllLocations(): Flow<List<LocationEntity>>
 }

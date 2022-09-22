@@ -3,6 +3,7 @@ package com.preonboarding.locationhistory.data.repository
 import androidx.room.withTransaction
 import com.preonboarding.locationhistory.data.db.database.LocationDatabase
 import com.preonboarding.locationhistory.data.db.entity.LocationEntity
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class LocalDataSource @Inject constructor(
@@ -19,7 +20,7 @@ class LocalDataSource @Inject constructor(
         }
     }
 
-    suspend fun getAllLocations(): List<LocationEntity> {
+    fun getAllLocations(): Flow<List<LocationEntity>> {
         return locationDao.getAllLocations()
     }
 }
