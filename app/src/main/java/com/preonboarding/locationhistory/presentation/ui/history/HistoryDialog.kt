@@ -2,6 +2,7 @@ package com.preonboarding.locationhistory.presentation.ui.history
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.DatePicker
@@ -10,12 +11,14 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
+import com.preonboarding.locationhistory.domain.model.Location
 import com.preonboarding.locationhistory.presentation.base.BaseDialog
 import com.preonboarding.locationhistory.presentation.ui.main.LocationAdapter
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
 import com.preonboarding.locationhistory.presentation.ui.util.currentDate
 import com.preonboarding.locationhistory.presentation.ui.util.currentTimeStamp
 import timber.log.Timber
+import java.sql.Timestamp
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,7 +29,18 @@ class HistoryDialog : BaseDialog<DialogHistoryBinding>(R.layout.dialog_history) 
         LocationAdapter()
     }
 
+    private lateinit var callbacks: Callbacks
+
+    interface Callbacks {
+        fun getLocation(locations : List<Location>)
+    }
+
     private val viewModel: MainViewModel by viewModels(ownerProducer = { requireActivity() })
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,22 +84,16 @@ class HistoryDialog : BaseDialog<DialogHistoryBinding>(R.layout.dialog_history) 
             dlg.updateDate(calendarStart.get(Calendar.YEAR), calendarStart.get(Calendar.MONTH), calendarStart.get(Calendar.DAY_OF_MONTH)) // DatePicker 시작값 세팅
             dlg.show()
 
-            dlg.getButton(DatePickerDialog.BUTTON_POSITIVE).setOnClickListener {
+            val currentTime = System.currentTimeMillis()
+            val dateFormatter = SimpleDateFormat("yyyy.MM.dd", Locale.KOREA)
+            val parseLongCurrentTime = dateFormatter.parse(dateFormatter.format(currentTime)).time
 
-//               viewModel.getLocations(currentTimeStamp)
+            Timber.d(parseLongCurrentTime.toString())
 
-                viewModel.locations.observe(viewLifecycleOwner)
-                {
-                        locations -> locationAdapter.submitList(locations)
-                        Timber.d("$year $month $day")
-                }
-
-                dlg.dismiss()
-            }
-
-
+            viewModel.getLocations(parseLongCurrentTime)
+            
             dlg.getButton(DatePickerDialog.BUTTON_NEGATIVE).setOnClickListener {
-                Timber.d("취소버튼")
+                dlg.dismiss()
             }
 
         }
