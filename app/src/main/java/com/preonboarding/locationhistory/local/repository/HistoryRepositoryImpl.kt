@@ -12,10 +12,10 @@ class HistoryRepositoryImpl(
     }
 
     override fun findDistinctByDistance(): List<History> {
-        return historyDao.findDistinctByDistance()
+        return historyDao.findAll()
     }
 
     override fun findByDistanceAndCreatedAt(createdAt: String): List<History> {
-        return historyDao.findByDistanceAndCreatedAt(createdAt)
+        return historyDao.findByCreatedAt(createdAt)
     }
 }
