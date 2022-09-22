@@ -1,4 +1,19 @@
 <resources>
     <string name="app_name">android-wanted-LocationHistoryApp</string>
-    <string name="history">히스토리</string>
+<!--    main    -->
+    <string name="main_button_address">주소</string>
+    <string name="main_button_history">히스토리</string>
+    <string name="main_button_configure">설정</string>
+    <string name="main_default_marker_title">위치정보 가져올 수 없음</string>
+    <string name="main_default_marker_snippet">위치 퍼미션과 GPS 활성 요부 확인하세요</string>
+    <string name="main_check_location_permission_title">이 앱을 실행하려면 위치 접근 권한이 필요합니다.</string>
+    <string name="main_dialog_gps_permission_title">위치 서비스 비활성화</string>
+    <string name="main_dialog_gps_permission_content">앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n위치 설정을 수정하시겠습니까?</string>
+    <string name="main_dialog_gps_permission_positive">설정</string>
+    <string name="main_dialog_gps_permission_negative">취소</string>
+    <string name="main_toast_warning_user_gps_message">현재 위치를 가져올수 없습니다</string>
+    <string name="main_confirm">확인</string>
+    <string name="main_not_allowed_location_service">서비스 사용 불가</string>
+    <string name="main_error_gps">GPS 에러</string>
+    <string name="main_unknown_address">알수 없는 주소</string>
 </resources>
