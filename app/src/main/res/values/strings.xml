@@ -12,6 +12,7 @@
     <string name="history_number_column_text">순번</string>
     <string name="history_latitude_column_text">위도</string>
     <string name="history_longitude_column_text">경도</string>
+    <string name="history_list_empty_text">저장된 히스토리 내역이 없어요!\n저장 간격을 설정하고 장소를 저장해 보세요.</string>
 
     <!-- dialog button text -->
     <string name="dialog_cancel_text">취소</string>

@@ -79,7 +79,6 @@ class MainViewModel @Inject constructor(
             kotlin.runCatching {
                 locationRepository.getLocationsWithDate(date = _currentDate.value)
                     .collect {
-                        Timber.tag(TAG).e("${_currentDate.value} 날짜로 가져온 $it")
                         _currentHistory.value = it.toMutableList()
                     }
             }

@@ -71,13 +71,27 @@
         <include layout="@layout/item_history_list" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/history_bottom_rv"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/history_bottom_empty_tv"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/item_history_list_margin_default"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/history_list_column_layout"
-        tools:listitem="@layout/item_history_list" />
+        android:gravity="center"
+        android:text="@string/history_list_empty_text"
+        android:textColor="@color/black"
+        android:layout_marginTop="@dimen/layout_margin_default"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/history_list_column_layout" />
+
+     <androidx.recyclerview.widget.RecyclerView
+         android:id="@+id/history_bottom_rv"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+         tools:listitem="@layout/item_history_list"
+         android:layout_marginTop="@dimen/item_history_list_margin_default"
+         app:layout_constraintTop_toBottomOf="@id/history_list_column_layout"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
