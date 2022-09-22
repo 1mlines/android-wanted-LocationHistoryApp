@@ -77,7 +77,7 @@ class MainViewModel @Inject constructor(
     fun getHistoryWithDate() {
         viewModelScope.launch {
             kotlin.runCatching {
-                locationRepository.getLocationsWithDate(date = _currentDate.value)
+                locationRepository.getLocationsWithDate(date = "%${_currentDate.value}%")
                     .collect {
                         _currentHistory.value = it.toMutableList()
                         _localMarker.value = it
