@@ -9,10 +9,10 @@ class MapRepositoryImpl @Inject constructor(
     private val mapDao: MapDao
 ) : MapRepository {
 
-    override suspend fun getHistoryFromDate(date: String): List<History>? {
+    override suspend fun getHistoryFromDate(date: String): List<History> {
         return runCatching {
             mapDao.getHistoryFromDate(date)
-        }.getOrNull()
+        }.getOrThrow()
     }
 
     override suspend fun saveHistory(history: History) {

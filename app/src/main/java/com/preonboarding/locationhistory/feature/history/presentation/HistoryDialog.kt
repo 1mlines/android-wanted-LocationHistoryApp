@@ -8,11 +8,15 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.data.entity.History
 import com.preonboarding.locationhistory.data.entity.toFormatDate
 import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
 import com.preonboarding.locationhistory.feature.presentation.MainViewModel
+import kotlinx.coroutines.launch
 import java.util.*
 
 class HistoryDialog(
@@ -40,7 +44,7 @@ class HistoryDialog(
     ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.dialog_history, container, false)
         val view = binding.root
-        observeToObservable()
+        collectFlow()
         initView()
         return view
     }
@@ -57,9 +61,13 @@ class HistoryDialog(
         }
     }
 
-    private fun observeToObservable() {
-        viewModel.historyFromDate.observe(this@HistoryDialog) { historyList ->
-            historyAdapter.submitList(historyList?.toList())
+    private fun collectFlow() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.historyFromDate.collect { historyList ->
+                    historyAdapter.submitList(historyList.toList())
+                }
+            }
         }
     }
 
@@ -107,6 +115,6 @@ class HistoryDialog(
     }
 
     private fun doOnclick(item: History) {
-        //TODO 해당 좌표로 이동하는 로직 넣으면 좋을듯
+        /*viewModel.setSelectedLocation(item.latitude, item.longitude)*/
     }
 }

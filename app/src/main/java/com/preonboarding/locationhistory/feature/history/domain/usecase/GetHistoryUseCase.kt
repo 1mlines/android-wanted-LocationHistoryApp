@@ -7,6 +7,6 @@ import javax.inject.Inject
 class GetHistoryUseCase @Inject constructor(
     private val mapRepository: MapRepository
 ) {
-    suspend operator fun invoke(date: String): List<History>? =
+    suspend operator fun invoke(date: String): List<History> =
         mapRepository.getHistoryFromDate(date)
 }

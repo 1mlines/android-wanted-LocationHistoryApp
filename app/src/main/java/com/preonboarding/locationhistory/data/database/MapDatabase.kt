@@ -17,14 +17,13 @@ abstract class MapDatabase : RoomDatabase() {
             .databaseBuilder(context, MapDatabase::class.java, "map.db")
             .build()
     }
-
 }
 
 @Dao
 interface MapDao {
 
     @Query("SELECT * FROM history WHERE date =:date")
-    suspend fun getHistoryFromDate(date: String): List<History>?
+    suspend fun getHistoryFromDate(date: String): List<History>
 
     @Insert
     suspend fun saveHistory(history: History)

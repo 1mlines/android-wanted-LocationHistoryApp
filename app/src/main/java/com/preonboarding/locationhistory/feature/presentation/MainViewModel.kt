@@ -23,9 +23,8 @@ class MainViewModel @Inject constructor(
     private val saveHistoryUseCase: SaveHistoryUseCase
 ) : ViewModel() {
 
-    private val _historyFromDate = MutableLiveData<List<History>?>()
-    val historyFromDate: LiveData<List<History>?>
-        get() = _historyFromDate
+    private val _historyFromDate = MutableStateFlow<List<History>>(emptyList())
+    val historyFromDate = _historyFromDate.asStateFlow()
 
     private val _setTime = MutableLiveData<String>()
     val setTime: LiveData<String>
@@ -40,7 +39,9 @@ class MainViewModel @Inject constructor(
 
     fun getHistoryFromDate(date: String) {
         viewModelScope.launch {
-            _historyFromDate.value = getHistoryUseCase(date)
+            _historyFromDate.update {
+                getHistoryUseCase(date)
+            }
         }
     }
 
@@ -57,19 +58,6 @@ class MainViewModel @Inject constructor(
     fun clearMarkerList() {
         viewModelScope.launch {
             _currentMarkerList.value = emptyList()
-        }
-    }
-
-    fun addMarkerList(marker: MapPOIItem) {
-        viewModelScope.launch {
-            Log.d("marker", "marker: $marker")
-            _currentMarkerList.update {
-                val newList = mutableListOf<MapPOIItem>()
-                newList.addAll(_currentMarkerList.value)
-                newList.add(marker)
-                newList.toList()
-            }
-            Log.d("marker", "markerList: ${_currentMarkerList.value.toString()}")
         }
     }
 
