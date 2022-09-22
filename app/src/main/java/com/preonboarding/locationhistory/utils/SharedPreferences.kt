@@ -1,4 +1,4 @@
-package com.preonboarding.locationhistory.feature.util
+package com.preonboarding.locationhistory.utils
 
 import android.content.Context
 import android.content.SharedPreferences

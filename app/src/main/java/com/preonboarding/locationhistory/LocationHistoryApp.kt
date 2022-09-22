@@ -1,7 +1,7 @@
 package com.preonboarding.locationhistory
 
 import android.app.Application
-import com.preonboarding.locationhistory.feature.util.SharedPreferences
+import com.preonboarding.locationhistory.utils.SharedPreferences
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
