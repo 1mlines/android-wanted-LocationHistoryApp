@@ -3,8 +3,6 @@ package com.preonboarding.locationhistory.feature.presentation
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,9 +10,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -22,9 +18,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.base.BaseActivity
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
@@ -34,20 +27,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
-import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private val ACCESS_FINE_LOCATION = 1000
 
-    private var alarmMgr: AlarmManager? = null
-    private lateinit var alarmIntent: PendingIntent
-
     private val mainViewModel: MainViewModel by viewModels()
-
-    var mLocationManager: LocationManager? = null
-    var mLocationListener: LocationListener? = null
 
     val gpsLocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
@@ -72,26 +58,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         // 커스텀 말풍선 등록
         binding.mapView.setCalloutBalloonAdapter(CustomBalloonAdapter(layoutInflater))
 
-
-        mainViewModel.setTime.observe(this) {
-            Log.e("setTime", it.toString())
-        }
-
     }
-
-//    @SuppressLint("UnspecifiedImmutableFlag")
-//    fun addAlarm(){
-//        val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//        val intent = Intent(this, Alarm::class.java)
-//        val pIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
-//
-//
-//
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pIntent)
-//        }
-//    }
-
 
     private fun initView() {
         binding.btnSetting.setOnClickListener {
@@ -217,10 +184,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         val userNowLocation: Location? = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
         mainViewModel.setTime.observe(this) {
-            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10*60*it.toString().toLong(),0F,gpsLocationListener)
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                10 * 60 * it.toString().toLong(),
+                0F,
+                gpsLocationListener)//콜백으로 설정
         }
-
-
 
         //위도 , 경도
         val uLatitude = userNowLocation?.latitude

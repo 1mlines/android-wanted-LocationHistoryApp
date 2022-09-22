@@ -1,7 +1,6 @@
 package com.preonboarding.locationhistory.feature.set
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,7 +30,6 @@ class SetTimeDialog : DialogFragment() {
             }
             btnSetTimePositive.setOnClickListener {
                 LocationHistoryApp.prefs.setTime = editSetText.text.toString()
-                Log.e("editSetText",editSetText.text.toString())
                 dismiss()
             }
         }
