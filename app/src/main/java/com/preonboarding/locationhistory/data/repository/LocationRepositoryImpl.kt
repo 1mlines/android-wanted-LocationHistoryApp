@@ -4,6 +4,8 @@ import com.preonboarding.locationhistory.data.toEntity
 import com.preonboarding.locationhistory.data.toModel
 import com.preonboarding.locationhistory.domain.model.Location
 import com.preonboarding.locationhistory.domain.repository.LocationRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class LocationRepositoryImpl @Inject constructor(
@@ -19,8 +21,11 @@ class LocationRepositoryImpl @Inject constructor(
         dataSource.insertLocation(location.toEntity())
     }
 
-    override suspend fun getAllLocations(): List<Location> {
-        return dataSource.getAllLocations()
-            .map { it.toModel() }
+    override fun getAllLocations(): Flow<List<Location>> {
+        return dataSource.getAllLocations().map { entities ->
+            entities.map { entity ->
+                entity.toModel()
+            }
+        }
     }
 }
