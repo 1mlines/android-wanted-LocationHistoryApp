@@ -3,6 +3,8 @@ package com.preonboarding.locationhistory.presentation.ui.main
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.net.*
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -19,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
@@ -69,6 +72,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 override fun onPreDraw(): Boolean {
                     return if (isReady) {
                         content.viewTreeObserver.removeOnPreDrawListener(this)
+                        if (!isConnection()) {
+                            Snackbar.make(
+                                binding.root,
+                                R.string.networkError,
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                        checkPermission()
                         true
                     } else {
                         false
@@ -83,7 +94,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         initSplashScreen()
         binding.viewModel = viewModel
 
-        checkPermission()
+        registerNetworkCallback()
 
         viewModel.currentLocationSignal.observe(this) { isCheck ->
             if (isCheck) {
@@ -179,6 +190,57 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private fun showSettingDialog() {
         SettingDialog().show(supportFragmentManager, "SettingDialog")
+    }
+
+    private fun networkRequest() = object : ConnectivityManager.NetworkCallback() {
+        override fun onLost(network: Network) {
+            super.onLost(network)
+            Snackbar.make(binding.root, R.string.networkError, Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun registerNetworkCallback() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val connectivityManager = getSystemService(ConnectivityManager::class.java)
+            val networkRequest = NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                .build()
+
+            connectivityManager.registerNetworkCallback(
+                networkRequest, networkRequest()
+            )
+        }
+    }
+
+    private fun terminateNetworkCallback() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val connectivityManager = getSystemService(ConnectivityManager::class.java)
+            connectivityManager.unregisterNetworkCallback(networkRequest())
+        }
+    }
+
+    private fun isConnection(): Boolean {
+        var result = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val connectivityManager = getSystemService(ConnectivityManager::class.java)
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+
+            if (capabilities != null) {
+                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                ) {
+                    result = true
+                }
+            }
+        }
+        return result
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        terminateNetworkCallback()
     }
 
     companion object {

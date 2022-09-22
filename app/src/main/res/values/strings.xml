@@ -5,4 +5,7 @@
     <string name="setting">설정</string>
     <string name="mapError">데이터를 불러오던 중 문제가 발생했습니다.</string>
     <string name="locationError">위치권한을 설정해주세요.</string>
+    <string name="networkError">셀룰러 및 와이파이를 설정해주세요.</string>
+    <string name="locationErrorMsg">기능에 필요한 권한을 거부하셨습니다. 앱 설정에서 권한을 활성화 할 수 있습니다.</string>
+    <string name="cancel">취소</string>
 </resources>
