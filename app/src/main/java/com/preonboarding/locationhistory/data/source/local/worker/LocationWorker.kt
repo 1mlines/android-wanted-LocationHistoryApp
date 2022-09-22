@@ -13,6 +13,7 @@ import com.preonboarding.locationhistory.data.source.local.entity.LocationEntity
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.coroutineScope
+import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -41,7 +42,6 @@ class LocationWorker @AssistedInject constructor(
                 val date = Date(now)
                 val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.KOREA)
                 val time = simpleDateFormat.format(date)
-
                 if (latitude != null && longitude != null) {
                     val entity = LocationEntity(
                         id = 0,
@@ -49,7 +49,6 @@ class LocationWorker @AssistedInject constructor(
                         longitude = longitude.toFloat(),
                         date = time
                     )
-
                     locationRepository.saveLocation(location = entity)
                 }
                 Result.success()

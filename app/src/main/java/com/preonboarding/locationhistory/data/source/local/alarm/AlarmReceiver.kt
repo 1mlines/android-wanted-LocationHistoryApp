@@ -13,7 +13,6 @@ import com.preonboarding.locationhistory.data.source.local.worker.LocationWorker
 import com.preonboarding.locationhistory.di.HiltBroadCastReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -33,6 +32,7 @@ class AlarmReceiver : HiltBroadCastReceiver() {
         if (context != null) {
             when (intent?.action) {
                 context.getString(R.string.setting_intent) -> {
+                    createAlarm(context)
                     WorkManager.getInstance(context).enqueue(
                         OneTimeWorkRequestBuilder<LocationWorker>().build()
                     )
@@ -68,12 +68,19 @@ class AlarmReceiver : HiltBroadCastReceiver() {
         }
         CoroutineScope(Dispatchers.IO).launch {
             timerRepository.getDuration().collect { time ->
-                alarmManager?.setRepeating(
-                    AlarmManager.RTC,
-                    System.currentTimeMillis(),
-                    time * 1000 * 60,
-                    pendingIntent
-                )
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                    alarmManager?.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        System.currentTimeMillis() + time * 1000 * 60,
+                        pendingIntent
+                    )
+                } else {
+                    alarmManager?.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        System.currentTimeMillis() + time * 1000 * 60,
+                        pendingIntent
+                    )
+                }
             }
         }
     }

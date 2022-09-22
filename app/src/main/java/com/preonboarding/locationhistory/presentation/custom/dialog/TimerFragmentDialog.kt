@@ -105,12 +105,19 @@ class TimerFragmentDialog : DialogFragment() {
 
                             val time: Long = binding.etTimer.text.toString().toLong()
 
-                            alarmManager?.setRepeating(
-                                AlarmManager.RTC,
-                                System.currentTimeMillis(),
-                                time * 1000 * 60,
-                                pendingIntent
-                            )
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                                alarmManager?.setExact(
+                                    AlarmManager.RTC_WAKEUP,
+                                    time * 1000 * 60,
+                                    pendingIntent
+                                )
+                            } else {
+                                alarmManager?.setExactAndAllowWhileIdle(
+                                    AlarmManager.RTC_WAKEUP,
+                                    time * 1000 * 60,
+                                    pendingIntent
+                                )
+                            }
                             delay(3_000)
                             dismiss()
                         }
