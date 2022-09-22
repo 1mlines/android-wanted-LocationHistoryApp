@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -59,6 +60,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             if (granted) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     backgroundLocationPermission(222)
+                } else {
+                   Log.i("api 10","FDFDFFFF")
                 }
             } else {
                 Toast.makeText(this, "서비스를 사용하시려면 위치 추적이 허용되어야 합니다.,", Toast.LENGTH_LONG)
@@ -177,16 +180,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         setMapUiSettings()
 
         var currentLocation: Location?
-//        if (ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.ACCESS_FINE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-//                this,
-//                Manifest.permission.ACCESS_COARSE_LOCATION
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            return
-//        }
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
 
         checkLocationPermission()
 

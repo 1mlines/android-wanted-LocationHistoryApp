@@ -8,7 +8,7 @@ import java.util.*
 data class History(
     @PrimaryKey
     var num: Int,
-  //  val dateTime: Date,
+    val dateTime: Date,
     val latitude: Double,
     val longitude: Double
 )
