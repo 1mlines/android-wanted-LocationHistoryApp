@@ -4,7 +4,7 @@ import com.preonboarding.locationhistory.local.HistoryRepository
 import com.preonboarding.locationhistory.local.dao.HistoryDao
 import com.preonboarding.locationhistory.local.entity.History
 
-class DefaultHistoryRepository(
+class HistoryRepositoryImpl(
     private val historyDao: HistoryDao
 ) : HistoryRepository {
     override fun insertHistory(latitude: Double, longitude: Double) {
