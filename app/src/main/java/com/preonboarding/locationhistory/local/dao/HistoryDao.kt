@@ -12,7 +12,7 @@ interface HistoryDao {
 
 
     @Query("SELECT DISTINCT latitude, longitude FROM history")
-    fun findDistinctByDistance(): LiveData<List<History>>
+    fun findDistinctByDistance(): List<History>
 
     /*
     * createdAt 형태가 0000-00-00 00:00:00인데 날짜비교 할때 시간 빼고 0000-00-00만 비교해야하기 때문에
@@ -20,5 +20,5 @@ interface HistoryDao {
     */
 
     @Query("SELECT * FROM history WHERE created_at = :createdAt")
-    fun findByDistanceAndCreatedAt(createdAt: String): LiveData<List<History>>
+    fun findByDistanceAndCreatedAt(createdAt: String): List<History>
 }

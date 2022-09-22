@@ -1,7 +1,5 @@
 package com.preonboarding.locationhistory.local.util
 
-import androidx.room.TypeConverter
-import java.util.*
 import kotlin.math.PI
 import kotlin.math.acos
 import kotlin.math.cos
