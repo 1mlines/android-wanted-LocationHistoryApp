@@ -6,7 +6,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2A74E3">
+        android:background="@drawable/bg_radius_8dp">
 
         <TextView
             android:id="@+id/title"
@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:text="설정"
+            android:text="@string/setting"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold"
@@ -33,13 +33,13 @@
             app:layout_constraintTop_toBottomOf="@id/title" />
 
         <TextView
-            android:id="@+id/save_space"
+            android:id="@+id/storage_interval"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:includeFontPadding="false"
-            android:text="저장 간격"
+            android:text="@string/storage_interval"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold"
@@ -47,15 +47,16 @@
             app:layout_constraintTop_toBottomOf="@id/line" />
 
         <EditText
-            android:id="@+id/insert"
+            android:id="@+id/et_minute"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:background="@color/white"
-            app:layout_constraintBottom_toBottomOf="@id/save_space"
+            android:maxLength="4"
+            app:layout_constraintBottom_toBottomOf="@id/storage_interval"
             app:layout_constraintEnd_toStartOf="@id/minute"
-            app:layout_constraintStart_toEndOf="@id/save_space"
-            app:layout_constraintTop_toTopOf="@id/save_space" />
+            app:layout_constraintStart_toEndOf="@id/storage_interval"
+            app:layout_constraintTop_toTopOf="@id/storage_interval" />
 
         <TextView
             android:id="@+id/minute"
@@ -64,30 +65,34 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:includeFontPadding="false"
-            android:text="분"
+            android:text="@string/minute"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/insert"
+            app:layout_constraintStart_toEndOf="@id/et_minute"
             app:layout_constraintTop_toBottomOf="@id/line" />
 
         <Button
             android:id="@+id/cancel"
-            android:layout_width="wrap_content"
+            style="@style/Theme.CustomButton"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:text="취소"
+            android:text="@string/cancel"
             app:layout_constraintEnd_toStartOf="@id/confirm"
-            app:layout_constraintTop_toBottomOf="@id/save_space" />
+            app:layout_constraintTop_toBottomOf="@id/storage_interval" />
 
         <Button
             android:id="@+id/confirm"
-            android:layout_width="wrap_content"
+            style="@style/Theme.CustomButton"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
-            android:text="확인"
+            android:text="@string/confirm"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/save_space" />
+            app:layout_constraintTop_toBottomOf="@id/storage_interval" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
