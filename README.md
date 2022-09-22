@@ -260,3 +260,16 @@ class CurrentLocationWorker @AssistedInject constructor(
 - 설정 간격에 따라 내부 데이터베이스에 현 위치를 저장하는 로직입니다.
 - 안드로이드 기기에서 GPS를 통해 현 위치를 추적합니다.
 - `js`, `webView` 로 앱을 구성한만큼 `js` 의 로직으로 현 위치를 불러오고 싶었으나, 시간 상 여유가 부족하여 더 나은 로직을 발견하지 못했습니다.
+
+### 임성용
+- 맡은 부분
+  - 인트로 화면 
+- 기여한 점 
+  - `Splash Screen` 구성 
+  - 네트워크 연결 상태 체크
+- 아쉬운 점
+  - Splash Screen Icon에 Animation 기능을 추가하지 못했습니다.
+  
+| Splash Screen | 위치 설정 권한 거부 | 네트워크 연결 상태 체크 |
+| :------: | :--------: | :--------------: |
+| <video src = "https://user-images.githubusercontent.com/96644159/191818822-cf0c7642-2e5b-4c34-aa3c-b3577400c9e8.mp4"> | <video src ="https://user-images.githubusercontent.com/96644159/191819950-03085e39-2016-46f3-abf0-419a6e3663ea.mp4"> |  <video src ="https://user-images.githubusercontent.com/96644159/191819965-4253c344-1170-4bbf-8fd1-3a6f8d87597e.mp4"> |
