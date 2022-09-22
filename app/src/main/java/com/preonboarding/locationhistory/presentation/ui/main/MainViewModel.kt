@@ -80,6 +80,7 @@ class MainViewModel @Inject constructor(
                 locationRepository.getLocationsWithDate(date = _currentDate.value)
                     .collect {
                         _currentHistory.value = it.toMutableList()
+                        _localMarker.value = it
                     }
             }
                 .onSuccess {

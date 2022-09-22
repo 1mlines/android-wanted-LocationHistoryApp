@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
                 mainViewModel.localMarker.collect { markList ->
+                    mapView.removeAllPOIItems()
                     markList.forEach {
                         addMarker("", latitude = it.latitude.toDouble(), longitude = it.longitude.toDouble())
                     }
