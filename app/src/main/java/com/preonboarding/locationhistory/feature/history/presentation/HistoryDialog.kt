@@ -9,6 +9,7 @@ import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.data.entity.History
 import com.preonboarding.locationhistory.data.entity.toFormatDate
 import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
 import com.preonboarding.locationhistory.feature.presentation.MainViewModel
@@ -22,7 +23,9 @@ class HistoryDialog(
         get() = _binding!!
 
     private val historyAdapter: HistoryListAdapter by lazy {
-        HistoryListAdapter()
+        HistoryListAdapter(
+            itemClickListener = { doOnclick(it) }
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,5 +104,9 @@ class HistoryDialog(
         } else {
             formatMonth
         }
+    }
+
+    private fun doOnclick(item: History) {
+        //TODO 해당 좌표로 이동하는 로직 넣으면 좋을듯
     }
 }
