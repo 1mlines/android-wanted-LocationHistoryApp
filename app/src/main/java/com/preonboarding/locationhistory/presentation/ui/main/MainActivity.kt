@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.ViewTreeObserver
 import android.webkit.GeolocationPermissions
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -26,13 +27,15 @@ import com.preonboarding.locationhistory.presentation.base.BaseActivity
 import com.preonboarding.locationhistory.presentation.ui.setting.SettingDialog
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val viewModel: MainViewModel by viewModels()
+
+    private var isReady = false
 
     @Inject
     lateinit var gson: Gson
@@ -48,8 +51,36 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         )
     }
 
+    private fun initData() {
+        thread(true) {
+            for (i in 1..3) {
+                Thread.sleep(1000)
+            }
+            isReady = true
+        }
+    }
+
+    private fun initSplashScreen() {
+        initData()
+
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return if (isReady) {
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initSplashScreen()
         binding.viewModel = viewModel
 
         checkPermission()
