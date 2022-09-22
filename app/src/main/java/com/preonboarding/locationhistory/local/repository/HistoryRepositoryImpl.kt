@@ -15,7 +15,7 @@ class HistoryRepositoryImpl @Inject constructor(
     }
 
     override suspend fun findDistinctByDistance(): List<History> {
-        return historyDao.findDistinctByDistance()
+        return historyDao.findAll()
     }
 
     override suspend fun findByDistanceAndCreatedAt(createdAt: String): List<History> {
