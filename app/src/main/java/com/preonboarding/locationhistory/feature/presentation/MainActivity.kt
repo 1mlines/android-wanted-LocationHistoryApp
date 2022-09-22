@@ -53,7 +53,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         permissionCheck()
         initView()
         observeToObservable()
-        markerInit()
+        /*markerInit()*/
     }
 
     private fun initView() {
@@ -226,14 +226,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         return convertAddress.toString()
     }
 
-    private fun markerInit() {
+    /*private fun markerInit() {
         binding.apply {
             btnReload.setOnClickListener {
                 mapView.removeAllPOIItems()
             }
             mainViewModel.clearMarkerList()
         }
-    }
+    }*/
 
     private fun getCurrentTime(): Long {
         return System.currentTimeMillis()
