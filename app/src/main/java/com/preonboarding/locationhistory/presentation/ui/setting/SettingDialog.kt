@@ -33,6 +33,8 @@ class SettingDialog : BaseDialog<DialogSettingBinding>(R.layout.dialog_setting) 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        workManager = WorkManager.getInstance(requireActivity().applicationContext)
+
         viewModel.getStorageInterval()
 
         viewModel.storageInterval.observe(viewLifecycleOwner) {
@@ -43,6 +45,12 @@ class SettingDialog : BaseDialog<DialogSettingBinding>(R.layout.dialog_setting) 
 
         binding.confirm.setOnClickListener {
             val interval = binding.etMinute.text.toString().toLong()
+
+            val workRequest =
+                PeriodicWorkRequestBuilder<CurrentLocationWorker>(interval, TimeUnit.MINUTES)
+                    .build()
+            workManager.enqueue(workRequest)
+
             viewModel.updateStorageInterval(interval)
             dismiss()
         }
