@@ -8,15 +8,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.preonboarding.locationhistory.databinding.ItemHistoryListBinding
 import com.preonboarding.locationhistory.presentation.model.Location
 
-class HistoryBottomSheetAdapter
-    : ListAdapter<Location, HistoryBottomSheetAdapter.ViewHolder>(diffCallback) {
+class HistoryBottomSheetAdapter :
+    ListAdapter<Location, HistoryBottomSheetAdapter.ViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(ItemHistoryListBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        ))
+        return ViewHolder(
+            ItemHistoryListBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false
+            )
+        )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -25,8 +27,8 @@ class HistoryBottomSheetAdapter
         }
     }
 
-    inner class ViewHolder(private val binding: ItemHistoryListBinding)
-        :RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: ItemHistoryListBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(location: Location) {
             binding.apply {

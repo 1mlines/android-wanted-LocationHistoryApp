@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bottom_sheet_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="bottom"
-    android:padding="@dimen/layout_margin_default"
     android:background="@drawable/bg_bottom_sheet_dialog"
+    android:padding="@dimen/layout_margin_default"
     app:behavior_hideable="false"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".presentation.custom.dialog.bottom.HistoryBottomSheetFragment">
 
     <TextView
@@ -21,64 +20,64 @@
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/history_bottom_x_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="@null"
         android:src="@drawable/ic_x_btn"
-        app:layout_constraintTop_toTopOf="@id/history_bottom_title_tv"
         app:layout_constraintBottom_toBottomOf="@id/history_bottom_title_tv"
         app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="@null" />
+        app:layout_constraintTop_toTopOf="@id/history_bottom_title_tv" />
 
     <ImageView
         android:id="@+id/history_bottom_calendar_iv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_calendar"
         android:layout_marginEnd="@dimen/layout_margin_default"
-        app:layout_constraintTop_toTopOf="@id/history_bottom_date_tv"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_calendar"
         app:layout_constraintBottom_toBottomOf="@id/history_bottom_date_tv"
         app:layout_constraintEnd_toStartOf="@id/history_bottom_date_tv"
-        android:contentDescription="@null" />
+        app:layout_constraintTop_toTopOf="@id/history_bottom_date_tv" />
 
     <TextView
         android:id="@+id/history_bottom_date_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/layout_margin_default"
         android:background="@drawable/bg_date_btn"
         android:gravity="center"
-        android:paddingVertical="8dp"
         android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
         android:text="@string/history_date_text"
         android:textColor="@color/black"
-        android:layout_marginTop="@dimen/layout_margin_default"
-        app:layout_constraintTop_toBottomOf="@id/history_bottom_title_tv"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/history_bottom_title_tv" />
 
     <LinearLayout
         android:id="@+id/history_list_column_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_under_line"
         android:layout_marginTop="@dimen/layout_margin_default"
-        app:layout_constraintStart_toStartOf="parent"
+        android:background="@drawable/bg_under_line"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/history_bottom_date_tv">
-        <include
-            layout="@layout/item_history_list" />
+
+        <include layout="@layout/item_history_list" />
     </LinearLayout>
 
-     <androidx.recyclerview.widget.RecyclerView
-         android:id="@+id/history_bottom_rv"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-         tools:listitem="@layout/item_history_list"
-         android:layout_marginTop="@dimen/item_history_list_margin_default"
-         app:layout_constraintTop_toBottomOf="@id/history_list_column_layout"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/history_bottom_rv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/item_history_list_margin_default"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/history_list_column_layout"
+        tools:listitem="@layout/item_history_list" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
