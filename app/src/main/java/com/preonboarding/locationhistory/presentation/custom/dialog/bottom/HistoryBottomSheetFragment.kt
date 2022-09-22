@@ -98,25 +98,17 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
             createDatePickerDialog()
         }
 
-        binding.historyBottomCancelBtn.setOnClickListener {
-            dialog?.dismiss()
-        }
-
-        binding.historyBottomOkBtn.setOnClickListener {
+        binding.historyBottomXBtn.setOnClickListener {
             dialog?.dismiss()
         }
     }
 
     private fun updateHistoryList() {
         lifecycleScope.launch {
-            with(mainViewModel) {
-                getHistoryWithDate()
-                currentHistory.collect {
-                    historyListAdapter.submitList(it)
-                }
-            }
+            mainViewModel.getHistoryWithDate()
         }
     }
+
 
     private fun createDatePickerDialog() {
         val calendar = mainViewModel.calendar

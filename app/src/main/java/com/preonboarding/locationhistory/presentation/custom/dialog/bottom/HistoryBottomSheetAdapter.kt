@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.preonboarding.locationhistory.databinding.ItemHistoryListBinding
 import com.preonboarding.locationhistory.presentation.model.Location
-import timber.log.Timber
 
 class HistoryBottomSheetAdapter
     : ListAdapter<Location, HistoryBottomSheetAdapter.ViewHolder>(diffCallback) {
@@ -28,6 +27,7 @@ class HistoryBottomSheetAdapter
 
     inner class ViewHolder(private val binding: ItemHistoryListBinding)
         :RecyclerView.ViewHolder(binding.root) {
+
         fun bind(location: Location) {
             binding.apply {
                 itemHistoryNumberTv.text = "%d".format(adapterPosition + 1)

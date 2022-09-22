@@ -44,7 +44,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         mainViewModel.initCurrentDate()
-        // mainViewModel.getHistoryWithDate()
 
         bindingViewModel()
         initMapView()
@@ -65,14 +64,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(state = Lifecycle.State.CREATED) {
-//                mainViewModel.currentHistory.collect {
-//                    Timber.tag(TAG).e("히스토리 : $it")
-//                }
-//            }
-//        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
