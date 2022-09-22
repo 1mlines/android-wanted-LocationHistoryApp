@@ -3,8 +3,10 @@ package com.preonboarding.locationhistory.feature.presentation
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
@@ -18,7 +20,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.base.BaseActivity
-import com.preonboarding.locationhistory.data.entity.History
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.feature.history.presentation.HistoryDialog
 import com.preonboarding.locationhistory.feature.map.presentation.CustomBalloonAdapter
@@ -36,7 +37,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        actionForDateChanged()
         clickBtnAddress()
         initView()
         // 커스텀 말풍선 등록
@@ -182,7 +183,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         Toast.makeText(this, "lat: $uLatitude, long: $uLongitude", Toast.LENGTH_SHORT).show()
     }
 
-    private fun doOnclick(item: History){
-        //TODO 해당 좌표로 이동하는 로직 넣으면 좋을듯
+    private fun actionForDateChanged() {
+        val intentFilter = IntentFilter(Intent.ACTION_DATE_CHANGED)
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                //TODO 날짜 변경시 지도의 마커 지우기
+            }
+        }
     }
 }
