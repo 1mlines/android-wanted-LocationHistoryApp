@@ -4,14 +4,12 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -54,7 +52,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
 
         clickBtnAddress()
+
         initView()
+        markerInit()
         // 커스텀 말풍선 등록
         binding.mapView.setCalloutBalloonAdapter(CustomBalloonAdapter(layoutInflater))
 
@@ -92,23 +92,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     Manifest.permission.ACCESS_FINE_LOCATION
                 )
             ) {
-                // 권한 거절 (다시 한 번 물어봄)
-                val builder = AlertDialog.Builder(this)
-                builder.apply {
-                    setMessage("현재 위치를 확인하시려면 위치 권한을 허용해주세요.")
-                    setPositiveButton("확인") { dialog, which ->
-                        ActivityCompat.requestPermissions(
-                            Activity(),
-                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                            ACCESS_FINE_LOCATION
-                        )
-                    }
-                    setNegativeButton("취소") { dialog, which ->
-
-                    }
-                    show()
-                }
-
+                denyAccess("현재 위치를 확인하시려면 위치 권한을 허용해주세요.", "취소")
             } else {
                 if (isFirstCheck) {
                     // 최초 권한 요청
@@ -120,26 +104,30 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                     )
                 } else {
                     // 다시 묻지 않음 클릭 (앱 정보 화면으로 이동)
-                    val builder = AlertDialog.Builder(this)
-                    builder.setMessage("현재 위치를 확인하시려면 설정에서 위치 권한을 허용해주세요.")
-                    builder.apply {
-                        setPositiveButton("설정으로 이동") { dialog, which ->
-                            val intent = Intent(
-                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.parse("package:$packageName")
-                            )
-                            startActivity(intent)
-                        }
-                        setNegativeButton("취소") { dialog, which ->
-
-                        }
-                        show()
-                    }
+                    denyAccess("현재 위치를 확인하시려면 위치 권한을 허용해주세요.", "설정으로 이동")
                 }
             }
         } else {
             // 권한이 있는 상태
             startTracking()
+        }
+    }
+
+    private fun denyAccess(setMessage: String, positiveBtn: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.apply {
+            setMessage(setMessage)
+            setPositiveButton(positiveBtn) { dialog, which ->
+                ActivityCompat.requestPermissions(
+                    Activity(),
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    ACCESS_FINE_LOCATION
+                )
+            }
+            setNegativeButton("취소") { dialog, which ->
+
+            }
+            show()
         }
     }
 
@@ -204,5 +192,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.mapView.addPOIItem(marker)
 
         Toast.makeText(this, "lat: $uLatitude, long: $uLongitude", Toast.LENGTH_SHORT).show()
+        Log.d("locataion", "startTracking: lat: $uLatitude, long: $uLongitude")
+
+        // 위도, 경도로 상세 주소 받아오기
+        val geocoder = Geocoder(this)
+        val convertAddress = geocoder.getFromLocation(uLatitude, uLongitude, 1)
+        binding.tvAddress.text = convertAddress.toString()
+    }
+
+    private fun markerInit() {
+        binding.btnReload.setOnClickListener {
+            binding.mapView.removeAllPOIItems() // 마커 제거 가능!!!!! (초기화)
+        }
     }
 }
