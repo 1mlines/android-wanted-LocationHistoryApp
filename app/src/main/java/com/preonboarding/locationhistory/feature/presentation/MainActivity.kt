@@ -30,6 +30,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
 
         clickBtnAddress()
+        markerInit()
 
         // 커스텀 말풍선 등록
         binding.mapView.setCalloutBalloonAdapter(CustomBalloonAdapter(layoutInflater))
@@ -160,6 +161,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     private fun markerInit() {
-        binding.mapView.removeAllPOIItems() // 마커 제거 가능!!!!! (초기화)
+        binding.btnReload.setOnClickListener {
+            binding.mapView.removeAllPOIItems() // 마커 제거 가능!!!!! (초기화)
+        }
     }
 }

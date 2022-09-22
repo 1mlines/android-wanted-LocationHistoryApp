@@ -57,5 +57,16 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
 
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_reload"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/autorenew_24"
+            android:background="@color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/btn_setting"
+            android:layout_marginBottom="20dp"/>
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
