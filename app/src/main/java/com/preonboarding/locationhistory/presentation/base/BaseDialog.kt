@@ -43,7 +43,7 @@ open class BaseDialog<T : ViewDataBinding>(
 
         val window: Window = dialog?.window ?: return
         val params: WindowManager.LayoutParams = window.attributes
-        params.width = (display.widthPixels * 0.8).toInt() // 디바이스의 너비 80%
+        params.width = (display.widthPixels * 0.9).toInt()
 
         dialog?.window?.attributes = params
     }
