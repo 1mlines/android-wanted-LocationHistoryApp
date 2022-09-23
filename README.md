@@ -1,6 +1,7 @@
 # Team 1
 
 # 🧑‍💻Member
+
 [김현수](https://github.com/KimHance)
 [권혁준](https://github.com/DavidKwon7)
 [이현섭](https://github.com/leehandsub)
@@ -105,12 +106,13 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideMapDao(appDatabase: MapDatabase) =appDatabase.mapDao()
+    fun provideMapDao(appDatabase: MapDatabase) = appDatabase.mapDao()
 
     @Provides
     @Singleton
     fun provideMapDatabase(
-    @ApplicationContextcontext: Context): MapDatabase = MapDatabase.getInstance(context)
+        @ApplicationContextcontext: Context
+    ): MapDatabase = MapDatabase.getInstance(context)
 
 }
 ```
@@ -122,57 +124,59 @@ private val _historyFromDate = MutableStateFlow<List<History>>(emptyList())
 val historyFromDate = _historyFromDate.asStateFlow()
 
 fun getHistoryFromDate(date: String) {
-	viewModelScope.launch{
-		_historyFromDate.update{
-			getHistoryUseCase(date)
-		}
-	}
+    viewModelScope.launch {
+        _historyFromDate.update {
+            getHistoryUseCase(date)
+        }
+    }
 }
 
-fun saveHistory(date: Long,latitude: Double,longitude: Double) {
-	viewModelScope.launch{
-		saveHistoryUseCase(date, latitude, longitude)
-	}
+fun saveHistory(date: Long, latitude: Double, longitude: Double) {
+    viewModelScope.launch {
+        saveHistoryUseCase(date, latitude, longitude)
+    }
 }
 ```
 
 ```kotlin
-lifecycleScope.launch{
-	repeatOnLifecycle(Lifecycle.State.STARTED){
-		mainViewModel.historyFromDate.collect{ historyList->
-			updateMarkerList(historyList.toMapItem())
-		}
-	}
+lifecycleScope.launch {
+    repeatOnLifecycle(Lifecycle.State.STARTED) {
+        mainViewModel.historyFromDate.collect { historyList ->
+            updateMarkerList(historyList.toMapItem())
+        }
+    }
 }
 ```
-뷰에 마커를 띄우기 위해 뷰모델에 히스토리를 담았습니다.
-날짜별로 DB에 저장된 히스토리는 StateFlow를 사용하여 collect하여 맵의 마커를 선택된 날짜에 띄우고 있습니다.
+
+뷰에 마커를 띄우기 위해 뷰모델에 히스토리를 담았습니다. 날짜별로 DB에 저장된 히스토리는 StateFlow를 사용하여 collect하여 맵의 마커를 선택된 날짜에 띄우고
+있습니다.
 
 ```kotlin
-private funcollectFlow() {
-	viewLifecycleOwner.lifecycleScope.launch{
-		viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-			viewModel.historyFromDate.collect{historyList->
-				historyAdapter.submitList(historyList.toList())
-			}
-		}
-	}
+private fun collectFlow() {
+    viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            viewModel.historyFromDate.collect { historyList ->
+                historyAdapter.submitList(historyList.toList())
+            }
+        }
+    }
 }
 ```
 
 히스토리 다이얼로그에서도 뷰모델의 날짜별 히스토리를 collect하여 날짜별로 히스토리 리스트를 띄워주고 있습니다.
 
 ```kotlin
-fun List<History>.toMapItem():List<MapPOIItem> {
-	return this.map{
-			valposition = MapPoint.mapPointWithGeoCoord(it.latitude,it.longitude)
-	      MapPOIItem().apply{
-					itemName= "날짜별 위치"
-					mapPoint= position
-					markerType= MapPOIItem.MarkerType.BluePin
-          selectedMarkerType= MapPOIItem.MarkerType.RedPin
-			}
-	}
+fun List<History>.toMapItem(): List<MapPOIItem> {
+    return this.map {
+        val position = MapPoint.mapPointWithGeoCoord(it.latitude, it.longitude)
+        MapPOIItem().apply {
+            tag = it.id
+            itemName = " "
+            mapPoint = position
+            markerType = MapPOIItem.MarkerType.BluePin
+            selectedMarkerType = MapPOIItem.MarkerType.RedPin
+        }
+    }
 }
 ```
 
@@ -181,47 +185,64 @@ fun List<History>.toMapItem():List<MapPOIItem> {
 ## 현위치 찾기 마커 찍기
 
 ```kotlin
-private fun startTracking() {
-    val userNowLocation: Location? =
-        locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
-val uLatitude = userNowLocation?.latitude
-val uLongitude = userNowLocation?.longitude
-val uNowPosition = MapPoint.mapPointWithGeoCoord(uLatitude!!, uLongitude!!)
-
-val marker = MapPOIItem().apply{
-itemName= "현 위치"
-mapPoint= uNowPosition
-markerType= MapPOIItem.MarkerType.BluePin
-        selectedMarkerType= MapPOIItem.MarkerType.RedPin
-	}
+ private fun startTracking() {
+    binding.mapView.currentLocationTrackingMode =
+        MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
+    val position = getCurrentLocation()
+    if (position != Pair(0.0, 0.0)) {
+        val uNowPosition = MapPoint.mapPointWithGeoCoord(position.first, position.second)
+        val marker = MapPOIItem().apply {
+            itemName = getString(R.string.currentPosition)
+            mapPoint = uNowPosition
+            markerType = MapPOIItem.MarkerType.BluePin
+            selectedMarkerType = MapPOIItem.MarkerType.RedPin
+        }
+        mainViewModel.saveHistory(getCurrentTime(), position.first, position.second)
+        updateHistory()
+        Toast.makeText(
+            this,
+            "lat: ${position.first}, long: ${position.second}",
+            Toast.LENGTH_SHORT
+        ).show()
+    } else {
+        Toast.makeText(
+            this,
+            getString(R.string.failed_to_get_location),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 }
 ```
 
-location Manager를 사용하여 현재 위치를 가져온 후에 경도 위도 값을 구하였습니다. 
+location Manager를 사용하여 현재 위치를 가져온 후에 경도 위도 값을 구하였습니다.
 
 ## 위도 경도 기반으로 현재 위치 가져오기
 
 ```kotlin
 private fun getDetailAddress(uLatitude: Double, uLongitude: Double): String {
-    val geocoder = Geocoder(this)
-    val convertAddress =
-        geocoder.getFromLocation(uLatitude, uLongitude, 1)
-					.get(0).getAddressLine(0)
-    return convertAddress.toString()
+    val geocoder = Geocoder(context)
+    val convertAddress = geocoder
+        .getFromLocation(uLatitude, uLongitude, MAX_RESULT)
+
+    if (convertAddress.isEmpty()) {
+        return context.getString(R.string.no_detail_location)
+    } else {
+        return convertAddress.get(ADDRESS).getAddressLine(ADDRESS).toString()
+    }
+}
 }
 ```
 
-Geocoder.getFromLocation으로 위도, 경도 기반으로 현재 주소를 가져올 수 있었습니다. 
+Geocoder.getFromLocation으로 위도, 경도 기반으로 현재 주소를 가져올 수 있었습니다.
 
 ## 시간 세팅
 
 ```kotlin
 btnSetTimePositive.setOnClickListener {
-                LocationHistoryApp.prefs.setTime =
-                    (editSetText.text.toString().toInt() * 60000L).toString()
-                dismiss()
-            }
+    LocationHistoryApp.prefs.setTime =
+        (editSetText.text.toString().toInt() * 60000L).toString()
+    dismiss()
+}
 ```
 
 전역으로 있는 SharedPreferences에 세팅되는 시간을 저장
@@ -247,7 +268,7 @@ class LocationHistoryApp : Application() {
 object SharedPreferences {
     private const val PREFS_NAME = "prefs_name"
     private const val TIME_KEY = "time_key"
-		...
+    ...
 
     private lateinit var prefs: SharedPreferences
 
@@ -267,26 +288,21 @@ object SharedPreferences {
 
 ```kotlin
 mainViewModel.apply {
-            setTime.observe(this@MainActivity) { time ->
-                locationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER,
-                    time.toString().toLong(),
-                    10F,
-                    gpsLocationListener
-                )
-            }
-        }
+    setTime.observe(this@MainActivity) { time ->
+        locationManager.requestLocationUpdates(
+            LocationManager.NETWORK_PROVIDER,
+            time.toString().toLong(),
+            10F,
+            gpsLocationListener
+        )
+    }
+}
 ```
 
- livedata를 통해 observe하며 변화된 값을 감지합니다. requestLocationUpdates을 통해 일정시간마다 변화된 좌표를 호출합니다.
-
-# 🤷‍♂️Remaining Work
-
-- UI 수정 및 다듬기
-- 스플래시
-- 코드 정리
+livedata를 통해 observe하며 변화된 값을 감지합니다. requestLocationUpdates을 통해 일정시간마다 변화된 좌표를 호출합니다.
 
 # 📱 Result (until now)
+
 ![Screenshot_20220923-032705_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828394-4cbd851e-7e54-425f-9084-7b8fc0d03e22.jpg)![Screenshot_20220923-032757_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828505-1609296e-f069-4aa2-abdb-4df6a2e5001d.jpg)
 
 - 마커
@@ -296,7 +312,9 @@ mainViewModel.apply {
 - 현재 위치
 
 ![Screenshot_20220923-032742_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828806-9f8726ea-0403-4b2e-a562-5d40879c221a.jpg)![Screenshot_20220923-032746_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828823-29761027-1240-4718-a3c5-c7bba80eb4d7.jpg)
+
 - 날짜별 히스토리
 
 ![Screenshot_20220923-032806_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828932-73b2adee-665d-487d-b884-1250a062a538.jpg)
+
 - 시간 설정
