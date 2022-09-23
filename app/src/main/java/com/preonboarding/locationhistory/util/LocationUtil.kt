@@ -3,13 +3,25 @@ package com.preonboarding.locationhistory.util
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
+import android.os.Build
 import android.os.Looper
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import timber.log.Timber
+import java.time.LocalDateTime
 
 object LocationUtil {
-    fun getCurrentLatLng(context: Context, fusedLocationClient: FusedLocationProviderClient) {
+    private var currentLocation: Location? = null
+
+    fun getCurrentLocation(): Location? = currentLocation
+
+    fun setCurrentLocation(context: Context) {
+        val fusedLocationClient: FusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(
+                context
+            )
+        Timber.d("abcabc outer // ")
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -21,44 +33,8 @@ object LocationUtil {
         ) {
             return
         }
-
-        Timber.e("START")
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            if (location != null) {
-                Timber.e("${location.latitude} // ${location.longitude}")
-            } else {
-                updateCurrentLocation(context, fusedLocationClient)
-            }
+            currentLocation = location
         }
-    }
-
-   fun updateCurrentLocation(context: Context, fusedLocationClient: FusedLocationProviderClient) {
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-
-        val locationRequest = LocationRequest.create().apply {
-            priority = Priority.PRIORITY_HIGH_ACCURACY
-            interval = 300L
-            fastestInterval = 200L
-        }
-
-        val locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                for (location in locationResult.locations) {
-                    Timber.e("${location.latitude} // ${location.longitude}")
-                }
-
-            }
-        }
-
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
     }
 }
