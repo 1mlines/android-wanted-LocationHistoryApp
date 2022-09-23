@@ -2,18 +2,16 @@ package com.preonboarding.locationhistory.presentation
 
 import android.Manifest
 import android.app.Activity
-import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.location.Location
+import android.location.Address
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -22,45 +20,33 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.location.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
-import com.preonboarding.locationhistory.WantedApplication.Companion.getAppContext
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MIN
-import com.preonboarding.locationhistory.data.*
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
-import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
+import com.preonboarding.locationhistory.databinding.DialogAddressBinding
 import com.preonboarding.locationhistory.databinding.DialogSaveHistorySettingsBinding
 import com.preonboarding.locationhistory.util.AnimationUtil.shakeAnimation
 import com.preonboarding.locationhistory.util.LocationUtil.getCurrentLatLng
 import com.preonboarding.locationhistory.util.PreferencesUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.text.SimpleDateFormat
+import java.io.IOException
 import java.util.*
-
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapFragment: MapFragment
     private lateinit var naverMap: NaverMap
-    private lateinit var historyBinding: DialogHistoryBinding
-    private lateinit var dialogViewModel: HistoryDialogViewModel
-    private lateinit var settingDay: String
-    private lateinit var adapter: HistoryDialogAdapter
-    private lateinit var db: HistoryDB
-    private lateinit var factory: HistoryDialogViewModelFactory
 
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(
@@ -85,7 +71,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             if (granted) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     backgroundLocationPermission(222)
-                } else {
                 }
             } else {
                 Toast.makeText(this, "서비스를 사용하시려면 위치 추적이 허용되어야 합니다.,", Toast.LENGTH_LONG)
@@ -93,36 +78,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         }
 
-    private fun openSettings() {
-        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            data = Uri.fromParts("package", packageName, null)
-        }.run(::startActivity)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        db = HistoryDB.getDatabase(getAppContext())!!
-
-        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
-        val today = dateFormat.format(System.currentTimeMillis())
-        settingDay = today //처음 킬때는 오늘날짜 추후에 변경시에는 세팅된 날짜로
-
-        // permission Check
-        checkLocationPermission()
-
-
-        initMap()
-        bindViews()
-        registerOnSharedPreferenceChangeListener()
-    }
-
-    fun checkLocationPermission() {
     fun checkLocationPermission() {
         requestMultiplePermissions.launch(
             arrayOf(
@@ -149,26 +104,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     // Android 11 이상 - BackgroundPermission Check
     @RequiresApi(Build.VERSION_CODES.Q)
-    private fun backgroundLocationPermission(backgroundLocationRequestCode: Int) {
-        if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-            return
-        }
-        AlertDialog.Builder(this)
-            .setTitle("백그라운드 위치 사용이 필요합니다.")
-            .setMessage("원활한 서비스 제공을 위해 위치 권한을 항상 허용으로 설정해주세요. ")
-            .setPositiveButton("확인") { _, _ ->
-                // this request will take user to Application's Setting page
-                requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                    backgroundLocationRequestCode
-                )
-                openAppSettings(this)
-            }
-            .setNegativeButton("취소") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-            .show()
     private fun backgroundLocationPermission(backgroundLocationRequestCode: Int): Boolean {
         return if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
             true
@@ -204,20 +139,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         // permission Check
         checkLocationPermission()
 
-    private fun checkPermissionGranted(permission: String): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            permission
-        ) == PackageManager.PERMISSION_GRANTED
-    }
         initMap()
 
-    fun openAppSettings(activity: Activity) {
-        val intent: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            data = Uri.fromParts("package", activity.packageName, null)
-        }
-        ContextCompat.startActivity(activity, intent, Bundle())
         bindViews()
         registerOnSharedPreferenceChangeListener()
     }
@@ -258,11 +181,29 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private fun bindViews() = with(binding) {
         addressButton.setOnClickListener {
-            // TODO
+            val inflater = LayoutInflater.from(this@MainActivity)
+            val binding = DialogAddressBinding.inflate(inflater, null, false)
+
+            val builder = AlertDialog.Builder(this@MainActivity)
+            builder.setView(binding.root)
+
+            val address = convertLocationToAddress(37.336631394791, 127.08717133355)
+            val dialog = builder.create()
+
+            binding.addressTextView.text = address
+
+            binding.negativeTextButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            binding.positiveTextButton.setOnClickListener {
+                dialog.dismiss()
+            }
+            dialog.show()
         }
 
         historyButton.setOnClickListener {
-            getHistoryDialog()
+            // TODO
         }
 
         settingsButton.setOnClickListener {
@@ -270,97 +211,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
     }
 
-    //히스토리 다이얼로그를 띄우고 리사이클러뷰 생성
-    private fun getHistoryDialog() {
-        historyBinding = DialogHistoryBinding.inflate(layoutInflater)
-        val historyDialog = AlertDialog.Builder(this).setView(historyBinding.root).create()
-        historyDialog.setCanceledOnTouchOutside(true)
-
-        val dao : HistoryDao = db.historyDao()
-        val repository: HistoryRepository = HistoryRepositoryImpl(dao)
-        factory = HistoryDialogViewModelFactory(repository)
-        dialogViewModel = ViewModelProvider(
-            this, factory
-        ).get(HistoryDialogViewModel::class.java)
-        historyBinding.viewModel = dialogViewModel
-
-        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
-        val today = dateFormat.format(System.currentTimeMillis())
-
-        if (settingDay == today) {
-            historyBinding.dialogDatepickerTextView.text = today
-            setHistory(today)
-
-        } else {
-            historyBinding.dialogDatepickerTextView.text = settingDay
-            setHistory(settingDay)
-
-        }
-
-
-
-        historyBinding.dialogCancelButton.setOnClickListener {
-            historyDialog.dismiss()
-        }
-
-        historyBinding.dialogConfirmButton.setOnClickListener {
-            setHistory(settingDay)
-            Toast.makeText(this, "날짜 변경 완료!", Toast.LENGTH_SHORT).show()
-            historyDialog.dismiss()
-        }
-        historyBinding.dialogDatepickerTextView.setOnClickListener {
-            val cal = Calendar.getInstance()
-            val dateSetListener =
-                DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
-                    val dateString = "${year}.${month + 1}.$dayOfMonth"
-                    historyBinding.dialogDatepickerTextView.text = dateString
-                    settingDay = dateString
-                }
-            DatePickerDialog(
-                this,
-                dateSetListener,
-                cal.get(Calendar.YEAR),
-                cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
-        historyDialog.show()
-    }
-
-
-    //리사이클러뷰 생성
-    private fun setHistory(today: String) {
-        adapter = HistoryDialogAdapter()
-        historyBinding.dialogRecyclerView.adapter = adapter
-        dialogViewModel.getHistory(today).observe(this) {
-            adapter.submitList(it)
-            pinMap(it)
-            // 시간 보내줄때 유형 맞는지 확인 해야함!
-        }
-
-
-    }
-
-
-    //지도에 좌표 찍기
-    private fun pinMap(historyList: List<History>) {
-        lifecycleScope.launch {
-            val load = async(Dispatchers.IO) {
-                for (i in historyList) {
-                    Timber.e(i.toString())
-                    //TODO
-                }
-            }
-            load.await()
-        }
-    }
-
-
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
         Timber.e("ONMAPREADY")
 
         naverMap.locationSource = locationSource
+
 
         setMapUiSettings()
 
@@ -381,41 +237,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             )
 
             naverMap.moveCamera(cameraUpdate)
-
-        }
-    }
-
-    private fun getCurrentLatLng() {
-        var currentLocation: Location?
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-
-        checkLocationPermission()
-
-        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            currentLocation = location
-
-            if (currentLocation != null) {
-                Timber.e("${currentLocation?.latitude} // ${currentLocation?.longitude}")
-            }
-
-            val cameraUpdate = CameraUpdate.scrollTo(
-                LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
-            )
-
-            naverMap.moveCamera(cameraUpdate)
-
-            Timber.e("${currentLocation!!.latitude} // ${currentLocation!!.longitude}")
-
         }
     }
 
@@ -426,6 +247,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             isScaleBarEnabled = false
             isCompassEnabled = false
         }
+    }
+
+    private fun convertLocationToAddress(latitude: Double, longitude: Double): String {
+        val geoCoder = Geocoder(this, Locale.KOREA)
+        val address: ArrayList<Address>
+
+        var result = "결과가 없습니다."
+
+        try {
+            address = geoCoder.getFromLocation(latitude, longitude, 1) as ArrayList<Address>
+            if (address.size > 0) {
+                val currentLocationAddress = address[0].getAddressLine(0).toString()
+                result = currentLocationAddress
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        return result
     }
 
     /*
@@ -448,7 +288,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     /*
     * settings dialog
     * */
-
     private fun showSettingDialog() {
         Dialog(this).apply {
             val dialogBinding: DialogSaveHistorySettingsBinding =
