@@ -117,6 +117,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         viewModel.historyList.observe(this) {
             setHistoryListMarker(it!!)
         }
+        viewModel.defaultHistoryData.observe(this) {
+            setHistoryListMarker(it)
+        }
     }
 
     private fun timerSaveLatLng(latitude: Double, longitude: Double) {

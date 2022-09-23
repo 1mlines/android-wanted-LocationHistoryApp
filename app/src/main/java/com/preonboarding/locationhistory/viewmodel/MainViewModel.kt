@@ -20,11 +20,8 @@ class MainViewModel @Inject constructor(
     val dateName: MutableLiveData<String>
         get() = _dateName
 
-    private val _historyResponse: MutableLiveData<List<History>> = MutableLiveData()
-    val historyResponse: MutableLiveData<List<History>>
-        get() = _historyResponse
 
-    private val _historyList: MutableLiveData<List<History>> = MutableLiveData()
+    private val _historyList: MutableLiveData<List<History>> = MutableLiveData(emptyList())
     val historyList: MutableLiveData<List<History>>
         get() = _historyList
 
@@ -58,11 +55,11 @@ class MainViewModel @Inject constructor(
 
     private val _defaultHistoryData = MutableLiveData<List<History>>(emptyList())
     val defaultHistoryData: LiveData<List<History>>
-        get() = _defaultHistoryData
+        get() = _defaultHistoryData // 기본
 
     fun changeDateName(name: String) {
         _dateName.value = name
-
+        findByDistanceAndCreatedAt(name)
     }
 
     fun changeSaveInterval(minute: Long) {
@@ -84,7 +81,7 @@ class MainViewModel @Inject constructor(
 
     fun findByDistanceAndCreatedAt(createdAt: String) {
         viewModelScope.launch {
-            _historyResponse.value = repository.findByDistanceAndCreatedAt(createdAt)
+            _historyList.value = repository.findByDistanceAndCreatedAt(createdAt)
         }
     }
 
@@ -101,7 +98,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun dialogConfirm() {
-        _historyList.value = _historyResponse.value
+        if (_dateName.value != null) findByDistanceAndCreatedAt(_dateName.value ?: "")
         _dialogConfirm.value = Event(Unit)
     }
 
