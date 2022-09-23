@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var location: Location
-
+    private var saveInterval = 60000L
 
     private val permissionLocationLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
@@ -374,7 +374,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val UPDATE_INTERVAL_MS = 1000L // 1초
         private const val FASTEST_UPDATE_INTERVAL_MS = 500L // 0.5초
         private const val MAX_WAIT_TIME = 2000L
-        private const val saveInterval = 60000L
         private val REQUIRED_PERMISSIONS = arrayOf(
             ACCESS_FINE_LOCATION,
             ACCESS_COARSE_LOCATION
