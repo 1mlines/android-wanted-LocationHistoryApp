@@ -402,9 +402,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     /*
     * settings dialog
-    * */
+    *
 
-    
+
+
     private fun showSettingDialog() {
         Dialog(this).apply {
             val dialogBinding: DialogSaveHistorySettingsBinding =
@@ -439,6 +440,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
     }
+*/
+
 
     private fun saveHistoryPeriodValidationCheck(period: String): Boolean {
         return try {
