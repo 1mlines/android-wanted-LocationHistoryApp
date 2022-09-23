@@ -66,11 +66,12 @@ dependencies {
 
     // Kotlin && Coroutine
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
 
     //google gps
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation "com.google.android.gms:play-services-maps:$gps_version"
+    implementation "com.google.android.gms:play-services-location:$gps_version"
+
     //kotlin
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 

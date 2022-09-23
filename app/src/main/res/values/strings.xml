@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">android-wanted-LocationHistoryApp</string>
 
+    <string name="address">주소</string>
     <string name="history">히스토리</string>
     <string name="date">날짜</string>
     <string name="latitude">위도</string>
