@@ -19,7 +19,6 @@ import com.preonboarding.locationhistory.databinding.FragmentHistoryBottomSheetB
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.*
 
 class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
@@ -85,7 +84,6 @@ class HistoryBottomSheetFragment : BottomSheetDialogFragment() {
         lifecycleScope.launch {
             repeatOnLifecycle(state = Lifecycle.State.STARTED) {
                 mainViewModel.currentHistory.collect {
-                    Timber.tag(TAG).e(it.toString())
                     if(it.isEmpty()) {
                         binding.historyBottomEmptyTv.visibility = View.VISIBLE
                     }

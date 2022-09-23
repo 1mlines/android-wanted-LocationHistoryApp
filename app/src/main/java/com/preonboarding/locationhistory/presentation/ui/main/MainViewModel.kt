@@ -69,8 +69,6 @@ class MainViewModel @Inject constructor(
         val datePattern = "yyyy-MM-dd"
         _currentDate.value =
             SimpleDateFormat(datePattern, Locale.getDefault()).format(calendar.time)
-
-        Timber.tag(TAG).e("선택한 날짜 : ${_currentDate.value}")
     }
 
     // history
@@ -84,7 +82,7 @@ class MainViewModel @Inject constructor(
                     }
             }
                 .onSuccess {
-                    Timber.tag(TAG).e("success get history")
+                    Timber.tag(TAG).d("success get history")
                 }
                 .onFailure {
                     Timber.tag(TAG).e(it)
