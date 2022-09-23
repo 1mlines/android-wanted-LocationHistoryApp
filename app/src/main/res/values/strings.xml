@@ -16,4 +16,8 @@
     <string name="main_not_allowed_location_service">서비스 사용 불가</string>
     <string name="main_error_gps">GPS 에러</string>
     <string name="main_unknown_address">알수 없는 주소</string>
+
+<!--    setting-->
+    <string name="setting_toast_empty_minute_message">입력 값을 입력하세요</string>
+    <string name="setting_taost_zero_minute_message">1분 이상 입력하세요.</string>
 </resources>
