@@ -145,7 +145,7 @@ lifecycleScope.launch{
 	}
 }
 ```
-
+뷰에 마커를 띄우기 위해 뷰모델에 히스토리를 담았습니다.
 날짜별로 DB에 저장된 히스토리는 StateFlow를 사용하여 collect하여 맵의 마커를 선택된 날짜에 띄우고 있습니다.
 
 ```kotlin
