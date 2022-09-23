@@ -32,17 +32,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title" />
 
-        <EditText
-            android:id="@+id/et_date"
+        <TextView
+            android:id="@+id/tv_date"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:background="@color/white"
+            android:textColor="@color/black"
             android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/line" />
+            app:layout_constraintTop_toTopOf="@id/date"
+            app:layout_constraintBottom_toBottomOf="@id/date"/>
 
         <TextView
             android:id="@+id/date"
@@ -55,7 +55,7 @@
             android:textColor="@color/white"
             android:textSize="24sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/et_date"
+            app:layout_constraintEnd_toStartOf="@id/tv_date"
             app:layout_constraintTop_toBottomOf="@id/line" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
