@@ -3,6 +3,10 @@
 ### #1 [협업 프로세스](https://dev-wotjd.notion.site/7bca0fa4e18a4715a32c88a5b340f48d)
 ### #2 [커밋 컨벤션](https://dev-wotjd.notion.site/Commit-Convention-811387d46db44c4cb270d267b5b760d8)
 ### #3 [코딩 컨벤션](https://www.notion.so/Coding-Convention-ab945c1216b0426b809c415c5fd5c869)
+### #4 기술 스택
+<img width="625" alt="image" src="https://user-images.githubusercontent.com/66052467/191895470-13d1eddc-d155-461f-9f41-67ae196893c4.png">
+
+<br>
 
 # 맡은 역할
 
@@ -93,6 +97,3 @@ AAC ViewModel 을 상속해서 메인 액티비티에서 이를 사용하게 하
 repository를 매개변수로 받아 해당 메소드 들을 호출하게 하였습니다.
 
 LiveData 변수들을 했고, AAC ViewModel 의 경우 ViewModelProvider를 이용해 초기화를 하는데 이때 매개변수를 전달하기 위해서 ViewModelFactory를 사용해 보았습니다.
-
-## 기술 스택
-<img width="625" alt="image" src="https://user-images.githubusercontent.com/66052467/191895470-13d1eddc-d155-461f-9f41-67ae196893c4.png">
