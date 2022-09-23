@@ -1,18 +1,9 @@
 # 원티드 프리온보딩 안드로이드
-아래와 같은 협업 규칙, 컨벤션을 준수하며 코드 리뷰를 통해 이를 점검하고 코드 품질을 향상시켰습니다.
-### #1 [협업 프로세스](https://dev-wotjd.notion.site/7bca0fa4e18a4715a32c88a5b340f48d)
-### #2 [커밋 컨벤션](https://dev-wotjd.notion.site/Commit-Convention-811387d46db44c4cb270d267b5b760d8)
-### #3 [코딩 컨벤션](https://www.notion.so/Coding-Convention-ab945c1216b0426b809c415c5fd5c869)
 
-# 맡은 역할
+- 동료들과 상의해서 프로젝트 진행 과정과 구현 결과를 한 눈에 파악할 수 있도록 README를 작성합니다.
 
-## 이재성
-
-## 김영진
-
-## 박인아
-
-## 황준성
-
-## 기술 스택
-<img width="625" alt="image" src="https://user-images.githubusercontent.com/66052467/191895470-13d1eddc-d155-461f-9f41-67ae196893c4.png">
+- 언어는 Kotlin 또는 JAVA를 자유롭게 선택해주세요.
+- UI는 xml 기반으로 구현해주세요.
+- DB는 SQLite 또는 RoomDB를 사용해주세요.
+- 웹뷰를 이용하여 지도를 표시해주세요.
+- 라이브러리는 자유롭게 사용 가능합니다.
