@@ -302,19 +302,20 @@ mainViewModel.apply {
 livedata를 통해 observe하며 변화된 값을 감지합니다. requestLocationUpdates을 통해 일정시간마다 변화된 좌표를 호출합니다.
 
 # 📱 Result (until now)
+![Screenshot_20220923-174610_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191925248-d6460d32-6351-4f3b-81a3-eead4143ea2f.jpg)
+- 스플래시
 
-![Screenshot_20220923-032705_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828394-4cbd851e-7e54-425f-9084-7b8fc0d03e22.jpg)![Screenshot_20220923-032757_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828505-1609296e-f069-4aa2-abdb-4df6a2e5001d.jpg)
-
+![Screenshot_20220923-174630_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191925264-1fe534df-2c3c-467f-a7a6-3fcbd6f8527b.jpg)
 - 마커
 
-![Screenshot_20220923-032814_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828710-566589e0-faf3-41c9-89ba-f121cf77b8f7.jpg)
-
+![Screenshot_20220923-174636_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191925335-a91c4b21-7017-4fb5-850d-e8d073ee107c.jpg)![Screenshot_20220923-174718_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191925411-898593ad-914f-45c7-bafa-6629f60be8f4.jpg)
 - 현재 위치
 
-![Screenshot_20220923-032742_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828806-9f8726ea-0403-4b2e-a562-5d40879c221a.jpg)![Screenshot_20220923-032746_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828823-29761027-1240-4718-a3c5-c7bba80eb4d7.jpg)
+![Screenshot_20220923-174642_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191925322-b255ad89-234e-4dce-988c-9d7402259365.jpg)
+![Screenshot_20220923-174649_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191925352-a24869fe-d9c8-4b0d-91d1-0c0cf397d03b.jpg)
 
 - 날짜별 히스토리
 
-![Screenshot_20220923-032806_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191828932-73b2adee-665d-487d-b884-1250a062a538.jpg)
+![Screenshot_20220923-174709_android-wanted-LocationHistoryApp](https://user-images.githubusercontent.com/86879099/191925986-ce55da74-0b63-4c6e-9c74-c65602c6572d.jpg)
 
 - 시간 설정
