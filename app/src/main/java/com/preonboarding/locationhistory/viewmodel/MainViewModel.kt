@@ -6,24 +6,42 @@ import androidx.lifecycle.viewModelScope
 import com.preonboarding.locationhistory.Event
 import com.preonboarding.locationhistory.local.HistoryRepository
 import com.preonboarding.locationhistory.local.entity.History
+import com.preonboarding.locationhistory.local.repository.HistoryRepositoryImpl
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: HistoryRepository,
+    private val repository: HistoryRepositoryImpl,
 ) : ViewModel() {
 
-    val dateName: MutableLiveData<String> = MutableLiveData()
-    val historyResponse: MutableLiveData<List<History>> = MutableLiveData()
-    val historyList: MutableLiveData<List<History>> = MutableLiveData()
-    var dialogConfirm: MutableLiveData<Event<Unit>> = MutableLiveData()
-    var dialogCancel: MutableLiveData<Event<Unit>> = MutableLiveData()
-    var dialogDatePicker: MutableLiveData<Event<Unit>> = MutableLiveData()
+    private val _dateName: MutableLiveData<String> = MutableLiveData()
+    val dateName: MutableLiveData<String>
+        get() = _dateName
+
+    private val _historyResponse: MutableLiveData<List<History>> = MutableLiveData()
+    val historyResponse: MutableLiveData<List<History>>
+        get() = _historyResponse
+
+    private val _historyList: MutableLiveData<List<History>> = MutableLiveData()
+    val historyList: MutableLiveData<List<History>>
+        get() = _historyList
+
+    private val _dialogConfirm: MutableLiveData<Event<Unit>> = MutableLiveData()
+    val dialogConfirm: MutableLiveData<Event<Unit>>
+        get() = _dialogConfirm
+
+    private val _dialogCancel: MutableLiveData<Event<Unit>> = MutableLiveData()
+    val dialogCancel: MutableLiveData<Event<Unit>>
+        get() = _dialogCancel
+
+    private val _dialogDatePicker: MutableLiveData<Event<Unit>> = MutableLiveData()
+    val dialogDatePicker: MutableLiveData<Event<Unit>>
+        get() = _dialogDatePicker
 
     fun changeDateName(name: String) {
-        dateName.value = name
+        _dateName.value = name
     }
 
     fun insertHistory(latitude: Double, longitude: Double) {
@@ -40,20 +58,20 @@ class MainViewModel @Inject constructor(
 
     fun findByDistanceAndCreatedAt(createdAt: String) {
         viewModelScope.launch {
-            historyResponse.value = repository.findByDistanceAndCreatedAt(createdAt)
+            _historyResponse.value = repository.findByDistanceAndCreatedAt(createdAt)
         }
     }
 
     fun dialogDatePicker() {
-        dialogDatePicker.value = Event(Unit)
+        _dialogDatePicker.value = Event(Unit)
     }
 
     fun dialogConfirm() {
-        historyList.value = historyResponse.value
-        dialogConfirm.value = Event(Unit)
+        _historyList.value = _historyResponse.value
+        _dialogConfirm.value = Event(Unit)
     }
 
     fun dialogCancel() {
-        dialogCancel.value = Event(Unit)
+        _dialogCancel.value = Event(Unit)
     }
 }
