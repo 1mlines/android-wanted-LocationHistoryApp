@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.SystemClock
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.data.source.local.alarm.AlarmReceiver
 
@@ -44,14 +45,14 @@ object Alarm {
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             alarmManager?.setExact(
-                AlarmManager.RTC_WAKEUP,
-                time * 1000 * 60,
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + time * 1000 * 60,
                 pendingIntent
             )
         } else {
             alarmManager?.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                time * 1000 * 60,
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + time * 1000 * 60,
                 pendingIntent
             )
         }

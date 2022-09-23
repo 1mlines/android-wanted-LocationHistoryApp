@@ -11,6 +11,7 @@ import com.preonboarding.locationhistory.di.HiltBroadCastReceiver
 import com.preonboarding.locationhistory.util.Alarm
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -20,9 +21,6 @@ import javax.inject.Inject
 class AlarmReceiver : HiltBroadCastReceiver() {
 
     @Inject lateinit var timerRepository: TimerRepository
-    companion object {
-        const val TAG = "AlarmReceiver"
-    }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
@@ -45,7 +43,9 @@ class AlarmReceiver : HiltBroadCastReceiver() {
     private fun createAlarm(context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             timerRepository.getDuration().collect { time ->
-                Alarm.create(context, time)
+                if (time != 0L) {
+                    Alarm.create(context, time)
+                }
             }
         }
     }
