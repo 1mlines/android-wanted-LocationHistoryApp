@@ -36,23 +36,25 @@ local DB를 이용하여 위도 경도 데이터들을 처리
 
 ### 맡은 일
 - 인트로 화면 구현
-- 저장 시간 간격마다 현 위치 저장
+- Setting Dialog, Address Dialog 생성
+- 입력한 시간 간격마다 DB 저장
 - 현 위치 주소 변환
 
 ### 인트로 화면
 - Handler를 이용하여 3초 딜레이 후 화면 전환
 
-### 저장 시간 간격마다 현 위치 저장
-- FusedLocationProviderClient 이용하여 주기적으로 현 위치 
-- Service를 사용하여 background, foreground 작업
-- Broad Cast Receiver를 이용하여 현 위치 데이터 전달
+### 입력한 시간 간격마다 현 위치 DB 저장
+- FusedLocationProviderClient 이용하여 현 위치값 얻기
 
 ### 현 위치 주소 변환
 - GeoCoder를 이용하여 현 위치를 주소로 변환
 
+### 어려웠던 부분
+- 백그라운드, 포그라운드에서 주기적으로 DB에 저장
+
 <br><hr><br>
 
-## 한혜원 - 로컬 DB 담당
+## 한혜원
 
 ### 맡은 일
 - Db, Entity 생성
