@@ -1,12 +1,19 @@
 package com.preonboarding.locationhistory.viewmodel
 
+import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.preonboarding.locationhistory.Event
 import com.preonboarding.locationhistory.local.HistoryRepository
 import com.preonboarding.locationhistory.local.entity.History
 import com.preonboarding.locationhistory.local.repository.HistoryRepositoryImpl
+import com.preonboarding.locationhistory.util.distanceConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,8 +47,32 @@ class MainViewModel @Inject constructor(
     val dialogDatePicker: MutableLiveData<Event<Unit>>
         get() = _dialogDatePicker
 
+    private val _currentAddress = MutableLiveData<String>()
+        val currentAddress: LiveData<String>
+            get() = _currentAddress
+    
+    private val _saveInterval = MutableLiveData<Long>(60000L)
+        val saveInterval: LiveData<Long>
+            get() = _saveInterval
+
+    private val _showAddressDialog = MutableLiveData<Event<Unit>>()
+        val showAddressDialog: LiveData<Event<Unit>>
+            get() = _showAddressDialog
+
+    private val _showSettingDialog = MutableLiveData<Event<Unit>>()
+        val showSettingDialog: LiveData<Event<Unit>>
+            get() = _showSettingDialog
+
+    private val _defaultHistoryData = MutableLiveData<List<History>>(emptyList())
+    val defaultHistoryData: LiveData<List<History>>
+        get() = _defaultHistoryData
+
     fun changeDateName(name: String) {
         _dateName.value = name
+
+    }
+    fun changeSaveInterval(minute: Long) {
+        _saveInterval.value = minute
     }
 
     fun insertHistory(latitude: Double, longitude: Double) {
@@ -52,7 +83,8 @@ class MainViewModel @Inject constructor(
 
     fun findDistinctByDistance() {
         viewModelScope.launch {
-            repository.findDistinctByDistance()
+            val historyList = repository.findDistinctByDistance()
+            _defaultHistoryData.value = historyList
         }
     }
 
@@ -60,6 +92,14 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             _historyResponse.value = repository.findByDistanceAndCreatedAt(createdAt)
         }
+    }
+
+    fun showAddressDialog() {
+        _showAddressDialog.value = Event(Unit)
+    }
+
+    fun showSettingDialog() {
+        _showSettingDialog.value = Event(Unit)
     }
 
     fun dialogDatePicker() {
@@ -73,5 +113,9 @@ class MainViewModel @Inject constructor(
 
     fun dialogCancel() {
         _dialogCancel.value = Event(Unit)
+    }
+
+    fun showCurrentAddress(address: String) {
+        _currentAddress.value = address
     }
 }

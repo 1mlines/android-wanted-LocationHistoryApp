@@ -14,11 +14,13 @@ import android.provider.Settings
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -31,13 +33,21 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
+import com.preonboarding.locationhistory.local.entity.History
+import com.preonboarding.locationhistory.ui.dialog.AddressDialog
 import com.preonboarding.locationhistory.ui.dialog.HistoryDialog
+import com.preonboarding.locationhistory.ui.dialog.SettingDialog
+import com.preonboarding.locationhistory.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.*
+import kotlin.concurrent.timer
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
     private lateinit var map: GoogleMap
     private var currentMarker: Marker? = null
@@ -46,16 +56,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
     private lateinit var locationRequest: LocationRequest
     private lateinit var location: Location
+    private var saveInterval = 60000L
+
     private val permissionLocationLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         }
     private val permissionGPSLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-
         }
 
     // 위치 정보 변경 이벤트
-    private var changeLocationCallback: LocationCallback = object : LocationCallback() {
+    private val changeLocationCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
             val locationList: List<Location> = locationResult.locations
@@ -63,11 +74,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 location = locationList[locationList.size - 1]
                 currentPosition = LatLng(location.latitude, location.longitude)
                 val markerTitle = getCurrentAddress(currentPosition)
+                viewModel.showCurrentAddress(markerTitle)
                 val markerSnippet = ("위도: ${location.latitude} 경도: ${location.longitude}")
-
                 //현재 위치에 마커 생성하고 이동
                 setCurrentLocation(location, markerTitle, markerSnippet)
                 mCurrentLocation = location
+
+                timerSaveLatLng(location.latitude, location.longitude)
             }
         }
     }
@@ -78,10 +91,56 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         initBinding()
         setUpMapView()
         getHistoryDialog()
+        observeViewModel()
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+        lifecycleScope.launch(Dispatchers.IO) {
+            viewModel.findDistinctByDistance()
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.showAddressDialog.observe(this) {
+            if (it.consumed) return@observe
+            AddressDialog().show(supportFragmentManager, "AddressDialog")
+            it.consume()
+        }
+
+        viewModel.showSettingDialog.observe(this) {
+            if (it.consumed) return@observe
+            SettingDialog().show(supportFragmentManager, "SettingDialog")
+            it.consume()
+        }
+        viewModel.saveInterval.observe(this) {
+            saveInterval = it * 60000L
+        }
+
+        viewModel.historyList.observe(this) {
+            setHistoryListMarker(it)
+        }
+    }
+
+    private fun timerSaveLatLng(latitude: Double, longitude: Double) {
+        timer(period = saveInterval) {
+            viewModel.insertHistory(latitude, longitude)
+        }
+    }
+
+    private fun setHistoryListMarker(history: List<History>) {
+        history.forEach { history ->
+            val location = LatLng(10.2, 10.2)
+            val markerOptions = MarkerOptions()
+            markerOptions.apply {
+                position(location)
+                draggable(true)
+                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+            }
+            map.addMarker(markerOptions)
+        }
     }
 
     private fun getHistoryDialog() {
-        val historyButton = findViewById<Button>(R.id.button)
+        val historyButton = findViewById<Button>(R.id.button_history)
 
         historyButton.setOnClickListener {
             HistoryDialog().show(
