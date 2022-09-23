@@ -81,7 +81,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             btnAddress.setOnClickListener {
                 if (checkLocationService()) {
                     startTracking()
-                    val builder = AlertDialog.Builder(this@MainActivity)
+                    val builder = AlertDialog.Builder(
+                        this@MainActivity,
+                        R.style.DialogTheme
+                    )
                     val location = getCurrentLocation()
                     val detailAddress = getDetailAddress(location.first, location.second)
                     builder.apply {

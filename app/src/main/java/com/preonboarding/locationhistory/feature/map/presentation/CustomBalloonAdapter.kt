@@ -23,9 +23,9 @@ class CustomBalloonAdapter(
     val address = callOutBalloon.findViewById<TextView>(R.id.tv_address)
 
     // 마커 클릭 시 나오는 말풍선
-    override fun getCalloutBalloon(marker: MapPOIItem?): View {
-        val latitude = marker!!.mapPoint.mapPointGeoCoord.latitude
-        val longitude = marker!!.mapPoint.mapPointGeoCoord.longitude
+    override fun getCalloutBalloon(marker: MapPOIItem): View {
+        val latitude = marker.mapPoint.mapPointGeoCoord.latitude
+        val longitude = marker.mapPoint.mapPointGeoCoord.longitude
         address.text = getDetailAddress(latitude, longitude)
         return callOutBalloon
     }
