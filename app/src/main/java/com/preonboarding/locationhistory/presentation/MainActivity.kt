@@ -10,6 +10,7 @@ import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,9 +23,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private val fusedLocationClient: FusedLocationProviderClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
     private val locationSource: FusedLocationSource by lazy { FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE) }
 
+    private var permissionChecker: Boolean = false
     private val requestMultiplePermissions : ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             var granted: Boolean = true
@@ -61,7 +63,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     backgroundLocationPermission(222)
                 } else {
-                   Log.i("api 10","FDFDFFFF")
+                   // TODO API 10 미만일 때, 모든 권한 허용시 수행할 곳
+
                 }
             } else {
                 Toast.makeText(this, "서비스를 사용하시려면 위치 추적이 허용되어야 합니다.,", Toast.LENGTH_LONG)
@@ -96,10 +99,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         )
     }
 
-    // Android 11 이상 - BackgroundPermission Check
-    @RequiresApi(Build.VERSION_CODES.Q)
+    // Android 10 이상 - BackgroundPermission Check
+   // @RequiresApi(Build.VERSION_CODES.Q)
     private fun backgroundLocationPermission(backgroundLocationRequestCode: Int) {
         if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)){
+            // TODO API 10 이상 - initMap
+            // android 10 이상에서 백그라운드 퍼미션 허가받았을 때.
+
             return
         }
         AlertDialog.Builder(this)
@@ -107,7 +113,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             .setMessage("원활한 서비스 제공을 위해 위치 권한을 항상 허용으로 설정해주세요. ")
             .setPositiveButton("확인") { _,_ ->
                 // this request will take user to Application's Setting page
-                requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), backgroundLocationRequestCode)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), backgroundLocationRequestCode)
+                }
                 openAppSettings(this)
             }
             .setNegativeButton("취소") { dialog,_ ->
@@ -128,6 +136,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             data = Uri.fromParts("package", activity.packageName, null)
         }
         ContextCompat.startActivity(activity, intent, Bundle())
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+         if (checkPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
+                     || checkPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION) ) {
+                return
+         } else {
+             Toast.makeText(this, "서비스를 이용하시려면 위치 사용 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+         }
 
     }
 
@@ -207,6 +227,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         checkLocationPermission()
+
+        val request: LocationRequest = LocationRequest.create()
+        request.interval = 1000
+        request.priority = Priority.PRIORITY_HIGH_ACCURACY
 
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             currentLocation = location
@@ -304,3 +328,4 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
 }
+
