@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
     // 위치 정보 변경 이벤트
-    private var changeLocationCallback: LocationCallback = object : LocationCallback() {
+    private val changeLocationCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
             val locationList: List<Location> = locationResult.locations
