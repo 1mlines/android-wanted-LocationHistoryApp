@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
-            name="mainActivity"
-            type="com.preonboarding.locationhistory.ui.MainActivity" />
+            name="viewModel"
+            type="com.preonboarding.locationhistory.viewmodel.MainViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -16,20 +17,39 @@
 
         <fragment
             android:id="@+id/fragment_map_container"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context=".MapsActivity"
-            android:name="com.google.android.gms.maps.SupportMapFragment" />
+            tools:context=".MapsActivity" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/button_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:onClick="@{() -> viewModel.showAddressDialog()}"
+            android:text="주소"
             app:layout_constraintBottom_toBottomOf="parent"
-            />
+            app:layout_constraintEnd_toStartOf="@id/button_history"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_history"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="히스토리"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/button_setting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="설정"
+            android:onClick="@{() -> viewModel.showSettingDialog()}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/button_history" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
