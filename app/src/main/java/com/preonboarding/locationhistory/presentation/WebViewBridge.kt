@@ -1,60 +1,61 @@
 package com.preonboarding.locationhistory.presentation
 
-import android.os.Handler
-import android.util.Log
 import android.webkit.JavascriptInterface
-import android.webkit.WebView
-import android.widget.Toast
-import androidx.core.content.ContextCompat
 import com.google.gson.Gson
-import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.data.di.MainDispatcher
 import com.preonboarding.locationhistory.domain.model.Location
+import com.preonboarding.locationhistory.presentation.ui.main.LoadUrlCallbackInterface
+import com.preonboarding.locationhistory.presentation.ui.main.LocationCallbackInterface
+import com.preonboarding.locationhistory.presentation.ui.main.ShowMessageCallbackInterface
 import com.preonboarding.locationhistory.util.JavaScripUrlUtil
-import timber.log.Timber
-import java.lang.ref.WeakReference
+import kotlinx.coroutines.*
+import javax.inject.Inject
 
-class WebViewBridge(
+class WebViewBridge @Inject constructor(
     private val gson: Gson,
-    private val webView: WebView,
-    private val handler: Handler,
-    private val currentLocationBlock: (Location) -> Unit
+    @MainDispatcher mainDispatcher: CoroutineDispatcher,
+    private val locationCallback: LocationCallbackInterface?,
+    private val loadUrlCallback: LoadUrlCallbackInterface?,
+    private val showMsgCallback: ShowMessageCallbackInterface?
 ) {
 
-    @JavascriptInterface
-    fun currentLocationCallback(location: String) {
-        try {
-            val data = gson.fromJson(location, Location::class.java)
+    private var superJob =
+        SupervisorJob() + mainDispatcher + CoroutineExceptionHandler { _, throwable ->
+            error(throwable.stackTraceToString())
+        }
 
-            handler.post {
-                currentLocationBlock(data)
-            }
-        } catch (e: Exception) {
-            error(e.message)
+    @JavascriptInterface
+    fun currentLocationCallback(json: String) {
+        CoroutineScope(superJob).launch {
+            val location = gson.fromJson(json, Location::class.java)
+            locationCallback?.getCurrentLocation(location)
         }
     }
 
     @JavascriptInterface
     fun getCurrentLocation() {
-        val url = JavaScripUrlUtil.createMethodUrl("getCurrentLocation", null)
-
-        handler.post {
-            webView.loadUrl(url)
+        CoroutineScope(superJob).launch {
+            val url = JavaScripUrlUtil.createMethodUrl("getCurrentLocation", null)
+            loadUrlCallback?.loadUrl(url)
         }
     }
 
     @JavascriptInterface
-    fun showHistories(locations: String) {
-        val url = JavaScripUrlUtil.createMethodUrl("showHistories", locations)
+    fun showHistories(locations: List<Location>) {
+        CoroutineScope(superJob).launch {
+            val json = gson.toJson(locations)
+            val url = JavaScripUrlUtil.createMethodUrl("showHistories", json)
 
-        handler.post {
-            webView.loadUrl(url)
+            loadUrlCallback?.loadUrl(url)
         }
     }
 
     @JavascriptInterface
-    fun error(message: String?) {
-        val msg = webView.context.getString(R.string.mapError)
-        Toast.makeText(webView.context, msg, Toast.LENGTH_SHORT).show()
-        Timber.e(message)
+    fun error(message: String) {
+        showMsgCallback?.error(message)
+    }
+
+    fun finish() {
+        superJob.cancel()
     }
 }
