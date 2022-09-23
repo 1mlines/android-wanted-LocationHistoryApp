@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">android-wanted-LocationHistoryApp</string>
-
 <!--    main    -->
     <string name="main_button_address">주소</string>
     <string name="main_button_history">히스토리</string>

@@ -11,6 +11,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -30,10 +31,12 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
+import com.preonboarding.locationhistory.ui.dialog.HistoryDialog
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.IOException
 import java.util.*
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivityMainBinding
     private lateinit var map: GoogleMap
@@ -62,7 +65,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 val markerTitle = getCurrentAddress(currentPosition)
                 val markerSnippet = ("위도: ${location.latitude} 경도: ${location.longitude}")
 
-
                 //현재 위치에 마커 생성하고 이동
                 setCurrentLocation(location, markerTitle, markerSnippet)
                 mCurrentLocation = location
@@ -75,6 +77,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         initBinding()
         setUpMapView()
+        getHistoryDialog()
+    }
+
+    private fun getHistoryDialog() {
+        val historyButton = findViewById<Button>(R.id.button)
+
+        historyButton.setOnClickListener {
+            HistoryDialog().show(
+                supportFragmentManager, "HistoryDialog"
+            )
+        }
     }
 
     override fun onStart() {

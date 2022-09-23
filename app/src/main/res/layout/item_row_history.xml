@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="history"
+            type="com.preonboarding.locationhistory.local.entity.History" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_history_background_row_layout">
+
+        <TextView
+            android:id="@+id/textView_row_history_number"
+            setNumber="@{history.id}"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="5dp"
+            android:background="@drawable/dialog_history_background_row_layout"
+            android:text="1"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_row_history_latitude"
+            setLatitude="@{history.latitude}"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/dialog_history_background_row_layout"
+            android:text="136.0"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toStartOf="@id/textView_row_history_longitude"
+            app:layout_constraintStart_toEndOf="@id/textView_row_history_number"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_row_history_longitude"
+            setLongitude="@{history.longitude}"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/dialog_history_background_row_layout"
+            android:text="127.1"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toStartOf="@id/textView_row_history_date"
+            app:layout_constraintStart_toEndOf="@id/textView_row_history_latitude"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_row_history_date"
+            setDate="@{history.createdAt}"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/dialog_history_background_row_layout"
+            android:text="2022.09.07 12:11"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

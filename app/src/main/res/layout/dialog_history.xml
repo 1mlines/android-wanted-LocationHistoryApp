@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="mainViewModel"
+            type="com.preonboarding.locationhistory.viewmodel.MainViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dialog_history_background_layout"
+        android:padding="10dp">
+
+        <TextView
+            android:id="@+id/textView_historyDialog_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/dialog_history_background_bottom_line"
+            android:text="@string/main_button_history"
+            android:textColor="@color/white"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textView_historyDialog_dateTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="날짜"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/textView_historyDialog_date"
+            app:layout_constraintTop_toBottomOf="@id/textView_historyDialog_title" />
+
+        <TextView
+            android:id="@+id/textView_historyDialog_date"
+            android:layout_width="95dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/dialog_history_background_date_button"
+            android:gravity="center"
+            android:onClick="@{() -> mainViewModel.dialogDatePicker()}"
+            android:text="@{mainViewModel.dateName}"
+            android:padding="10dp"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="@id/textView_historyDialog_dateTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/textView_historyDialog_dateTitle" />
+
+
+        <TextView
+            android:id="@+id/textView_historyDialog_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="20dp"
+            android:text="순번"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/textView_historyDialog_latitude"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_historyDialog_dateTitle" />
+
+        <TextView
+            android:id="@+id/textView_historyDialog_latitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:text="경도"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/textView_historyDialog_number"
+            app:layout_constraintTop_toBottomOf="@id/textView_historyDialog_dateTitle" />
+
+        <TextView
+            android:id="@+id/textView_historyDialog_longitude"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:text="위도"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/textView_historyDialog_latitude"
+            app:layout_constraintTop_toBottomOf="@id/textView_historyDialog_dateTitle" />
+
+        <TextView
+            android:id="@+id/textView_historyDialog_dateText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="10dp"
+            android:text="날짜"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/textView_historyDialog_longitude"
+            app:layout_constraintTop_toBottomOf="@id/textView_historyDialog_dateTitle" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_historyDialog"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_historyDialog_number" />
+
+        <android.widget.Button
+            android:id="@+id/button_historyDialog_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/dialog_history_background_submit_button"
+            android:text="취소"
+            android:onClick="@{() -> mainViewModel.dialogCancel()}"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toStartOf="@id/button_historyDialog_submit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/recyclerView_historyDialog" />
+
+        <android.widget.Button
+            android:id="@+id/button_historyDialog_submit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:background="@drawable/dialog_history_background_submit_button"
+            android:text="확인"
+            android:onClick="@{() -> mainViewModel.dialogConfirm()}"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/button_historyDialog_cancel"
+            app:layout_constraintTop_toBottomOf="@id/recyclerView_historyDialog" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

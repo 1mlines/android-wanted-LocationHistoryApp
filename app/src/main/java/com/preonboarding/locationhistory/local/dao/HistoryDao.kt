@@ -7,7 +7,7 @@ import com.preonboarding.locationhistory.local.entity.History
 @Dao
 interface HistoryDao {
     @Query("INSERT INTO history (latitude, longitude) VALUES(:latitude, :longitude)")
-    fun insertHistory(latitude: Double, longitude: Double)
+    suspend fun insertHistory(latitude: Double, longitude: Double)
 
     @Query("SELECT DISTINCT latitude, longitude FROM history")
     fun findAll(): List<History>
