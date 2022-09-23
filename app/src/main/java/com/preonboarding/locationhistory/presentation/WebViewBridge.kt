@@ -19,14 +19,14 @@ class WebViewBridge @Inject constructor(
     private val showMsgCallback: ShowMessageCallbackInterface?
 ) {
 
-    private var superJob =
+    private var bridgeScope = CoroutineScope(
         SupervisorJob() + mainDispatcher + CoroutineExceptionHandler { _, throwable ->
             error(throwable.stackTraceToString())
-        }
+        })
 
     @JavascriptInterface
     fun currentLocationCallback(json: String) {
-        CoroutineScope(superJob).launch {
+        bridgeScope.launch {
             val location = gson.fromJson(json, Location::class.java)
             locationCallback?.getCurrentLocation(location)
         }
@@ -34,7 +34,7 @@ class WebViewBridge @Inject constructor(
 
     @JavascriptInterface
     fun getCurrentLocation() {
-        CoroutineScope(superJob).launch {
+        bridgeScope.launch {
             val url = JavaScripUrlUtil.createMethodUrl("getCurrentLocation", null)
             loadUrlCallback?.loadUrl(url)
         }
@@ -42,7 +42,7 @@ class WebViewBridge @Inject constructor(
 
     @JavascriptInterface
     fun showHistories(locations: List<Location>) {
-        CoroutineScope(superJob).launch {
+        bridgeScope.launch {
             val json = gson.toJson(locations)
             val url = JavaScripUrlUtil.createMethodUrl("showHistories", json)
 
@@ -56,6 +56,6 @@ class WebViewBridge @Inject constructor(
     }
 
     fun finish() {
-        superJob.cancel()
+        bridgeScope.cancel()
     }
 }
