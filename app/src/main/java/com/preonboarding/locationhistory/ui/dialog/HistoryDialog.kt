@@ -115,28 +115,28 @@ class HistoryDialog : DialogFragment() {
     }
 
     private fun initViewModel() {
-        mainViewModel.dialogDatePicker.observe(this) {
+        mainViewModel.dialogDatePicker.observe(viewLifecycleOwner) {
             if (it.consumed) return@observe
 
             showDateDialog()
             it.consume()
         }
 
-        mainViewModel.dialogConfirm.observe(this) {
+        mainViewModel.dialogConfirm.observe(viewLifecycleOwner) {
             if (it.consumed) return@observe
 
             dialog?.dismiss()
             it.consume()
         }
 
-        mainViewModel.dialogCancel.observe(this) {
+        mainViewModel.dialogCancel.observe(viewLifecycleOwner) {
             if (it.consumed) return@observe
 
             dialog?.dismiss()
             it.consume()
         }
 
-        mainViewModel.historyResponse.observe(this) {
+        mainViewModel.historyList.observe(viewLifecycleOwner) {
             mAdapter.setData(it)
         }
     }
