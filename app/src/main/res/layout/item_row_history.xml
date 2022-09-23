@@ -23,7 +23,7 @@
             android:background="@drawable/dialog_history_background_row_layout"
             android:text="1"
             android:textColor="@color/black"
-            android:textSize="20sp"
+            android:textSize="14sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -35,7 +35,7 @@
             android:background="@drawable/dialog_history_background_row_layout"
             android:text="136.0"
             android:textColor="@color/black"
-            android:textSize="20sp"
+            android:textSize="14sp"
             app:layout_constraintEnd_toStartOf="@id/textView_row_history_longitude"
             app:layout_constraintStart_toEndOf="@id/textView_row_history_number"
             app:layout_constraintTop_toTopOf="parent" />
@@ -48,7 +48,7 @@
             android:background="@drawable/dialog_history_background_row_layout"
             android:text="127.1"
             android:textColor="@color/black"
-            android:textSize="20sp"
+            android:textSize="14sp"
             app:layout_constraintEnd_toStartOf="@id/textView_row_history_date"
             app:layout_constraintStart_toEndOf="@id/textView_row_history_latitude"
             app:layout_constraintTop_toTopOf="parent" />
@@ -61,7 +61,7 @@
             android:background="@drawable/dialog_history_background_row_layout"
             android:text="2022.09.07 12:11"
             android:textColor="@color/black"
-            android:textSize="20sp"
+            android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>

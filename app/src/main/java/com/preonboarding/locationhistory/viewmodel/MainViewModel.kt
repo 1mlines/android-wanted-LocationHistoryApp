@@ -20,7 +20,6 @@ class MainViewModel @Inject constructor(
     val dateName: MutableLiveData<String>
         get() = _dateName
 
-
     private val _historyList: MutableLiveData<List<History>> = MutableLiveData(emptyList())
     val historyList: MutableLiveData<List<History>>
         get() = _historyList

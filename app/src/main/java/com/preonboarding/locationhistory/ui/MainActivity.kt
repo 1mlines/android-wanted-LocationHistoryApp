@@ -202,7 +202,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
-
     private fun checkLocationServicesStatus(): Boolean {
         val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         return (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
