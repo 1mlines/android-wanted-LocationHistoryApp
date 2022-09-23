@@ -5,12 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     >
 
-    <data>
-        <variable
-            name="ViewModel"
-            type="com.preonboarding.locationhistory.presentation.HistoryDialogViewModel" />
 
-    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
