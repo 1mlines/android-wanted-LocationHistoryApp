@@ -68,13 +68,105 @@ private fun convertLocationToAddress(latitude: Double, longitude: Double): Strin
 
 <img src = "https://user-images.githubusercontent.com/51078673/191929693-880b2098-19b7-49de-95c1-f9a2b42c08bd.png">
 
+### 회고
+아쉬움이 굉장히 많이 남는 프로젝트라고 생각합니다. 팀원들과 기간동안 정말 많은 대화를 했음에도 불구하고 성공적으로 마무리하지 못했기 때문입니다.
+
+개인적으로는 Location과 Map에 대한 경험과 이해도가 부족해 주어진 시간 내에 효율적으로 구현하지 못했던 것이 많이 아쉽고 팀적으로는 팀원들의 개인 역량과 경험을 고려하지 못한 채 무리한 아키텍쳐 선정과 작업 배분을 했던 것 같습니다.
+
+하지만, 팀에서 선정한 협업 규칙들과 컨벤션을 최대한 지키기 위해 노력했고, 이를 위해 수준 높은 코드리뷰는 아니지만 현업에 유사한 프로세스를 프로젝트에 적용시켜 봤다는 점에서는 만족합니다.
+
+<br>
 
 ## 김영진
 
 
 ## 박인아
 
+1.인트로 화면
+   시간상 구현하지 못하였습니다.
+ - Android 12 이전 : Splas화면을 xml로 작성한 후, Manifest에서 테마 지정 후,   MainActivity의 on Create 호출시, 테마 적용.
+ - Android 12 이후 : Splash API 구현 예정이였습니다. Api 31로 Themes.xml 작성 후, splashScreen.setOnExitAnimationListener 를 통해 다음 작업 처리.
+ 위와 같은 방식으로 구현하고자 하였습니다.
+
+2.Location & Background Permission
+
+- FINE_LOCATION 과 COARSE_LOCATION 위치 권한 받기
+- Android 10 이상 버전일 시, 위치 권한 받은 후, Background 권한 체크
+- Android 9 이하 버전일 시, 위치 권한 체크
+
+<pre>
+<code>
+
+    fun checkLocationPermission(){
+        requestMultiplePermissions.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        )
+    }
+
+</code>
+</pre>
+
+
+<pre>
+<code>
+
+    private val requestMultiplePermissions : ActivityResultLauncher<Array<String>> =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            var granted: Boolean = true
+            permissions.entries.forEach {
+                if (!it.value) {
+                    granted = false
+                }
+            }
+            if (granted) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    backgroundLocationPermission(222)
+                } else {
+                   // Location Update
+                }
+            } else {
+                Toast.makeText(this, "서비스를 사용하시려면 위치 추적이 허용되어야 합니다.,", Toast.LENGTH_LONG)
+                    .show()
+            }
+        }
+
+</code>
+</pre>
+- Android 11 이상
+
+위치 권한 먼저 받은 후, 백그라운드 권한 허용
+
+<img src = "https://user-images.githubusercontent.com/95750706/191770021-9759e4d2-b8e1-4188-970d-e8b8d8274ee7.png" width = 300>   <img src = "https://user-images.githubusercontent.com/95750706/191773316-04f348fc-575f-4bd0-a857-7de4890df316.png" width = 300> <img src = "https://user-images.githubusercontent.com/95750706/191772560-c5bb92c5-9c75-4029-a0aa-c58614cd1d62.png" width = 300>
+
+
+- Android 10 이하
+
+
+<img src = "https://user-images.githubusercontent.com/95750706/191771999-7b8b5910-9263-400a-b319-02f6084067fd.png" width = 300>  <img src = "https://user-images.githubusercontent.com/95750706/191773316-04f348fc-575f-4bd0-a857-7de4890df316.png" width = 300> <img src = "https://user-images.githubusercontent.com/95750706/191772560-c5bb92c5-9c75-4029-a0aa-c58614cd1d62.png" width = 300>
+
+
+- Android 9 이하
+
+<img src = "https://user-images.githubusercontent.com/95750706/191874343-a3fad7b2-1b31-48c8-9f49-655f5aab7c4e.png" width = 300>
+
+프로젝트를 마치며..
+ : 평소 Git에 대한 경험이 많이 없어서 많이 헤메었지만, 이번 팀 원을 만나 체계적인 협업을 같이 해보았던 것이 정말 큰 경험이 되었습니다.
+   프로젝트를 진행하며 많이 미숙한 부분에 대해서, 팀원들이 다독여주고 화면 공유를 통해 차분이 알려주며 저를 이끌어 준 것에 고맙고, 덕분에 많은 경험이 쌓였습니다.
 ## 황준성
+
+- 맡은 부분
+    - History 보기 기능
+-  기여한 점
+    - Dialog 생성
+    - RoomDB 생성
+    - ViewModel,Repository,Factory 기능 적용
+-  아쉬운 점
+    - MVVM,AAC 패턴을 제대로 구현하지 못한것 같아 아쉽습니다.
+    ViewModel 과 Repository,Factory등에 대한 이해가 부족해서
+    다음 과제에는 좀 더 학습후에 진행하고 싶습니다.
 
 저는 과제의 기능중에서 히스토리를 맡았습니다.
 
