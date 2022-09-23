@@ -78,6 +78,175 @@ private fun convertLocationToAddress(latitude: Double, longitude: Double): Strin
 <br>
 
 ## 김영진
+### 1) History 저장 구현 (Feat. WorkManager)
+
+[[FEAT] History 저장 구현 #3](https://github.com/Wanted-Pre-Onboarding-Android-Team-3/android-wanted-LocationHistoryApp/issues/3)
+- 백그라운드, 포그라운드 모두에서 일정 기간동안, 반복되는 Work를 수행하기 위해 Jepack WorkManager를 사용하였습니다.
+- SaveHistoryWorker
+  - LocationUtil.getCurrentLocation() 함수로 location 받기
+  - location이 없다면 retry 반환하여 설정한 재시도 정책에 따라 10초 후 Worker 재실행
+  - location이 있다면 saveHistory 함수에서 room에 insert History (미구현)
+```kotlin
+class SaveHistoryWorker(tempContext: Context, params: WorkerParameters) :
+    Worker(tempContext, params) {
+
+    private val context: Context by lazy {
+        tempContext
+    }
+
+    override fun doWork(): Result {
+        LocationUtil.setCurrentLocation(context)
+
+        return when (val currentLocation: Location? = LocationUtil.getCurrentLocation()) {
+            null -> Result.retry()
+            else -> {
+                saveHistory(currentLocation)
+                Result.success()
+            }
+        }
+    }
+
+    private fun saveHistory(currentLocation: Location?) {
+        currentLocation?.let {
+            Timber.d("$it")
+            /*todo
+           * room saveHistory
+           * */
+        }
+    }
+
+}
+```
+- WorkManagerUtil
+  - MainActivity 코드가 비대해져 WorkManagerUtil로 분리하여 가독성을 높임
+  - WorkRequest 생성, WorkManager 생성, Work 관리
+```kotlin
+class WorkMangerUtil(context: Context) {
+
+    private val workManager: WorkManager by lazy { WorkManager.getInstance(context) }
+    private val constraint: Constraints by lazy {
+        Constraints.Builder()
+            .setRequiresBatteryNotLow(true)
+            .setRequiresStorageNotLow(true)
+            .build()
+    }
+
+    private fun getSaveHistoryWorkRequest(): PeriodicWorkRequest =
+        PeriodicWorkRequestBuilder<SaveHistoryWorker>(
+            PreferencesUtil.getSaveHistoryPeriod().toLong() + 5L,// period + 5 - FLEX TIME(5) 부터 work 시작
+            TimeUnit.MINUTES
+        )
+            .setConstraints(constraint) // 작업을 재시도 할경우에 대한 정책
+            .addTag(Constants.WORK_SAVE_HISTORY)
+            .setBackoffCriteria( // 최소 시간(10초)으로 Retry
+                BackoffPolicy.LINEAR,
+                PeriodicWorkRequest.MIN_BACKOFF_MILLIS,
+                TimeUnit.MILLISECONDS
+            )
+            .build()
+
+    fun startSaveHistoryWork() {
+
+        val saveHistoryWorkRequest: PeriodicWorkRequest = getSaveHistoryWorkRequest()
+
+        workManager.enqueueUniquePeriodicWork(
+            Constants.WORK_SAVE_HISTORY,
+            ExistingPeriodicWorkPolicy.REPLACE, //동일한 이름의 Work Replace
+            saveHistoryWorkRequest
+        )
+    }
+}
+```
+
+- MainActivity
+  - onCreate()에서 SaveHistoryWorker 시작 -> 위치 권환 확인 이후 SaveHistoryWorker 시작으로 변경 예정 
+  - History 저장 기간 변경되는 경우 SaveHistoryWorker 시작
+```kotlin
+    private val workManagerUtil: WorkMangerUtil by lazy { WorkMangerUtil(this) }
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
+        workManagerUtil.startSaveHistoryWork()
+    }
+    
+    private fun registerOnSharedPreferenceChangeListener() {
+        PreferencesUtil.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+    }
+    
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        key?.let {
+            if (it == SAVE_HISTORY_PERIOD_KEY) {
+                workManagerUtil.startSaveHistoryWork()
+                Timber.d("abcabc: ${PreferencesUtil.getSaveHistoryPeriod()}")
+            }
+        }
+    }
+```
+
+### 2) History 저장 구현 (Feat. WorkManager)
+[[FEAT] 설정 Dialog 구현 #15](https://github.com/Wanted-Pre-Onboarding-Android-Team-3/android-wanted-LocationHistoryApp/issues/15) <br>
+<img src = "https://user-images.githubusercontent.com/66052467/191706493-b64f8f54-b808-44e1-acf1-3b173d3fa2a7.gif" width = 300>
+- 저장 간격 15분 ~ 60분
+  - default 값 15분 
+- validation Check 구현
+
+- PreferencesUtil
+  - 저장 간격을 위한 PreferencesUtil
+  - MainActivity 코드가 비대해져 PreferencesUtil로 분리하여 가독성을 높임
+  
+```kotlin
+object PreferencesUtil {
+
+    lateinit var sharedPreferences: SharedPreferences
+
+    //saveHistoryPeriod 초기값 15
+    fun initSharedPreferences(context: Context) {
+        sharedPreferences = context.getSharedPreferences(
+            Constants.SHARED_PREFERENCES,
+            Application.MODE_PRIVATE
+        )
+        val initSaveHistoryPeriod: Int = sharedPreferences.getInt(SAVE_HISTORY_PERIOD_KEY, 0)
+        if (initSaveHistoryPeriod == 0) {
+            sharedPreferences.edit().apply {
+                putInt(SAVE_HISTORY_PERIOD_KEY, Constants.SAVE_HISTORY_PERIOD_MIN)
+                apply()
+            }
+        }
+    }
+
+    fun setSaveHistoryPeriod(period: Int) {
+        sharedPreferences.edit().apply {
+            putInt(SAVE_HISTORY_PERIOD_KEY, period)
+            apply()
+        }
+    }
+
+    fun getSaveHistoryPeriod(): Int = sharedPreferences.getInt(
+        SAVE_HISTORY_PERIOD_KEY,
+        WORK_REPEAT_INTERVAL_DEFAULT
+    )
+
+}
+```
+
+#### AnimationUtil
+- 저장 간격 Validation Check에 사용되는 Animation
+```kotlin
+object AnimationUtil {
+    fun shakeAnimation(context: Context): Animation = AnimationUtils.loadAnimation(context, R.anim.shake)
+}
+```
+
+### 회고
+Issue, Project 등의 Github 기능들을 사용하고, 협업 규칙, 코딩 컨벤션, 커밋 컨벤션을 준수하며 체계적인 협업 프로세스로 작업한 것이 가장 큰 수확이었습니다. <br>
+
+서로의 코드를 리뷰하고 설계적인 부분을 논의하며 서로 모르는 부분에 대해 도움을 요청하며 비록 기능은 미흡하지만 많이 성장할 수 있었습니다. <br>
+
+프로젝트에서 크게 신경썼던 부분은 Activity의 코드를 분리하는 것, 컨벤션을 맞추며 협업 프로세스에 익숙해지는 것이었습니다.
+
+개인적인 아쉬움은, 프로젝트 초반, WorkManager의 작업이 Main Thread에서 돌아가는 것을 확인했음에도 이에 대한 비동기 처리를 하지 않은 점, <br>
+CoroutineWork에 대해 더 알아보지 못한 점, 그리고 추가 기능으로 화면에 History 저장 기간이 타이머로 노출되는 UI를 구현하지 못한 것이 아쉬움으로 남습니다. <br>
 
 
 ## 박인아
