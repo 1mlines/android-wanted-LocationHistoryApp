@@ -131,15 +131,15 @@ setDuration은 매개변수로 시간간격을 입력받아 timer 테이블에 �
 ```kotlin
 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       alarmManager?.setExact(
-        AlarmManager.RTC_WAKEUP,
-        time * 1000 * 60,
+        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+        SystemClock.elapsedRealtime() + time * 1000 * 60,
         pendingIntent
         ) 
     } else {
         alarmManager?.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            time * 1000 * 60,
-            pendingIntent
+        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+        SystemClock.elapsedRealtime() + time * 1000 * 60,
+        pendingIntent
         )
 }
 ```
