@@ -28,7 +28,7 @@ class SaveHistoryWorker(tempContext: Context, params: WorkerParameters) :
 
     private fun saveHistory(currentLocation: Location?) {
         currentLocation?.let {
-            Timber.d("abc ${it}")
+            Timber.d("$it")
             /*todo
            * room saveHistory
            * */

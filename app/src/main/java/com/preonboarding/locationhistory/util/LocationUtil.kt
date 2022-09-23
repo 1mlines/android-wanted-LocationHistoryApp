@@ -21,7 +21,6 @@ object LocationUtil {
             LocationServices.getFusedLocationProviderClient(
                 context
             )
-        Timber.d("abcabc outer // ")
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
