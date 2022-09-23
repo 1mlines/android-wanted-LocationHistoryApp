@@ -150,6 +150,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         initMap()
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (checkPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
+            || checkPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION) ) {
+            return
+        } else {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Toast.makeText(this, "서비스를 이용하시려면 백그라운드 사용 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+            } else {
+            Toast.makeText(this, "서비스를 이용하시려면 위치 사용 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
