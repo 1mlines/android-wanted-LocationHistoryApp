@@ -17,7 +17,6 @@ import com.preonboarding.locationhistory.presentation.uistates.DurationUiStates
 import com.preonboarding.locationhistory.util.Alarm
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
 
 class TimerFragmentDialog : DialogFragment() {
     private val binding by lazy { FragmentTimerDialogBinding.inflate(layoutInflater) }

@@ -52,7 +52,4 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/main_history_btn" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!--    <include-->
-    <!--        layout="@layout/fragment_history_dialog" />-->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
