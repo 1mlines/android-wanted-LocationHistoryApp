@@ -9,12 +9,10 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
-import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -23,24 +21,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
-import com.preonboarding.locationhistory.WantedApplication.Companion.getAppContext
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MIN
 import com.preonboarding.locationhistory.data.History
-import com.preonboarding.locationhistory.data.HistoryDB
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.databinding.DialogAddressBinding
 import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
@@ -65,8 +58,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var historyBinding: DialogHistoryBinding
     private lateinit var settingDay: String
     private lateinit var adapter: HistoryDialogAdapter
-    private lateinit var db: HistoryDB
-    private lateinit var factory: HistoryDialogViewModelFactory
 
     private val viewModel by lazy {
         ViewModelProvider(this)[HistoryDialogViewModel::class.java]
@@ -160,24 +151,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             data = Uri.fromParts("package", activity.packageName, null)
         }
         ContextCompat.startActivity(activity, intent, Bundle())
-    }
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        db = HistoryDB.getDatabase(getAppContext())!!
-
-        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
-        val today = dateFormat.format(System.currentTimeMillis())
-        settingDay = today //처음 킬때는 오늘날짜 추후에 변경시에는 세팅된 날짜로
-
-        // permission Check
-        checkLocationPermission()
-
-        initMap()
-
-        bindViews()
-        registerOnSharedPreferenceChangeListener()
     }
 
     override fun onRestart() {
@@ -421,7 +394,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 DataBindingUtil.inflate(
                     LayoutInflater.from(this@MainActivity),
                     R.layout.dialog_save_history_settings,
-                    binding.root,
+                    null,
                     false
                 )
             setContentView(dialogBinding.root)
