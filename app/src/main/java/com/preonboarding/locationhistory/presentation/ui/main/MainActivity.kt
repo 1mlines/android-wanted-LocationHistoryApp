@@ -1,6 +1,7 @@
 package com.preonboarding.locationhistory.presentation.ui.main
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
@@ -9,18 +10,23 @@ import android.content.pm.PackageManager
 import android.net.*
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.animation.AnticipateInterpolator
 import android.webkit.GeolocationPermissions
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.core.animation.doOnEnd
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.snackbar.Snackbar
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.domain.model.Location
@@ -29,8 +35,11 @@ import com.preonboarding.locationhistory.presentation.base.BaseActivity
 import com.preonboarding.locationhistory.presentation.ui.setting.SettingDialog
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.Duration
+import java.time.Instant
 import javax.inject.Inject
 import kotlin.concurrent.thread
 
@@ -46,10 +55,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
     lateinit var webViewBridge: WebViewBridge
 
     private fun initData() {
-        thread(true) {
-            for (i in 1..3) {
-                Thread.sleep(1000)
-            }
+        lifecycleScope.launch {
+            delay(SPLASH_TIME_MILLIS)
             isReady = true
         }
     }
@@ -101,6 +108,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     override fun onDestroy() {
         super.onDestroy()
+        terminateNetworkCallback()
         webViewBridge.finish()
     }
 
@@ -251,13 +259,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         return result
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        terminateNetworkCallback()
-    }
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1
+        private const val SPLASH_TIME_MILLIS = 3_000L
     }
 
     override fun loadUrl(url: String) {
