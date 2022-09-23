@@ -55,6 +55,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        webViewBridge.finish()
+    }
+
     private fun initWebView() {
         binding.webView.webChromeClient = object : WebChromeClient() {
             override fun onGeolocationPermissionsShowPrompt(

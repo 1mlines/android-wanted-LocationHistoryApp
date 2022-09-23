@@ -19,7 +19,7 @@ class WebViewBridge @Inject constructor(
     private val showMsgCallback: ShowMessageCallbackInterface?
 ) {
 
-    private val superJob =
+    private var superJob =
         SupervisorJob() + mainDispatcher + CoroutineExceptionHandler { _, throwable ->
             error(throwable.stackTraceToString())
         }
@@ -53,5 +53,9 @@ class WebViewBridge @Inject constructor(
     @JavascriptInterface
     fun error(message: String) {
         showMsgCallback?.error(message)
+    }
+
+    fun finish() {
+        superJob.cancel()
     }
 }
