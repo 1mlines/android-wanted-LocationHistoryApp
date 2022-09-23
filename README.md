@@ -7,8 +7,66 @@
 # 맡은 역할
 
 ## 이재성
+### 1) Naver Map 연동 작업
+<img src = "https://user-images.githubusercontent.com/51078673/191927063-2a07a089-afae-46a6-b04d-0178d2d9c58e.jpg" width = 300>
+
+* Naver Map API를 이용한 지도 연동 작업을 진행하였습니다.
+
+* 위치 갱신 버튼을 눌렀을 때 현재 위치로 카메라와 Position이 이동됩니다.
+
+``` kotlin
+private fun trackLocationChanged() {
+    naverMap.addOnLocationChangeListener { location ->
+        naverMap.locationOverlay.run {
+            isVisible = true
+            position = LatLng(location.latitude, location.longitude)
+        }
+
+        val cameraUpdate = CameraUpdate.scrollTo(
+            LatLng(location.latitude, location.longitude)
+        )
+
+        naverMap.moveCamera(cameraUpdate)
+    }
+}
+```
+
+### 2) 도로명 주소 다이얼로그 구현
+<img src = "https://user-images.githubusercontent.com/51078673/191930308-5783f545-e1b0-43a0-876c-40518f1a88c7.jpg" width = 300>
+
+* 좌표(위치, 경도)에 따른 도로명 주소를 Geocoder API를 이용하여 구현하였습니다.
+
+``` kotlin
+private fun convertLocationToAddress(latitude: Double, longitude: Double): String {
+    val geoCoder = Geocoder(this, Locale.KOREA)
+    val address: ArrayList<Address>
+
+    var result = "결과가 없습니다."
+
+    try {
+        address = geoCoder.getFromLocation(latitude, longitude, 1) as ArrayList<Address>
+        if (address.size > 0) {
+            val currentLocationAddress = address[0].getAddressLine(0).toString()
+            result = currentLocationAddress
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+    }
+
+    return result
+}
+```
+
+### 3) 협업 규칙 선정 및 관리
+
+* 자주 사용하던 Git 브랜치 전략, Git 컨벤션, 코딩 컨벤션들을 팀원에게 소개하고, 많은 대화를 통해 협업 시 사용할 적절한 규칙들을 결정하였습니다.
+* Pull Request가 올라올 시 선정한 협업 규칙에 위배되는 코드나 코딩 스타일을 최대한 확인하며 코드리뷰를 진행하였습니다.
+
+<img src = "https://user-images.githubusercontent.com/51078673/191929693-880b2098-19b7-49de-95c1-f9a2b42c08bd.png">
+
 
 ## 김영진
+
 
 ## 박인아
 
