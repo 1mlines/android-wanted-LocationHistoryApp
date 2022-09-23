@@ -6,7 +6,6 @@ import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,10 +21,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SettingDialog : DialogFragment() {
-
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var binding: DialogSettingBinding
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,17 +69,13 @@ class SettingDialog : DialogFragment() {
             buttonSettingCancel.setOnClickListener {
                 dialog?.dismiss()
             }
-
         }
-
     }
-
 
     override fun onResume() {
         super.onResume()
         setUpDialogFragment()
     }
-
 
     private fun setUpDialogFragment() {
         val windowManager = context?.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
@@ -107,7 +100,7 @@ class SettingDialog : DialogFragment() {
             if (rect != null) {
                 val width = (rect.width() * 0.8).toInt()
                 val height = LayoutParams.WRAP_CONTENT
-                window?.setLayout(width,height)
+                window?.setLayout(width, height)
             }
         }
     }

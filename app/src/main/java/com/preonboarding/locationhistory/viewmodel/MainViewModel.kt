@@ -1,19 +1,12 @@
 package com.preonboarding.locationhistory.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 import com.preonboarding.locationhistory.Event
-import com.preonboarding.locationhistory.local.HistoryRepository
 import com.preonboarding.locationhistory.local.entity.History
 import com.preonboarding.locationhistory.local.repository.HistoryRepositoryImpl
-import com.preonboarding.locationhistory.util.distanceConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -48,20 +41,20 @@ class MainViewModel @Inject constructor(
         get() = _dialogDatePicker
 
     private val _currentAddress = MutableLiveData<String>()
-        val currentAddress: LiveData<String>
-            get() = _currentAddress
-    
+    val currentAddress: LiveData<String>
+        get() = _currentAddress
+
     private val _saveInterval = MutableLiveData<Long>(60000L)
-        val saveInterval: LiveData<Long>
-            get() = _saveInterval
+    val saveInterval: LiveData<Long>
+        get() = _saveInterval
 
     private val _showAddressDialog = MutableLiveData<Event<Unit>>()
-        val showAddressDialog: LiveData<Event<Unit>>
-            get() = _showAddressDialog
+    val showAddressDialog: LiveData<Event<Unit>>
+        get() = _showAddressDialog
 
     private val _showSettingDialog = MutableLiveData<Event<Unit>>()
-        val showSettingDialog: LiveData<Event<Unit>>
-            get() = _showSettingDialog
+    val showSettingDialog: LiveData<Event<Unit>>
+        get() = _showSettingDialog
 
     private val _defaultHistoryData = MutableLiveData<List<History>>(emptyList())
     val defaultHistoryData: LiveData<List<History>>
@@ -71,6 +64,7 @@ class MainViewModel @Inject constructor(
         _dateName.value = name
 
     }
+
     fun changeSaveInterval(minute: Long) {
         _saveInterval.value = minute
     }

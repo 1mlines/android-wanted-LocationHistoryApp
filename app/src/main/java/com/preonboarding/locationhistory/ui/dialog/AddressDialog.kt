@@ -18,12 +18,9 @@ import com.preonboarding.locationhistory.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class AddressDialog: DialogFragment() {
-
+class AddressDialog : DialogFragment() {
     private val viewModel: MainViewModel by activityViewModels()
     private lateinit var binding: DialogAddressBinding
-
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,16 +36,14 @@ class AddressDialog: DialogFragment() {
         return binding.root
     }
 
-
-
     private fun clickEvent() {
 
         binding.apply {
-            buttonAddressSubmit.setOnClickListener{
+            buttonAddressSubmit.setOnClickListener {
                 dialog?.dismiss()
             }
 
-            buttonAddressCancel.setOnClickListener{
+            buttonAddressCancel.setOnClickListener {
                 dialog?.dismiss()
             }
         }
@@ -82,7 +77,7 @@ class AddressDialog: DialogFragment() {
             if (rect != null) {
                 val width = (rect.width() * 0.8).toInt()
                 val height = WindowManager.LayoutParams.WRAP_CONTENT
-                window?.setLayout(width,height)
+                window?.setLayout(width, height)
             }
         }
     }

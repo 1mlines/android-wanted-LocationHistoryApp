@@ -9,7 +9,6 @@ import com.preonboarding.locationhistory.local.database.AppDatabase
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,18 +32,16 @@ class HistoryDaoTest {
     }
 
     @Test
-    fun historyDaoTest() {
+    suspend fun historyDaoTest() {
         val latitude = 3.3
         val longitude = 4.4
         val createdAt = "2022-09-22" //today's yyyy-mm-dd
         appDatabase.historyDao().insertHistory(latitude, longitude)
 
         var findAll = appDatabase.historyDao().findAll()
-        Log.d("findAll", findAll.toString())
         assertThat(latitude, equalTo(findAll[0].latitude))
 
         var findByCreatedAt = appDatabase.historyDao().findByCreatedAt(createdAt)
-        Log.d("findByCreatedAt", findByCreatedAt.toString())
         assertThat(latitude, equalTo(findByCreatedAt[0].latitude))
     }
 }

@@ -85,7 +85,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initBinding()
@@ -116,7 +115,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         viewModel.historyList.observe(this) {
-            setHistoryListMarker(it)
+            setHistoryListMarker(it!!)
         }
     }
 

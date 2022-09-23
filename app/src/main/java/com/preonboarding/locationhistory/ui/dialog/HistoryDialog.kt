@@ -23,7 +23,6 @@ class HistoryDialog : DialogFragment() {
     private lateinit var binding: DialogHistoryBinding
     private val mainViewModel: MainViewModel by activityViewModels()
     private val mAdapter by lazy { HistoryDialogAdapter() }
-
     private var sizeX = 0
     private var sizeY = 0
 
@@ -143,7 +142,6 @@ class HistoryDialog : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-
         val params: ViewGroup.LayoutParams? = dialog?.window?.attributes
         val deviceWidth = sizeX
         params?.width = (deviceWidth * 0.9).toInt()
