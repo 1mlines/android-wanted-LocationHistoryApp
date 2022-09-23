@@ -8,4 +8,9 @@
     <string name="networkError">셀룰러 및 와이파이를 설정해주세요.</string>
     <string name="locationErrorMsg">기능에 필요한 권한을 거부하셨습니다. 앱 설정에서 권한을 활성화 할 수 있습니다.</string>
     <string name="cancel">취소</string>
+    <string name="storage_interval">저장 간격</string>
+    <string name="minute">분</string>
+    <string name="cancel">취소</string>
+    <string name="confirm">확인</string>
+
 </resources>
