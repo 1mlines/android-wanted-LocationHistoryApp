@@ -26,6 +26,7 @@ class HistoryDialog(
     private val binding
         get() = _binding!!
 
+    private var date: String = ""
     private val historyAdapter: HistoryListAdapter by lazy {
         HistoryListAdapter(
             itemClickListener = { doOnclick(it) }
@@ -50,14 +51,22 @@ class HistoryDialog(
     }
 
     private fun initView() {
+        date = getCurrentDate()
         binding.apply {
             tvHistoryDate.apply {
                 setOnClickListener {
                     showDatePicker()
                 }
-                text = getCurrentDate()
+                text = date
             }
             rvHistoryList.adapter = historyAdapter
+            btnHistoryCancel.setOnClickListener {
+                dismiss()
+            }
+            btnHistoryCheck.setOnClickListener {
+                viewModel.getHistoryFromDate(date)
+                dismiss()
+            }
         }
     }
 
@@ -75,7 +84,7 @@ class HistoryDialog(
         val calendar = Calendar.getInstance()
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-                val date = "${year}." + formatMonth(month + 1) + ".${dayOfMonth}"
+                date = "${year}." + formatMonth(month + 1) + ".${dayOfMonth}"
                 binding.tvHistoryDate.text = date
                 viewModel.getHistoryFromDate(date)
             }

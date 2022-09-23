@@ -13,6 +13,7 @@
 
     <string name="ask_location_permission">현재 위치를 확인하시려면 위치 권한을 허용해주세요.</string>
     <string name="cancel">취소</string>
+    <string name="check">확인</string>
     <string name="go_setting">설정으로 이동</string>
     <string name="history_dialog">historyDialog</string>
     <string name="setting_dialog">settingDialog</string>
