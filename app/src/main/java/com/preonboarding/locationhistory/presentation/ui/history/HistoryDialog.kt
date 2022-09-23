@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 class HistoryDialog : BaseDialog<DialogHistoryBinding>(R.layout.dialog_history) {
 
     private val mainViewModel: MainViewModel by activityViewModels()
+    private lateinit var viewModel: HistoryViewModel
     private lateinit var adapter: HistoryAdapter
 
     override fun onCreateView(
@@ -28,6 +30,7 @@ class HistoryDialog : BaseDialog<DialogHistoryBinding>(R.layout.dialog_history) 
         savedInstanceState: Bundle?
     ): View {
         super.onCreateView(inflater, container, savedInstanceState)
+        viewModel = ViewModelProvider(requireActivity())[HistoryViewModel::class.java]
 
         return binding.root
     }
@@ -40,6 +43,10 @@ class HistoryDialog : BaseDialog<DialogHistoryBinding>(R.layout.dialog_history) 
 
         binding.cancel.setOnClickListener { dismiss() }
         binding.confirm.setOnClickListener { dismiss() }
+
+        viewModel.selectDate.observe(viewLifecycleOwner) {
+            binding.tvDate.text = it.convertTimeStampToDate()
+        }
     }
 
     private fun setAdapter() {
@@ -55,8 +62,8 @@ class HistoryDialog : BaseDialog<DialogHistoryBinding>(R.layout.dialog_history) 
     private fun showHistories() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainViewModel.locations.collect { locations ->
-                    adapter.submitList(locations)
+                mainViewModel.locations.collect {
+                    adapter.submitList(it)
                 }
             }
         }
