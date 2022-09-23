@@ -20,6 +20,7 @@
 
     <string name="ask_location_permission">현재 위치를 확인하시려면 위치 권한을 허용해주세요.</string>
     <string name="cancel">취소</string>
+    <string name="check">확인</string>
     <string name="go_setting">설정으로 이동</string>
     <string name="history_dialog">historyDialog</string>
     <string name="setting_dialog">settingDialog</string>
@@ -30,5 +31,8 @@
     <string name="failed_to_get_location">현재 위치를 받아올 수 없습니다.</string>
     <string name="location_permission_access">위치 권한이 허용되었습니다.</string>
     <string name="location_permission_denied">위치 권한이 거절되었습니다.</string>
+    <string name="no_detail_location">상세 주소를 찾을 수 없습니다.</string>
 
+    <string name="see_address">주소 보기</string>
+    <string name="address_name">장소명</string>
 </resources>

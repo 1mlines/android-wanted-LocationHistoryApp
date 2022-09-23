@@ -15,7 +15,7 @@ object SharedPreferences {
     }
 
     var setTime: String?
-        get() = prefs.getString(TIME_KEY, "10000")
+        get() = prefs.getString(TIME_KEY, "600000")
         set(value) = prefs.edit().putString(TIME_KEY, value).apply()
 
     var isFirst: Boolean

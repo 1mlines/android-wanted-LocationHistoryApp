@@ -3,8 +3,7 @@ package com.preonboarding.locationhistory.feature.history.presentation
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 
-object HistoryAdapter {
-
+object HistoryBindingAdapter {
     @JvmStatic
     @BindingAdapter("bindLocation")
     fun TextView.bindLocation(dot: Double) {
