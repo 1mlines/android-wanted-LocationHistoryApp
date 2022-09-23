@@ -202,9 +202,14 @@
 
 *WebViewBridge*
 
-![image](https://user-images.githubusercontent.com/45396949/191771614-a64ecaee-b330-4452-8aae-e08c058001cd.png)
+![image](https://user-images.githubusercontent.com/45396949/191887451-64d85b0e-4048-4fe1-a936-ba3c70bcbcd0.png)
 
--WebViewBridge를 통해 collect로부터 전달받은 history 정보를 Map에 전달합니다. 
+- Activity의 메서드를 호출해야하는 부분을 interface로 만들고 힐트로 부터 주입받도록 구현했습니다. 
+- Coroutine을 관리하기 위해 SupervisorJob과 CoroutineExceptionHandler 기능을 갖는 CoroutineContext를 만들어서 사용했습니다.
+
+![image](https://user-images.githubusercontent.com/45396949/191887478-b3233d8f-b335-437e-83e4-8d869cd7da2f.png)
+
+- WebViewBridge를 통해 collect로부터 전달받은 history 정보를 Map에 전달하며 Coroutine에서 동작하도록 만들었습니다.
 
 *JavaScriptUrlUtil*
 
