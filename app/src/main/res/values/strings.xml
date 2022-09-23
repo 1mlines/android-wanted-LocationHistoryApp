@@ -9,5 +9,18 @@
     <string name="set_time_save">저장 간격</string>
     <string name="set_time_min">분</string>
 
+    <string name="location_for_date">날짜별 위치</string>
 
+    <string name="ask_location_permission">현재 위치를 확인하시려면 위치 권한을 허용해주세요.</string>
+    <string name="cancel">취소</string>
+    <string name="go_setting">설정으로 이동</string>
+    <string name="history_dialog">historyDialog</string>
+    <string name="setting_dialog">settingDialog</string>
+
+    <string name="ask_gps_on">GPS를 켜주세요</string>
+    <string name="currentPosition">현재 위치</string>
+
+    <string name="failed_to_get_location">현재 위치를 받아올 수 없습니다.</string>
+    <string name="location_permission_access">위치 권한이 허용되었습니다.</string>
+    <string name="location_permission_denied">위치 권한이 거절되었습니다.</string>
 </resources>
