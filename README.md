@@ -358,3 +358,4 @@ AAC ViewModel 을 상속해서 메인 액티비티에서 이를 사용하게 하
 repository를 매개변수로 받아 해당 메소드 들을 호출하게 하였습니다.
 
 LiveData 변수들을 했고, AAC ViewModel 의 경우 ViewModelProvider를 이용해 초기화를 하는데 이때 매개변수를 전달하기 위해서 ViewModelFactory를 사용해 보았습니다.
+
