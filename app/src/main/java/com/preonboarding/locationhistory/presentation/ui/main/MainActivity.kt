@@ -9,9 +9,6 @@ import android.content.pm.PackageManager
 import android.net.*
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.provider.Settings
 import android.view.View
 import android.view.ViewTreeObserver
 import android.webkit.GeolocationPermissions
@@ -24,38 +21,29 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson
 import com.preonboarding.locationhistory.R
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
+import com.preonboarding.locationhistory.domain.model.Location
 import com.preonboarding.locationhistory.presentation.WebViewBridge
 import com.preonboarding.locationhistory.presentation.base.BaseActivity
 import com.preonboarding.locationhistory.presentation.ui.setting.SettingDialog
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.concurrent.thread
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
+class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
+    LoadUrlCallbackInterface, LocationCallbackInterface, ShowMessageCallbackInterface {
+
     private val viewModel: MainViewModel by viewModels()
 
     private var isReady = false
 
     @Inject
-    lateinit var gson: Gson
-
-    private val webViewBridge: WebViewBridge by lazy {
-        WebViewBridge(
-            gson = gson,
-            webView = binding.webView,
-            handler = Handler(Looper.getMainLooper()),
-            currentLocationBlock = {
-                viewModel.addLocation(it)
-            }
-        )
-    }
+    lateinit var webViewBridge: WebViewBridge
 
     private fun initData() {
         thread(true) {
@@ -111,6 +99,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        webViewBridge.finish()
+    }
+
     private fun initWebView() {
         binding.webView.webChromeClient = object : WebChromeClient() {
             override fun onGeolocationPermissionsShowPrompt(
@@ -137,8 +130,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     private fun showHistories() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.locations.collect {
-                    val locations = gson.toJson(it)
+                viewModel.locations.collect { locations ->
                     webViewBridge.showHistories(locations)
                 }
             }
@@ -266,5 +258,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1
+    }
+
+    override fun loadUrl(url: String) {
+        binding.webView.loadUrl(url)
+    }
+
+    override fun getCurrentLocation(location: Location) {
+        viewModel.addLocation(location)
+    }
+
+    override fun error(message: String) {
+        Toast.makeText(this, getString(R.string.mapError), Toast.LENGTH_SHORT).show()
+        Timber.e(message)
     }
 }

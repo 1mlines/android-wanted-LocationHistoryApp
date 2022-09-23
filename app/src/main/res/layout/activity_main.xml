@@ -23,6 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,8 +39,7 @@
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
-                android:text="@string/address"
-                />
+                android:text="@string/address" />
 
             <Button
                 android:id="@+id/historyButton"
@@ -47,8 +47,7 @@
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
-                android:text="@string/history"
-                />
+                android:text="@string/history" />
 
             <Button
                 android:id="@+id/settingButton"
