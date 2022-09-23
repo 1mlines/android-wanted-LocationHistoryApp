@@ -248,7 +248,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         settingsButton.setOnClickListener {
-            showSettingDialog()
+           // showSettingDialog()
         }
     }
 
@@ -404,6 +404,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     * settings dialog
     * */
 
+    
     private fun showSettingDialog() {
         Dialog(this).apply {
             val dialogBinding: DialogSaveHistorySettingsBinding =
