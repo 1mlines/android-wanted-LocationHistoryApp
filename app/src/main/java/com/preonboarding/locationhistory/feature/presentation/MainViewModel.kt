@@ -8,12 +8,12 @@ import com.preonboarding.locationhistory.LocationHistoryApp
 import com.preonboarding.locationhistory.data.entity.History
 import com.preonboarding.locationhistory.feature.history.domain.usecase.GetHistoryUseCase
 import com.preonboarding.locationhistory.feature.history.domain.usecase.SaveHistoryUseCase
+import com.preonboarding.locationhistory.feature.map.domain.DialogState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.daum.mf.map.api.MapPOIItem
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,12 +25,15 @@ class MainViewModel @Inject constructor(
     private val _historyFromDate = MutableStateFlow<List<History>>(emptyList())
     val historyFromDate = _historyFromDate.asStateFlow()
 
+    private val _dialogState = MutableStateFlow<DialogState>(DialogState())
+    val dialogState = _dialogState.asStateFlow()
+
+    private val _selectedMarker = MutableStateFlow<Int>(0)
+    val selectedMarker = _selectedMarker.asStateFlow()
+
     private val _setTime = MutableLiveData<String>()
     val setTime: LiveData<String>
         get() = _setTime
-
-    private val _currentMarkerList = MutableStateFlow<List<MapPOIItem>>(emptyList())
-    val currentMarkerList = _currentMarkerList.asStateFlow()
 
     init {
         getSetTime()
@@ -50,15 +53,29 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun clearMarkerList() {
-        viewModelScope.launch {
-            _currentMarkerList.value = emptyList()
-        }
-    }
-
     private fun getSetTime() {
         viewModelScope.launch {
             _setTime.value = LocationHistoryApp.prefs.setTime
+        }
+    }
+
+    fun selectMarker(markerId: Int) {
+        viewModelScope.launch {
+            _selectedMarker.update {
+                markerId
+            }
+        }
+    }
+
+    fun setDialogState(state: Boolean, tag: Int = 0) {
+        viewModelScope.launch {
+            _dialogState.update {
+                if (tag != 0) {
+                    _dialogState.value.copy(isDialogShowed = state, dialogTag = tag)
+                } else {
+                    _dialogState.value.copy(isDialogShowed = state)
+                }
+            }
         }
     }
 

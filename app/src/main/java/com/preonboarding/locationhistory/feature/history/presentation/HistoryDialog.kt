@@ -115,6 +115,7 @@ class HistoryDialog(
     }
 
     private fun doOnclick(item: History) {
-        /*viewModel.setSelectedLocation(item.latitude, item.longitude)*/
+        viewModel.setDialogState(false)
+        viewModel.selectMarker(item.id)
     }
 }
