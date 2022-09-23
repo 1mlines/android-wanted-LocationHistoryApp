@@ -10,8 +10,8 @@ interface HistoryDao {
     suspend fun insertHistory(latitude: Double, longitude: Double)
 
     @Query("SELECT DISTINCT latitude, longitude FROM history")
-    fun findAll(): List<History>
+    suspend fun findAll(): List<History>
 
     @Query("SELECT * FROM history WHERE date(created_at) = :createdAt")
-    fun findByCreatedAt(createdAt: String): List<History>
+    suspend fun findByCreatedAt(createdAt: String): List<History>
 }
