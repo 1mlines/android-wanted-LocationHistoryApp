@@ -35,7 +35,8 @@ class CurrentLocationWorker @AssistedInject constructor(
                         context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
                     val currentLocation: android.location.Location? =
-                        manager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                        manager.getLastKnownLocation(LocationManager.GPS_PROVIDER) ?:
+                        manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
                     val latitude = currentLocation?.latitude
                     val longitude = currentLocation?.longitude
