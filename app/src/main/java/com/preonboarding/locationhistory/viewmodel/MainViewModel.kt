@@ -1,19 +1,12 @@
 package com.preonboarding.locationhistory.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 import com.preonboarding.locationhistory.Event
-import com.preonboarding.locationhistory.local.HistoryRepository
 import com.preonboarding.locationhistory.local.entity.History
 import com.preonboarding.locationhistory.local.repository.HistoryRepositoryImpl
-import com.preonboarding.locationhistory.util.distanceConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,11 +20,8 @@ class MainViewModel @Inject constructor(
     val dateName: MutableLiveData<String>
         get() = _dateName
 
-    private val _historyResponse: MutableLiveData<List<History>> = MutableLiveData()
-    val historyResponse: MutableLiveData<List<History>>
-        get() = _historyResponse
 
-    private val _historyList: MutableLiveData<List<History>> = MutableLiveData()
+    private val _historyList: MutableLiveData<List<History>> = MutableLiveData(emptyList())
     val historyList: MutableLiveData<List<History>>
         get() = _historyList
 
@@ -48,29 +38,30 @@ class MainViewModel @Inject constructor(
         get() = _dialogDatePicker
 
     private val _currentAddress = MutableLiveData<String>()
-        val currentAddress: LiveData<String>
-            get() = _currentAddress
-    
+    val currentAddress: LiveData<String>
+        get() = _currentAddress
+
     private val _saveInterval = MutableLiveData<Long>(60000L)
-        val saveInterval: LiveData<Long>
-            get() = _saveInterval
+    val saveInterval: LiveData<Long>
+        get() = _saveInterval
 
     private val _showAddressDialog = MutableLiveData<Event<Unit>>()
-        val showAddressDialog: LiveData<Event<Unit>>
-            get() = _showAddressDialog
+    val showAddressDialog: LiveData<Event<Unit>>
+        get() = _showAddressDialog
 
     private val _showSettingDialog = MutableLiveData<Event<Unit>>()
-        val showSettingDialog: LiveData<Event<Unit>>
-            get() = _showSettingDialog
+    val showSettingDialog: LiveData<Event<Unit>>
+        get() = _showSettingDialog
 
     private val _defaultHistoryData = MutableLiveData<List<History>>(emptyList())
     val defaultHistoryData: LiveData<List<History>>
-        get() = _defaultHistoryData
+        get() = _defaultHistoryData // 기본
 
     fun changeDateName(name: String) {
         _dateName.value = name
-
+        findByDistanceAndCreatedAt(name)
     }
+
     fun changeSaveInterval(minute: Long) {
         _saveInterval.value = minute
     }
@@ -90,7 +81,7 @@ class MainViewModel @Inject constructor(
 
     fun findByDistanceAndCreatedAt(createdAt: String) {
         viewModelScope.launch {
-            _historyResponse.value = repository.findByDistanceAndCreatedAt(createdAt)
+            _historyList.value = repository.findByDistanceAndCreatedAt(createdAt)
         }
     }
 
@@ -107,7 +98,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun dialogConfirm() {
-        _historyList.value = _historyResponse.value
+        if (_dateName.value != null) findByDistanceAndCreatedAt(_dateName.value ?: "")
         _dialogConfirm.value = Event(Unit)
     }
 
