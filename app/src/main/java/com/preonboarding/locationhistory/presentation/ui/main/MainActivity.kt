@@ -2,14 +2,19 @@ package com.preonboarding.locationhistory.presentation.ui.main
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.*
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewTreeObserver
 import android.webkit.GeolocationPermissions
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -27,6 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
@@ -34,14 +40,52 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
 
     private val viewModel: MainViewModel by viewModels()
 
+    private var isReady = false
+
     @Inject
     lateinit var webViewBridge: WebViewBridge
 
+    private fun initData() {
+        thread(true) {
+            for (i in 1..3) {
+                Thread.sleep(1000)
+            }
+            isReady = true
+        }
+    }
+
+    private fun initSplashScreen() {
+        initData()
+
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return if (isReady) {
+                        content.viewTreeObserver.removeOnPreDrawListener(this)
+                        if (!isConnection()) {
+                            Snackbar.make(
+                                binding.root,
+                                R.string.networkError,
+                                Snackbar.LENGTH_SHORT
+                            ).show()
+                        }
+                        checkPermission()
+                        true
+                    } else {
+                        false
+                    }
+                }
+            }
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initSplashScreen()
         binding.viewModel = viewModel
 
-        checkPermission()
+        registerNetworkCallback()
 
         viewModel.currentLocationSignal.observe(this) { isCheck ->
             if (isCheck) {
@@ -135,12 +179,81 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         ) {
             checkPermission()
         } else {
-            Toast.makeText(this, getString(R.string.locationError), Toast.LENGTH_SHORT).show()
+            showRationalDialogForPermissions()
         }
+    }
+
+    private fun showRationalDialogForPermissions() {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.locationErrorMsg)
+            .setPositiveButton(R.string.setting) { _, _ ->
+                try {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                }
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }.show()
     }
 
     private fun showSettingDialog() {
         SettingDialog().show(supportFragmentManager, "SettingDialog")
+    }
+
+    private fun networkRequest() = object : ConnectivityManager.NetworkCallback() {
+        override fun onLost(network: Network) {
+            super.onLost(network)
+            Snackbar.make(binding.root, R.string.networkError, Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun registerNetworkCallback() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val connectivityManager = getSystemService(ConnectivityManager::class.java)
+            val networkRequest = NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                .build()
+
+            connectivityManager.registerNetworkCallback(
+                networkRequest, networkRequest()
+            )
+        }
+    }
+
+    private fun terminateNetworkCallback() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val connectivityManager = getSystemService(ConnectivityManager::class.java)
+            connectivityManager.unregisterNetworkCallback(networkRequest())
+        }
+    }
+
+    private fun isConnection(): Boolean {
+        var result = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val connectivityManager = getSystemService(ConnectivityManager::class.java)
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+
+            if (capabilities != null) {
+                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+                ) {
+                    result = true
+                }
+            }
+        }
+        return result
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        terminateNetworkCallback()
     }
 
     companion object {
