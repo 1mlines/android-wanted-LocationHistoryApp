@@ -17,8 +17,8 @@ object PreferencesUtil {
             Constants.SHARED_PREFERENCES,
             Application.MODE_PRIVATE
         )
-        val initSaveHistoryPeriod: Long = sharedPreferences.getLong(SAVE_HISTORY_PERIOD_KEY, 0)
-        if (initSaveHistoryPeriod == 0L) {
+        val initSaveHistoryPeriod: Int = sharedPreferences.getInt(SAVE_HISTORY_PERIOD_KEY, 0)
+        if (initSaveHistoryPeriod == 0) {
             sharedPreferences.edit().apply {
                 putInt(SAVE_HISTORY_PERIOD_KEY, Constants.SAVE_HISTORY_PERIOD_MIN)
                 apply()
@@ -28,12 +28,12 @@ object PreferencesUtil {
 
     fun setSaveHistoryPeriod(period: Int) {
         sharedPreferences.edit().apply {
-            putLong(SAVE_HISTORY_PERIOD_KEY, period.toLong())
+            putInt(SAVE_HISTORY_PERIOD_KEY, period)
             apply()
         }
     }
 
-    fun getSaveHistoryPeriod(): Long = sharedPreferences.getLong(
+    fun getSaveHistoryPeriod(): Int = sharedPreferences.getInt(
         SAVE_HISTORY_PERIOD_KEY,
         WORK_REPEAT_INTERVAL_DEFAULT
     )
