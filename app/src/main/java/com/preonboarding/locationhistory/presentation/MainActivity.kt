@@ -71,9 +71,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             if (granted) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     backgroundLocationPermission(222)
-                } else {
-                   // TODO API 10 미만일 때, 모든 권한 허용시 수행할 곳
-
                 }
             } else {
                 Toast.makeText(this, "서비스를 사용하시려면 위치 추적이 허용되어야 합니다.,", Toast.LENGTH_LONG)
@@ -109,8 +106,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun backgroundLocationPermission(backgroundLocationRequestCode: Int): Boolean {
         return if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-            // TODO API 10 이상에서 모든 ( 위치, 백그라운드 )퍼미션 허가받았을 때.
-
             true
         } else {
             AlertDialog.Builder(this)
@@ -155,25 +150,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         Timber.e("RESTART")
         initMap()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        if (checkPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
-            || checkPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION) ) {
-            // 위치 퍼미션 받았을 때.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (!checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                    Toast.makeText(this, "서비스를 이용하시려면 백그라운드 사용 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-
-                }
-            }
-            return
-        } else {
-            Toast.makeText(this, "서비스를 이용하시려면 위치 사용 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-        }
-
     }
 
     override fun onRequestPermissionsResult(
