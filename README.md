@@ -51,7 +51,15 @@
     ├── ui
     └── uistates
 ```
-  
+### DataBase
+
+| Timer Table||
+|------|---|
+|id(primary_key)|currentDuration(Int) |
+
+| Location Table||||
+|------|---|---|----|
+|id(primary_key)|latitude(Float) | longitude(Float)| date(String)|
   
 ***
 
