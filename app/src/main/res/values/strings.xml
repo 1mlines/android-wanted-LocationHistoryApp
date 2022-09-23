@@ -13,6 +13,9 @@
     <string name="set_time_cancel">취소</string>
     <string name="set_time_positive">확인</string>
 
+    <string name="splash_title">위치정보</string>
+    <string name="splash_sub_title">App</string>
+
     <string name="location_for_date">날짜별 위치</string>
 
     <string name="ask_location_permission">현재 위치를 확인하시려면 위치 권한을 허용해주세요.</string>
