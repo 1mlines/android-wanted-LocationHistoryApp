@@ -2,6 +2,7 @@ package com.preonboarding.locationhistory.presentation
 
 import android.Manifest
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
@@ -22,24 +23,33 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.WantedApplication.Companion.getAppContext
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MIN
+import com.preonboarding.locationhistory.data.History
+import com.preonboarding.locationhistory.data.HistoryDB
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.databinding.DialogAddressBinding
+import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
 import com.preonboarding.locationhistory.databinding.DialogSaveHistorySettingsBinding
 import com.preonboarding.locationhistory.util.AnimationUtil.shakeAnimation
-import com.preonboarding.locationhistory.util.LocationUtil.getCurrentLatLng
 import com.preonboarding.locationhistory.util.PreferencesUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback,
@@ -47,6 +57,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapFragment: MapFragment
     private lateinit var naverMap: NaverMap
+    private lateinit var historyBinding: DialogHistoryBinding
+    private lateinit var settingDay: String
+    private lateinit var adapter: HistoryDialogAdapter
+    private lateinit var db: HistoryDB
+    private lateinit var factory: HistoryDialogViewModelFactory
+
+    private val viewModel by lazy {
+        ViewModelProvider(this)[HistoryDialogViewModel::class.java]
+    }
 
     private val fusedLocationClient: FusedLocationProviderClient by lazy {
         LocationServices.getFusedLocationProviderClient(
@@ -136,6 +155,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        db = HistoryDB.getDatabase(getAppContext())!!
+
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
+        val today = dateFormat.format(System.currentTimeMillis())
+        settingDay = today //처음 킬때는 오늘날짜 추후에 변경시에는 세팅된 날짜로
+
         // permission Check
         checkLocationPermission()
 
@@ -194,6 +219,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         mapFragment.getMapAsync(this)
     }
 
+
     private fun bindViews() = with(binding) {
         addressButton.setOnClickListener {
             val inflater = LayoutInflater.from(this@MainActivity)
@@ -218,13 +244,90 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         historyButton.setOnClickListener {
-            // TODO
+            getHistoryDialog()
         }
 
         settingsButton.setOnClickListener {
-            showSettingDialog()
+           // showSettingDialog()
         }
     }
+
+
+
+    //히스토리 다이얼로그를 띄우고 리사이클러뷰 생성
+    private fun getHistoryDialog() {
+        historyBinding = DialogHistoryBinding.inflate(layoutInflater)
+        val historyDialog =
+            AlertDialog.Builder(this).setView(historyBinding.root).create()
+        historyDialog.setCanceledOnTouchOutside(true)
+
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
+        val today = dateFormat.format(System.currentTimeMillis())
+
+        if (settingDay == today) {
+            historyBinding.dialogDatepickerTextView.text = today
+            setHistory(today)
+
+        } else {
+            historyBinding.dialogDatepickerTextView.text = settingDay
+            setHistory(settingDay)
+
+        }
+
+        historyBinding.dialogCancelButton.setOnClickListener {
+            historyDialog.dismiss()
+        }
+
+        historyBinding.dialogConfirmButton.setOnClickListener {
+            setHistory(settingDay)
+            Toast.makeText(this, "날짜 변경 완료!", Toast.LENGTH_SHORT).show()
+            historyDialog.dismiss()
+        }
+        historyBinding.dialogDatepickerTextView.setOnClickListener {
+            val cal = Calendar.getInstance()
+            val dateSetListener =
+                DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+                    val dateString = "${year}.${month + 1}.$dayOfMonth"
+                    historyBinding.dialogDatepickerTextView.text = dateString
+                    settingDay = dateString
+                }
+            DatePickerDialog(
+                this,
+                dateSetListener,
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+        historyDialog.show()
+    }
+
+
+    //리사이클러뷰 생성
+    private fun setHistory(today: String) {
+        adapter = HistoryDialogAdapter()
+        historyBinding.dialogRecyclerView.adapter = adapter
+        viewModel.getHistory(today).observe(this) {
+            adapter.submitList(it)
+            pinMap(it)
+            // 시간 보내줄때 유형 맞는지 확인 해야함!
+        }
+    }
+
+
+    //지도에 좌표 찍기
+    private fun pinMap(historyList: List<History>) {
+        lifecycleScope.launch {
+            val load = async(Dispatchers.IO) {
+                for (i in historyList) {
+                    Timber.e(i.toString())
+                    //TODO
+                }
+            }
+            load.await()
+        }
+    }
+
 
     override fun onMapReady(naverMap: NaverMap) {
         this.naverMap = naverMap
@@ -232,9 +335,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         naverMap.locationSource = locationSource
 
-
         setMapUiSettings()
-
 
         trackLocationChanged()
     }
@@ -301,7 +402,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     /*
     * settings dialog
-    * */
+    *
+
+
+
     private fun showSettingDialog() {
         Dialog(this).apply {
             val dialogBinding: DialogSaveHistorySettingsBinding =
@@ -336,6 +440,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
     }
+*/
+
 
     private fun saveHistoryPeriodValidationCheck(period: String): Boolean {
         return try {
