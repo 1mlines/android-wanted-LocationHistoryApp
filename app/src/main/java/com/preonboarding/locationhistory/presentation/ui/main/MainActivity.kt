@@ -1,26 +1,27 @@
 package com.preonboarding.locationhistory.presentation.ui.main
 
 import android.Manifest
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.*
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.view.ViewTreeObserver
-import android.view.animation.AnticipateInterpolator
 import android.webkit.GeolocationPermissions
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.core.animation.doOnEnd
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
@@ -32,16 +33,14 @@ import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.domain.model.Location
 import com.preonboarding.locationhistory.presentation.WebViewBridge
 import com.preonboarding.locationhistory.presentation.base.BaseActivity
+import com.preonboarding.locationhistory.presentation.ui.history.HistoryDialog
 import com.preonboarding.locationhistory.presentation.ui.setting.SettingDialog
 import com.preonboarding.locationhistory.util.PermissionUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.time.Duration
-import java.time.Instant
 import javax.inject.Inject
-import kotlin.concurrent.thread
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
@@ -99,6 +98,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
                 webViewBridge.getCurrentLocation()
                 viewModel.offLocationSignal()
             }
+        }
+
+        binding.historyButton.setOnClickListener {
+            showHistoryDialog()
         }
 
         binding.settingButton.setOnClickListener {
@@ -213,6 +216,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         SettingDialog().show(supportFragmentManager, "SettingDialog")
     }
 
+    private fun showHistoryDialog() {
+        HistoryDialog().show(supportFragmentManager, "HistoryDialog")
+    }
+
     private fun networkRequest() = object : ConnectivityManager.NetworkCallback() {
         override fun onLost(network: Network) {
             super.onLost(network)
@@ -258,7 +265,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main),
         }
         return result
     }
-
 
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 1

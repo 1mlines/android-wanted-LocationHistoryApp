@@ -34,12 +34,7 @@
           </td>
           <td align="center">
               <a href="https://github.com/lsy524">                 
-                  <img alt="윤여준" src="https://avatars.githubusercontent.com/lsy524" width="80" />            
-              </a>
-          </td>
-          <td align="center">
-              <a href="https://github.com/choieuihyun">                 
-                  <img alt="choieuihyun" src="https://avatars.githubusercontent.com/choieuihyun" width="80" />            
+                  <img alt="lsy524" src="https://avatars.githubusercontent.com/lsy524" width="80" />            
               </a>
           </td>
           <td align="center">
@@ -51,7 +46,6 @@
       <tr>
           <td align="center">tjrkdgnl</td>
           <td align="center">gyurim</td>
-          <td align="center">lsy524</td>
           <td align="center">choieuihyun</td>
           <td align="center">hoyahozz</td>
       </tr>
@@ -230,6 +224,7 @@
 
 - 맡은 부분
     - 설정 다이얼로그
+    - 히스토리 다이얼로그 (미완)
 - 기여한 점
     - `BaseDialog` 구성
     - `WorkManager` 를 통해 `SharedPreferences` 에 유저가 설정한 저장 간격을 저장
@@ -323,3 +318,7 @@ class CurrentLocationWorker @AssistedInject constructor(
 - 설정 간격에 따라 내부 데이터베이스에 현 위치를 저장하는 로직입니다.
 - 안드로이드 기기에서 GPS를 통해 현 위치를 추적합니다.
 - `js`, `webView` 로 앱을 구성한만큼 `js` 의 로직으로 현 위치를 불러오고 싶었으나, 시간 상 여유가 부족하여 더 나은 로직을 발견하지 못했습니다.
+
+![History Dialog](https://user-images.githubusercontent.com/85336456/191920937-bd8633b3-3e98-448c-9555-fbf4da8a7eb5.jpeg)
+
+- 히스토리 다이얼로그에서는 내부 데이터베이스에 저장된 위치 정보를 확인할 수 있습니다. (시간 상의 이유로 날짜별 리스트 출력 미구현)
