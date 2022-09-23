@@ -2,14 +2,14 @@ package com.preonboarding.locationhistory.presentation.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.preonboarding.locationhistory.data.model.asModel
 import com.preonboarding.locationhistory.data.repository.LocationRepository
+import com.preonboarding.locationhistory.data.repository.TimerRepository
 import com.preonboarding.locationhistory.presentation.model.Location
+import com.preonboarding.locationhistory.presentation.uistates.DurationUiStates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import com.preonboarding.locationhistory.data.model.asModel
-import com.preonboarding.locationhistory.data.repository.TimerRepository
-import com.preonboarding.locationhistory.presentation.uistates.DurationUiStates
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -69,21 +69,20 @@ class MainViewModel @Inject constructor(
         val datePattern = "yyyy-MM-dd"
         _currentDate.value =
             SimpleDateFormat(datePattern, Locale.getDefault()).format(calendar.time)
-
-        Timber.tag(TAG).e("선택한 날짜 : ${_currentDate.value}")
     }
 
     // history
     fun getHistoryWithDate() {
         viewModelScope.launch {
             kotlin.runCatching {
-                locationRepository.getLocationsWithDate(date = _currentDate.value)
+                locationRepository.getLocationsWithDate(date = "%${_currentDate.value}%")
                     .collect {
                         _currentHistory.value = it.toMutableList()
+                        _localMarker.value = it
                     }
             }
                 .onSuccess {
-                    Timber.tag(TAG).e("success get history")
+                    Timber.tag(TAG).d("success get history")
                 }
                 .onFailure {
                     Timber.tag(TAG).e(it)

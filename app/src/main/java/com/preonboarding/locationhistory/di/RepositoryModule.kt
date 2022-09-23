@@ -8,6 +8,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Singleton
 
 /**
@@ -20,13 +21,25 @@ class RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideLocationRepository(locationDataSource: LocationDataSource): LocationRepository {
-        return LocationRepository(locationDataSource = locationDataSource)
+    fun provideLocationRepository(
+        locationDataSource: LocationDataSource,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): LocationRepository {
+        return LocationRepository(
+            locationDataSource = locationDataSource,
+            ioDispatcher = ioDispatcher
+        )
     }
 
     @Singleton
     @Provides
-    fun provideTimerRepository(timerDataSource: TimerDataSource): TimerRepository {
-        return TimerRepository(timerDataSource = timerDataSource)
+    fun provideTimerRepository(
+        timerDataSource: TimerDataSource,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): TimerRepository {
+        return TimerRepository(
+            timerDataSource = timerDataSource,
+            ioDispatcher = ioDispatcher
+        )
     }
 }

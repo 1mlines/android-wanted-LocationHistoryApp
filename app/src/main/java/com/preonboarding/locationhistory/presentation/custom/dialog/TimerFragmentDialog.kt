@@ -1,10 +1,5 @@
 package com.preonboarding.locationhistory.presentation.custom.dialog
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context.ALARM_SERVICE
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,13 +11,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.preonboarding.locationhistory.R
-import com.preonboarding.locationhistory.data.source.local.alarm.AlarmReceiver
 import com.preonboarding.locationhistory.databinding.FragmentTimerDialogBinding
 import com.preonboarding.locationhistory.presentation.ui.main.MainViewModel
 import com.preonboarding.locationhistory.presentation.uistates.DurationUiStates
+import com.preonboarding.locationhistory.util.Alarm
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.*
 
 class TimerFragmentDialog : DialogFragment() {
     private val binding by lazy { FragmentTimerDialogBinding.inflate(layoutInflater) }
@@ -32,7 +26,7 @@ class TimerFragmentDialog : DialogFragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         isCancelable = false
         return binding.root
@@ -74,44 +68,9 @@ class TimerFragmentDialog : DialogFragment() {
                             binding.etTimer.setText(uiStates.duration.toString())
                         }
                         is DurationUiStates.DurationSaveSuccess -> {
-                            val alarmManager =
-                                requireContext().getSystemService(ALARM_SERVICE) as? AlarmManager
-                            val intent = Intent(requireContext(), AlarmReceiver::class.java)
-                            intent.action = getString(R.string.setting_intent)
-                            val existPendingIntent = PendingIntent.getBroadcast(
-                                requireContext(),
-                                0,
-                                intent,
-                                PendingIntent.FLAG_IMMUTABLE
-                            )
-                            alarmManager?.cancel(existPendingIntent)
-
-                            val pendingIntent =
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                    PendingIntent.getBroadcast(
-                                        requireContext(),
-                                        0,
-                                        intent,
-                                        PendingIntent.FLAG_IMMUTABLE
-                                    )
-                                } else {
-                                    PendingIntent.getBroadcast(
-                                        requireContext(),
-                                        0,
-                                        intent,
-                                        PendingIntent.FLAG_UPDATE_CURRENT
-                                    )
-                                }
-
                             val time: Long = binding.etTimer.text.toString().toLong()
-
-                            alarmManager?.setRepeating(
-                                AlarmManager.RTC,
-                                System.currentTimeMillis(),
-                                time * 1000 * 60,
-                                pendingIntent
-                            )
-                            delay(3_000)
+                            Alarm.create(requireContext(), time)
+                            delay(1_000)
                             dismiss()
                         }
                     }

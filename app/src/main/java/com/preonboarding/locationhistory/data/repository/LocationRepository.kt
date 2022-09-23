@@ -4,15 +4,18 @@ import com.preonboarding.locationhistory.data.model.asModel
 import com.preonboarding.locationhistory.data.source.local.datasource.LocationDataSource
 import com.preonboarding.locationhistory.data.source.local.entity.LocationEntity
 import com.preonboarding.locationhistory.presentation.model.Location
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 /**
  * @Created by 김현국 2022/09/19
  */
 class LocationRepository @Inject constructor(
-    private val locationDataSource: LocationDataSource
+    private val locationDataSource: LocationDataSource,
+    private val ioDispatcher: CoroutineDispatcher
 ) {
     suspend fun saveLocation(location: LocationEntity): Long {
         return locationDataSource.saveLocation(location)
@@ -27,11 +30,13 @@ class LocationRepository @Inject constructor(
                         entity.asModel()
                     }
                 )
+            } else {
+                emit(emptyList())
             }
-        }
+        }.flowOn(ioDispatcher)
     }
 
     fun getLocations(): Flow<List<LocationEntity>> {
-        return locationDataSource.getLocations()
+        return locationDataSource.getLocations().flowOn(ioDispatcher)
     }
 }
