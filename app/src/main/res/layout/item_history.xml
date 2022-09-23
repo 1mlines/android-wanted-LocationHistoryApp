@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="30dp"
+    android:orientation="horizontal"
+    android:weightSum="8">
+
+    <TextView
+        android:id="@+id/itemNumTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/bg_dialog_border_1"
+        android:gravity="center"
+        android:text="@string/item_history_num" />
+
+    <TextView
+        android:id="@+id/itemLatitudeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:background="@drawable/bg_dialog_border_1"
+        android:gravity="center"
+        android:text="@string/item_history_latitude" />
+
+    <TextView
+        android:id="@+id/itemLongitudeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:background="@drawable/bg_dialog_border_1"
+        android:gravity="center"
+        android:text="@string/item_history_longitude" />
+
+    <TextView
+        android:id="@+id/itemDateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="3"
+        android:background="@drawable/bg_dialog_border_1"
+        android:gravity="center"
+        android:text="@string/dialog_history_date" />
+
+
+</androidx.appcompat.widget.LinearLayoutCompat>

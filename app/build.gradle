@@ -36,6 +36,14 @@ android {
         viewBinding true
         dataBinding true
     }
+
+    kotlinOptions{
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+
+
 }
 
 dependencies {
@@ -64,4 +72,13 @@ dependencies {
 
     // WorkManager
     implementation "androidx.work:work-runtime-ktx:$workManagerVersion"
+
+    // Naver Map SDK
+    implementation "com.naver.maps:map-sdk:$naverMapVersion"
+
+    // Timber
+    implementation "com.jakewharton.timber:timber:$timberVersion"
+
+    // Google Play Service
+    implementation "com.google.android.gms:play-services-location:20.0.0"
 }
