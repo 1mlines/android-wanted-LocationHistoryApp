@@ -6,12 +6,12 @@ import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -20,29 +20,27 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.location.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
-import com.preonboarding.locationhistory.common.Constants
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
-import com.preonboarding.locationhistory.common.Constants.WORK_REPEAT_INTERVAL
-import com.preonboarding.locationhistory.common.Constants.WORK_SAVE_HISTORY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MIN
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
+import com.preonboarding.locationhistory.databinding.DialogAddressBinding
 import com.preonboarding.locationhistory.databinding.DialogSaveHistorySettingsBinding
 import com.preonboarding.locationhistory.util.AnimationUtil.shakeAnimation
 import com.preonboarding.locationhistory.util.LocationUtil.getCurrentLatLng
 import com.preonboarding.locationhistory.util.PreferencesUtil
 import timber.log.Timber
-import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import java.io.IOException
+import java.util.*
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     SharedPreferences.OnSharedPreferenceChangeListener {
@@ -130,32 +128,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
     }
 
-    private fun openSettings() {
-        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            data = Uri.fromParts("package", packageName, null)
-        }.run(::startActivity)
-    }
-    private val workManager: WorkManager by lazy { WorkManager.getInstance(this) }
-    private val constraint: Constraints by lazy {
-        Constraints.Builder()
-            .setRequiresBatteryNotLow(true)
-            .setRequiresStorageNotLow(true)
-            .build()
-    }
-    private val saveHistoryWorkRequest: PeriodicWorkRequest =
-        PeriodicWorkRequestBuilder<SaveHistoryWorker>(
-            WORK_REPEAT_INTERVAL,// 15분 반복
-            TimeUnit.MINUTES
-        )
-            .setConstraints(constraint) // 작업을 재시도 할경우에 대한 정책
-            .addTag(WORK_SAVE_HISTORY)
-            .setBackoffCriteria( // 최소 시간(10초)으로 Retry
-                BackoffPolicy.LINEAR,
-                PeriodicWorkRequest.MIN_BACKOFF_MILLIS,
-                TimeUnit.MILLISECONDS
-            )
-            .build()
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -171,19 +143,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         bindViews()
         registerOnSharedPreferenceChangeListener()
-        startSaveHistoryWork()
-    }
-
-    private fun startSaveHistoryWork() {
-
-        workManager.enqueueUniquePeriodicWork(
-            WORK_SAVE_HISTORY,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            saveHistoryWorkRequest
-        )
-        workManager.getWorkInfoByIdLiveData(saveHistoryWorkRequest.id).observe(this) {
-            Timber.d(TAG, "startSaveHistoryWork: ${it.state}")
-        }
     }
 
     override fun onRestart() {
@@ -222,7 +181,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private fun bindViews() = with(binding) {
         addressButton.setOnClickListener {
-            // TODO
+            val inflater = LayoutInflater.from(this@MainActivity)
+            val binding = DialogAddressBinding.inflate(inflater, null, false)
+
+            val builder = AlertDialog.Builder(this@MainActivity)
+            builder.setView(binding.root)
+
+            val address = convertLocationToAddress(37.336631394791, 127.08717133355)
+            val dialog = builder.create()
+
+            binding.addressTextView.text = address
+
+            binding.negativeTextButton.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            binding.positiveTextButton.setOnClickListener {
+                dialog.dismiss()
+            }
+            dialog.show()
         }
 
         historyButton.setOnClickListener {
@@ -243,7 +220,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         setMapUiSettings()
 
-        getCurrentLatLng(this, fusedLocationClient)
 
         trackLocationChanged()
     }
@@ -272,10 +248,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
     }
 
+    private fun convertLocationToAddress(latitude: Double, longitude: Double): String {
+        val geoCoder = Geocoder(this, Locale.KOREA)
+        val address: ArrayList<Address>
 
-    override fun onDestroy() {
-        workManager.cancelUniqueWork(WORK_SAVE_HISTORY)
-        super.onDestroy()
+        var result = "결과가 없습니다."
+
+        try {
+            address = geoCoder.getFromLocation(latitude, longitude, 1) as ArrayList<Address>
+            if (address.size > 0) {
+                val currentLocationAddress = address[0].getAddressLine(0).toString()
+                result = currentLocationAddress
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+
+        return result
     }
 
     /*
