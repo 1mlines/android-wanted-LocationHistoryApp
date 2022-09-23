@@ -1,6 +1,5 @@
 package com.preonboarding.locationhistory.feature.presentation
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -47,11 +46,7 @@ class MainViewModel @Inject constructor(
 
     fun saveHistory(date: Long, latitude: Double, longitude: Double) {
         viewModelScope.launch {
-            runCatching {
-                saveHistoryUseCase(date, latitude, longitude)
-            }.onFailure {
-                Log.e("saveHistory", "$it")
-            }
+            saveHistoryUseCase(date, latitude, longitude)
         }
     }
 

@@ -1,8 +1,10 @@
 package com.preonboarding.locationhistory.data.entity
 
+import android.content.res.Resources
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.preonboarding.locationhistory.R
 import kotlinx.parcelize.Parcelize
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
@@ -29,7 +31,7 @@ fun List<History>.toMapItem(): List<MapPOIItem> {
     return this.map {
         val position = MapPoint.mapPointWithGeoCoord(it.latitude, it.longitude)
         MapPOIItem().apply {
-            itemName = "날짜별 위치"
+            itemName = Resources.getSystem().getString(R.string.location_for_date)
             mapPoint = position
             markerType = MapPOIItem.MarkerType.BluePin
             selectedMarkerType = MapPOIItem.MarkerType.RedPin

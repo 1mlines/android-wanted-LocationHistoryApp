@@ -17,9 +17,7 @@ class SetTimeDialog : DialogFragment() {
         savedInstanceState: Bundle?,
     ): View? {
         binding = DialogSetTimeBinding.inflate(inflater, container, false)
-
         initView()
-
         return binding.root
     }
 

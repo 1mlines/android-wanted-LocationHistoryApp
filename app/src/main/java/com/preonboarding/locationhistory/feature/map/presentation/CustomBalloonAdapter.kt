@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.feature.presentation.ADDRESS
+import com.preonboarding.locationhistory.feature.presentation.MAX_RESULT
 import com.preonboarding.locationhistory.feature.presentation.MainViewModel
 import net.daum.mf.map.api.CalloutBalloonAdapter
 import net.daum.mf.map.api.MapPOIItem
@@ -34,8 +36,10 @@ class CustomBalloonAdapter(
 
     private fun getDetailAddress(uLatitude: Double, uLongitude: Double): String {
         val geocoder = Geocoder(context)
-        val convertAddress =
-            geocoder.getFromLocation(uLatitude, uLongitude, 1).get(0).getAddressLine(0)
+        val convertAddress = geocoder
+            .getFromLocation(uLatitude, uLongitude, MAX_RESULT)
+            .get(ADDRESS)
+            .getAddressLine(ADDRESS)
         return convertAddress.toString()
     }
 }
