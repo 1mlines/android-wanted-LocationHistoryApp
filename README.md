@@ -34,12 +34,7 @@
           </td>
           <td align="center">
               <a href="https://github.com/lsy524">                 
-                  <img alt="윤여준" src="https://avatars.githubusercontent.com/lsy524" width="80" />            
-              </a>
-          </td>
-          <td align="center">
-              <a href="https://github.com/choieuihyun">                 
-                  <img alt="choieuihyun" src="https://avatars.githubusercontent.com/choieuihyun" width="80" />            
+                  <img alt="lsy524" src="https://avatars.githubusercontent.com/lsy524" width="80" />            
               </a>
           </td>
           <td align="center">
@@ -51,7 +46,6 @@
       <tr>
           <td align="center">tjrkdgnl</td>
           <td align="center">gyurim</td>
-          <td align="center">lsy524</td>
           <td align="center">choieuihyun</td>
           <td align="center">hoyahozz</td>
       </tr>
