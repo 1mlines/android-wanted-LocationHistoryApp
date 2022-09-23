@@ -19,46 +19,34 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_address"
-            style="@style/ButtonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/main_color"
             android:text="@string/address"
+            style="@style/ButtonText"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_history"
-            style="@style/ButtonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/main_color"
             android:text="@string/history"
+            style="@style/ButtonText"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_setting"
-            style="@style/ButtonText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/main_color"
             android:text="@string/set_time"
+            style="@style/ButtonText"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
-
-        <!--<androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/btn_reload"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="20dp"
-            android:background="@color/black"
-            android:src="@drawable/autorenew_24"
-            app:layout_constraintBottom_toTopOf="@id/btn_setting"
-            app:layout_constraintEnd_toEndOf="parent" />-->
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
