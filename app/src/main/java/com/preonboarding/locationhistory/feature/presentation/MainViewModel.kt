@@ -10,9 +10,7 @@ import com.preonboarding.locationhistory.feature.history.domain.usecase.GetHisto
 import com.preonboarding.locationhistory.feature.history.domain.usecase.SaveHistoryUseCase
 import com.preonboarding.locationhistory.feature.map.domain.DialogState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,8 +26,8 @@ class MainViewModel @Inject constructor(
     private val _dialogState = MutableStateFlow<DialogState>(DialogState())
     val dialogState = _dialogState.asStateFlow()
 
-    private val _selectedMarker = MutableStateFlow<Int>(0)
-    val selectedMarker = _selectedMarker.asStateFlow()
+    private val _selectedMarker = MutableSharedFlow<Int>()
+    val selectedMarker = _selectedMarker.asSharedFlow()
 
     private val _setTime = MutableLiveData<String>()
     val setTime: LiveData<String>
@@ -61,9 +59,7 @@ class MainViewModel @Inject constructor(
 
     fun selectMarker(markerId: Int) {
         viewModelScope.launch {
-            _selectedMarker.update {
-                markerId
-            }
+            _selectedMarker.emit(markerId)
         }
     }
 

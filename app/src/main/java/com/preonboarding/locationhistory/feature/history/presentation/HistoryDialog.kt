@@ -64,7 +64,6 @@ class HistoryDialog(
                 dismiss()
             }
             btnHistoryCheck.setOnClickListener {
-                viewModel.getHistoryFromDate(date)
                 dismiss()
             }
         }

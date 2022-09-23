@@ -73,9 +73,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         balloonAdapter = CustomBalloonAdapter(layoutInflater, mainViewModel, this)
         binding.apply {
             btnHistory.setOnClickListener {
+                historyDialog.show(
+                    supportFragmentManager,
+                    getString(R.string.history_dialog)
+                )
                 mainViewModel.setDialogState(true, HISTORY_DIALOG)
             }
             btnSetting.setOnClickListener {
+                setDialog.show(
+                    supportFragmentManager,
+                    getString(R.string.setting_dialog)
+                )
                 mainViewModel.setDialogState(true, SETTING_DIALOG)
             }
             btnAddress.setOnClickListener {
@@ -172,22 +180,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainViewModel.dialogState.collect { state ->
-                    if (state.isDialogShowed) {
-                        when (state.dialogTag) {
-                            HISTORY_DIALOG -> {
-                                historyDialog.show(
-                                    supportFragmentManager,
-                                    getString(R.string.history_dialog)
-                                )
-                            }
-                            SETTING_DIALOG -> {
-                                setDialog.show(
-                                    supportFragmentManager,
-                                    getString(R.string.setting_dialog)
-                                )
-                            }
-                        }
-                    } else {
+                    if (!state.isDialogShowed) {
                         when (state.dialogTag) {
                             HISTORY_DIALOG -> {
                                 historyDialog.dismiss()
@@ -205,12 +198,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
                 mainViewModel.selectedMarker.collectLatest { markerId ->
                     if (!mainViewModel.dialogState.value.isDialogShowed) {
                         val poiItem = binding.mapView.findPOIItemByTag(markerId)
-                        binding.mapView.selectPOIItem(poiItem, true)
+                        binding.mapView.apply {
+                            selectPOIItem(poiItem, true)
+                            currentLocationTrackingMode =
+                                MapView.CurrentLocationTrackingMode.TrackingModeOff
+                        }
                     }
                 }
             }
         }
-
     }
 
     private fun updateMarkerList(
@@ -220,7 +216,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         binding.mapView.addPOIItems(markerList.toTypedArray())
     }
 
-    // 권한 요청 후 행동
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -237,7 +232,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         }
     }
 
-    // GPS가 켜져있는지 확인
     private fun checkLocationService(): Boolean {
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -245,6 +239,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     @SuppressLint("MissingPermission")
     private fun startTracking() {
+        binding.mapView.currentLocationTrackingMode =
+            MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading
         val position = getCurrentLocation()
         if (position != Pair(0.0, 0.0)) {
             val uNowPosition = MapPoint.mapPointWithGeoCoord(position.first, position.second)
@@ -284,9 +280,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         val geocoder = Geocoder(this)
         val convertAddress = geocoder
             .getFromLocation(uLatitude, uLongitude, MAX_RESULT)
-            .get(ADDRESS)
-            .getAddressLine(ADDRESS)
-        return convertAddress.toString()
+
+        if (convertAddress.isEmpty()) {
+            return getString(R.string.no_detail_location)
+        } else {
+            return convertAddress.get(ADDRESS).getAddressLine(ADDRESS).toString()
+        }
     }
 
     private fun showToastMessage(message: String) {
