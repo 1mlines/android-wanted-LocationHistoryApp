@@ -31,7 +31,7 @@ fun List<History>.toMapItem(): List<MapPOIItem> {
     return this.map {
         val position = MapPoint.mapPointWithGeoCoord(it.latitude, it.longitude)
         MapPOIItem().apply {
-            itemName = Resources.getSystem().getString(R.string.location_for_date)
+            itemName = ""
             mapPoint = position
             markerType = MapPOIItem.MarkerType.BluePin
             selectedMarkerType = MapPOIItem.MarkerType.RedPin
