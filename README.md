@@ -324,7 +324,7 @@ boot intent가 수신되면, locationRepository에서 현재 저장된 시간 �
                 userAddress = currentAddress[0].getAddressLine(0)
             }
         } else {
-            userAddress = "gps 연결을 확인해주세요"
+            userAddress = getString(R.string.check_gps_text)
         }
         return userAddress
     }
