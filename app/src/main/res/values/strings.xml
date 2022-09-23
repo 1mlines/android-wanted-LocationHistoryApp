@@ -10,4 +10,9 @@
     <string name="minute">분</string>
     <string name="cancel">취소</string>
     <string name="confirm">확인</string>
+
+    <string name="date">날짜</string>
+    <string name="order">순번</string>
+    <string name="longitude">경도</string>
+    <string name="latitude">위도</string>
 </resources>
