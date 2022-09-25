@@ -20,12 +20,32 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        releaseWithSignedKey {
+            storeFile file("LocationHistory_keystore.jks")
+            storePassword "111111"
+            keyAlias "location_history"
+            keyPassword "111111"
+        }
+        debugWithSignedKey {
+            storeFile file("LocationHistory_keystore.jks")
+            storePassword "111111"
+            keyAlias "location_history"
+            keyPassword "111111"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseWithSignedKey
+        }
+        debug {
+            signingConfig signingConfigs.debugWithSignedKey
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -37,6 +57,7 @@ android {
         viewBinding =  true
     }
 }
+
 
 dependencies {
 
