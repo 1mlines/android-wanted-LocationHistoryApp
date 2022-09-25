@@ -15,6 +15,12 @@
 
 > 위치 정보를 표시할 수 있는 안드로이드 앱 서비스
 
+```diff
+카카오 Map Api를 사용하여 개발하였습니다. 
+
+@@ 카카오 Map Api는 에뮬레이터에서는 실행이 안되오니, 실제 디바이스에서 실행해주시면 감사하겠습니다! @@
+```
+
 ## 2. People
 
 |<img width=150 src="https://user-images.githubusercontent.com/85485290/191734529-c24986a5-3cde-423e-a834-ed2a392f86ef.png" />|<img width=150 src="https://user-images.githubusercontent.com/85485290/191734490-31b956b0-85fb-4f18-b2c1-f4212fccdd46.png" />|<img width=150 src="https://user-images.githubusercontent.com/85485290/191734505-e5be8b0d-86e7-48f1-a673-716ff00272a0.png" />|<img width=150 src="https://user-images.githubusercontent.com/85485290/191734561-ca8cd518-d774-4455-b9cf-c252317871f7.png" />|
