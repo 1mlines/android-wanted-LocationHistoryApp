@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.preonboarding.locationhistory.common.Constants
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
+import com.preonboarding.locationhistory.common.Constants.WORK_REPEAT_INTERVAL_DEFAULT
 
 object PreferencesUtil {
 
@@ -34,7 +35,7 @@ object PreferencesUtil {
 
     fun getSaveHistoryPeriod(): Int = sharedPreferences.getInt(
         SAVE_HISTORY_PERIOD_KEY,
-        0
+        WORK_REPEAT_INTERVAL_DEFAULT
     )
 
 }

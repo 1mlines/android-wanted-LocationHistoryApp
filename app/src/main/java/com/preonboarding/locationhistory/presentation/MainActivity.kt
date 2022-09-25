@@ -3,6 +3,7 @@ package com.preonboarding.locationhistory.presentation
 import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -24,23 +25,23 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import androidx.lifecycle.lifecycleScope
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
-import com.preonboarding.locationhistory.WantedApplication.Companion.getAppContext
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MIN
+import com.preonboarding.locationhistory.data.History
 import com.preonboarding.locationhistory.data.*
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.databinding.DialogAddressBinding
 import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
+import com.preonboarding.locationhistory.databinding.DialogSaveHistorySettingsBinding
 import com.preonboarding.locationhistory.util.AnimationUtil.shakeAnimation
 import com.preonboarding.locationhistory.util.PreferencesUtil
+import com.preonboarding.locationhistory.util.WorkMangerUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -54,18 +55,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private lateinit var binding: ActivityMainBinding
     private lateinit var mapFragment: MapFragment
     private lateinit var naverMap: NaverMap
+    private val workManagerUtil: WorkMangerUtil by lazy { WorkMangerUtil(this) }
     private lateinit var historyBinding: DialogHistoryBinding
     private lateinit var settingDay: String
     private lateinit var adapter: HistoryDialogAdapter
-    private lateinit var db: HistoryDB
-    private lateinit var viewModel: HistoryDialogViewModel
-    private lateinit var dao : HistoryDao
 
-    private val fusedLocationClient: FusedLocationProviderClient by lazy {
-        LocationServices.getFusedLocationProviderClient(
-            this
-        )
+    private val viewModel by lazy {
+        ViewModelProvider(this)[HistoryDialogViewModel::class.java]
     }
+    private lateinit var db: HistoryDB
+
     private val locationSource: FusedLocationSource by lazy {
         FusedLocationSource(
             this,
@@ -91,13 +90,54 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         }
 
-    fun checkLocationPermission() {
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // permission Check
+        checkLocationPermission()
+
+        initMap()
+        bindViews()
+        registerOnSharedPreferenceChangeListener()
+        workManagerUtil.startSaveHistoryWork()
+    }
+
+    private fun checkLocationPermission() {
         requestMultiplePermissions.launch(
             arrayOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
         )
+    }
+
+    // Android 11 이상 - BackgroundPermission Check
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun backgroundLocationPermission(backgroundLocationRequestCode: Int) {
+        if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+            return
+        }
+        AlertDialog.Builder(this)
+            .setTitle("백그라운드 위치 사용이 필요합니다.")
+            .setMessage("원활한 서비스 제공을 위해 위치 권한을 항상 허용으로 설정해주세요. ")
+            .setPositiveButton("확인") { _, _ ->
+                // this request will take user to Application's Setting page
+                requestPermissions(
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    backgroundLocationRequestCode
+                )
+                openAppSettings(this)
+            }
+            .setNegativeButton("취소") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+
     }
 
     private fun checkPermissionGranted(permission: String): Boolean {
@@ -107,61 +147,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun openAppSettings(activity: Activity) {
+    private fun openAppSettings(activity: Activity) {
         val intent: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             data = Uri.fromParts("package", activity.packageName, null)
         }
         ContextCompat.startActivity(activity, intent, Bundle())
-    }
-
-    // Android 11 이상 - BackgroundPermission Check
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun backgroundLocationPermission(backgroundLocationRequestCode: Int): Boolean {
-        return if (checkPermissionGranted(Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-            true
-        } else {
-            AlertDialog.Builder(this)
-                .setTitle("백그라운드 위치 사용이 필요합니다.")
-                .setMessage("원활한 서비스 제공을 위해 위치 권한을 항상 허용으로 설정해주세요. ")
-                .setPositiveButton("확인") { _, _ ->
-                    // this request will take user to Application's Setting page
-                    requestPermissions(
-                        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                        backgroundLocationRequestCode
-                    )
-                    openAppSettings(this)
-                }
-                .setNegativeButton("취소") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .create()
-                .show()
-            false
-        }
-    }
-
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        db = HistoryDB.getDatabase(getAppContext())!!
-
-        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
-        val today = dateFormat.format(System.currentTimeMillis())
-        settingDay = today //처음 킬때는 오늘날짜 추후에 변경시에는 세팅된 날짜로
-
-        // permission Check
-        checkLocationPermission()
-
-        initMap()
-
-        bindViews()
-        registerOnSharedPreferenceChangeListener()
     }
 
     override fun onRestart() {
@@ -205,11 +196,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private fun initMap() {
         Timber.e("InitMap")
-        mapFragment = supportFragmentManager.findFragmentById(R.id.naverMapFragment) as MapFragment?
-            ?: MapFragment.newInstance().also {
-                supportFragmentManager.beginTransaction()
-                    .add(R.id.naverMapFragment, it).commit()
-            }
+        mapFragment =
+            supportFragmentManager.findFragmentById(R.id.naverMapFragment) as MapFragment?
+                ?: MapFragment.newInstance().also {
+                    supportFragmentManager.beginTransaction()
+                        .add(R.id.naverMapFragment, it).commit()
+                }
 
         mapFragment.getMapAsync(this)
     }
@@ -243,7 +235,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         settingsButton.setOnClickListener {
-            // showSettingDialog()
+           // showSettingDialog()
         }
     }
 
@@ -348,6 +340,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             )
 
             naverMap.moveCamera(cameraUpdate)
+
         }
     }
 
@@ -390,25 +383,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         key?.let {
             if (it == SAVE_HISTORY_PERIOD_KEY) {
-                //TODO work 실행
-                Timber.d("period: ${PreferencesUtil.getSaveHistoryPeriod()}")
+                workManagerUtil.startSaveHistoryWork()
+                Timber.d("abcabc: ${PreferencesUtil.getSaveHistoryPeriod()}")
             }
         }
     }
 
     /*
     * settings dialog
-    *
-
-
-
+    * */
     private fun showSettingDialog() {
         Dialog(this).apply {
             val dialogBinding: DialogSaveHistorySettingsBinding =
                 DataBindingUtil.inflate(
                     LayoutInflater.from(this@MainActivity),
                     R.layout.dialog_save_history_settings,
-                    binding.root,
+                    null,
                     false
                 )
             setContentView(dialogBinding.root)
@@ -436,7 +426,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
     }
-*/
+
 
 
     private fun saveHistoryPeriodValidationCheck(period: String): Boolean {
