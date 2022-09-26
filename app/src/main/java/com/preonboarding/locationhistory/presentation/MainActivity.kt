@@ -30,6 +30,7 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.WantedApplication
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
@@ -97,6 +98,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        db = HistoryDB.getDatabase(WantedApplication.getAppContext())!!
+
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
+        val today = dateFormat.format(System.currentTimeMillis())
+        settingDay = today //처음 킬때는 오늘날짜 추후에 변경시에는 세팅된 날짜로
+
 
         // permission Check
         checkLocationPermission()
