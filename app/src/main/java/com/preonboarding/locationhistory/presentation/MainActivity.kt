@@ -24,16 +24,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.get
 import androidx.lifecycle.lifecycleScope
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.util.FusedLocationSource
 import com.preonboarding.locationhistory.R
+import com.preonboarding.locationhistory.WantedApplication
 import com.preonboarding.locationhistory.common.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_KEY
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MAX
 import com.preonboarding.locationhistory.common.Constants.SAVE_HISTORY_PERIOD_MIN
 import com.preonboarding.locationhistory.data.History
+import com.preonboarding.locationhistory.data.*
 import com.preonboarding.locationhistory.databinding.ActivityMainBinding
 import com.preonboarding.locationhistory.databinding.DialogAddressBinding
 import com.preonboarding.locationhistory.databinding.DialogHistoryBinding
@@ -62,6 +65,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private val viewModel by lazy {
         ViewModelProvider(this)[HistoryDialogViewModel::class.java]
     }
+    private lateinit var db: HistoryDB
 
     private val locationSource: FusedLocationSource by lazy {
         FusedLocationSource(
@@ -94,6 +98,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        db = HistoryDB.getDatabase(WantedApplication.getAppContext())!!
+
+        val dateFormat = SimpleDateFormat("yyyy.MM.dd")
+        val today = dateFormat.format(System.currentTimeMillis())
+        settingDay = today //처음 킬때는 오늘날짜 추후에 변경시에는 세팅된 날짜로
+
 
         // permission Check
         checkLocationPermission()
@@ -163,13 +174,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     override fun onResume() {
         super.onResume()
         if (checkPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
-            || checkPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION) ) {
+            || checkPermissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
+        ) {
             return
         } else {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 Toast.makeText(this, "서비스를 이용하시려면 백그라운드 사용 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
             } else {
-            Toast.makeText(this, "서비스를 이용하시려면 위치 사용 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "서비스를 이용하시려면 위치 사용 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -232,10 +244,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         settingsButton.setOnClickListener {
-            showSettingDialog()
+           // showSettingDialog()
         }
     }
-
 
 
     //히스토리 다이얼로그를 띄우고 리사이클러뷰 생성
@@ -291,11 +302,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun setHistory(today: String) {
         adapter = HistoryDialogAdapter()
         historyBinding.dialogRecyclerView.adapter = adapter
+        /*
         viewModel.getHistory(today).observe(this) {
             adapter.submitList(it)
             pinMap(it)
             // 시간 보내줄때 유형 맞는지 확인 해야함!
         }
+         */
     }
 
 
@@ -423,6 +436,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     }
 
+
+
     private fun saveHistoryPeriodValidationCheck(period: String): Boolean {
         return try {
             when (period.toInt()) {
@@ -442,4 +457,5 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         view.visibility = View.VISIBLE
         view.startAnimation(shakeAnimation(view.context))
     }
+
 }
